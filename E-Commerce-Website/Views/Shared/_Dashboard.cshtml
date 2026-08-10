@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - E-Commerce Website</title>
+
+    <link rel="stylesheet"
+          href="~/css/style.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- =========================================
+             SIDEBAR
+        ========================================== -->
+
+        <aside class="sidebar" id="sidebar">
+
+            <!-- Sidebar Brand -->
+
+            <div class="brand">
+
+                <span class="brand-text">
+                    Dashboard
+                </span>
+
+            </div>
+
+
+            <!-- Sidebar Navigation -->
+
+            <nav class="nav">
+
+                <!-- Home -->
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="nav-item active">
+
+                    <span class="icon"><i class="fas fa-home"></i></span>
+
+                    <span class="nav-text">
+                        Home
+                    </span>
+
+                </a>
+
+
+                <!-- Profile -->
+
+                <a href="#"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-user"></i></span>
+
+                    <span class="nav-text">
+                        Profile
+                    </span>
+
+                </a>
+
+
+                <!-- Staff -->
+
+                <a href="#"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-user-tie"></i></span>
+
+                    <span class="nav-text">
+                        Staff
+                    </span>
+
+                </a>
+
+
+                <!-- Customer -->
+
+                <a href="#"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-users"></i></span>
+
+                    <span class="nav-text">
+                        Customer
+                    </span>
+
+                </a>
+
+
+                <!-- Category -->
+
+                <a href="#"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-list"></i></span>
+
+                    <span class="nav-text">
+                        Category
+                    </span>
+
+                </a>
+
+
+                <!-- Products -->
+
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-box"></i></span>
+
+                    <span class="nav-text">
+                        Products
+                    </span>
+
+                </a>
+
+
+                <!-- Cart -->
+
+                <a asp-controller="Cart"
+                   asp-action="Index"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+
+                    <span class="nav-text">
+                        Cart
+                    </span>
+
+                </a>
+
+
+                <!-- Orders -->
+
+                <a asp-controller="Order"
+                   asp-action="Index"
+                   class="nav-item">
+
+                    <span class="icon"><i class="fas fa-receipt"></i></span>
+
+                    <span class="nav-text">
+                        Orders
+                    </span>
+
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- =========================================
+             MAIN SECTION
+        ========================================== -->
+
+        <main class="main">
+
+
+            <!-- =====================================
+                 TOP BAR
+            ====================================== -->
+
+            <header class="topbar">
+
+                <div class="topbar-left">
+
+                    <span class="topbar-title">
+                        My shopping
+                    </span>
+
+                    <button type="button"
+                            id="menuButton"
+                            class="menu-button"
+                            aria-label="Toggle Sidebar">
+
+                        ☰
+
+                    </button>
+
+                </div>
+
+
+                <div class="topbar-right">
+
+                    <div class="dropdown">
+
+                        <button class="account-button">♟</button>
+
+                        <div class="dropdown-menu">
+
+                            <a class="dropdown-item" href="#">Profile</a>
+
+                            <a class="dropdown-item"
+                               href="@Url.Action("logout","admin")">
+                                Logout
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =====================================
+                 PAGE CONTENT
+            ====================================== -->
+
+            <section class="content">
+
+                @RenderBody()
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+
+    <!-- JavaScript -->
+
+    <script src="~/js/scripts.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

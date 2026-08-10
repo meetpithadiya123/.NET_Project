@@ -1,0 +1,468 @@
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: #343a40;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+}
+
+
+/* =========================================================
+   APPLICATION
+========================================================= */
+
+.app {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+    width: 250px;
+    min-width: 250px;
+    min-height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #e1e4e8;
+    transition: width 0.25s ease, min-width 0.25s ease;
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   SIDEBAR BRAND
+========================================================= */
+
+.brand {
+    height: 60px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: #212529;
+    color: #ffffff;
+    border-top: 2px solid #6f42c1;
+    border-bottom: 1px solid #343a40;
+}
+
+
+.brand-text {
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.nav {
+    width: 100%;
+    padding: 12px 0;
+}
+
+
+/* =========================================================
+   NAVIGATION ITEM
+========================================================= */
+
+.nav-item {
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 22px;
+    color: #4d5358;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+
+    /* =========================================================
+   ICON
+========================================================= */
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+.icon {
+    width: 20px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   NAV TEXT
+========================================================= */
+
+.nav-text {
+    white-space: nowrap;
+    line-height: 1;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.nav-item:hover {
+    background: #eeeeef;
+    color: #212529;
+}
+
+
+    .nav-item:hover .icon {
+        color: #626a70;
+    }
+
+
+/* =========================================================
+   ACTIVE ITEM
+========================================================= */
+
+.nav-item.active {
+    background: #eeeeef;
+    color: #212529;
+    border-left-color: #6f42c1;
+    font-weight: 500;
+}
+
+
+    .nav-item.active .icon {
+        color: #6f42c1;
+    }
+
+
+/* =========================================================
+   MAIN AREA
+========================================================= */
+
+.main {
+    flex: 1;
+    min-width: 0;
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    background: #212529;
+    color: #ffffff;
+    border-top: 2px solid #6f42c1;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   TOP BAR LEFT
+========================================================= */
+
+.topbar-left {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+}
+
+
+/* =========================================================
+   TOP BAR TITLE
+========================================================= */
+
+.topbar-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   MENU BUTTON
+========================================================= */
+
+.menu-button {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #adb5bd;
+    font-size: 19px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+
+    .menu-button:hover {
+        background: #343a40;
+        color: #ffffff;
+    }
+
+
+/* =========================================================
+   TOP BAR RIGHT
+========================================================= */
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+}
+
+
+/* =========================================================
+   ACCOUNT BUTTON
+========================================================= */
+
+.account-button {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #adb5bd;
+    font-size: 17px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+
+    .account-button:hover {
+        background: #343a40;
+        color: #ffffff;
+    }
+
+
+/* =========================================================
+   PAGE CONTENT
+========================================================= */
+
+.content {
+    width: 100%;
+    min-height: calc(100vh - 60px);
+    padding: 0;
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   DASHBOARD HOME
+========================================================= */
+
+.dashboard-home {
+    width: 100%;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   DASHBOARD HEADING
+========================================================= */
+
+.dashboard-heading {
+    width: 100%;
+    text-align: center;
+    padding-top: 45px;
+}
+
+
+    .dashboard-heading h1 {
+        margin: 0;
+        color: #212529;
+        font-size: 28px;
+        font-weight: 500;
+        letter-spacing: 5px;
+        line-height: 1.3;
+    }
+
+
+/* =========================================================
+   SIDEBAR COLLAPSED
+========================================================= */
+
+.app.sidebar-collapsed .sidebar {
+    width: 0;
+    min-width: 0;
+    border-right: none;
+}
+
+
+/* =========================================================
+   COLLAPSED NAVIGATION
+========================================================= */
+
+.app.sidebar-collapsed .nav-item {
+    opacity: 0;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 220px;
+        min-width: 220px;
+    }
+
+    .nav-item {
+        font-size: 14px;
+    }
+
+    .dashboard-heading h1 {
+        font-size: 24px;
+        letter-spacing: 4px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 60px;
+        z-index: 1000;
+        width: 240px;
+        min-width: 240px;
+        height: calc(100vh - 60px);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.12);
+        transition: transform 0.25s ease;
+    }
+
+
+    .app.sidebar-collapsed .sidebar {
+        width: 240px;
+        min-width: 240px;
+        transform: translateX(-100%);
+        border-right: 1px solid #e1e4e8;
+    }
+
+
+    .topbar {
+        height: 60px;
+        padding: 0 15px;
+    }
+
+
+    .topbar-left {
+        gap: 16px;
+    }
+
+
+    .topbar-title {
+        font-size: 15px;
+    }
+
+
+    .dashboard-heading {
+        padding-top: 35px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+
+        .dashboard-heading h1 {
+            font-size: 21px;
+            letter-spacing: 3px;
+        }
+}
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+    .dropdown-item:hover {
+        background: #f4f4f4;
+    }
+.dashboard-title {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 32px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+}

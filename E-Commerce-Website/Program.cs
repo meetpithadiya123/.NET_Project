@@ -9,6 +9,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<Mycontext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("myconnection")));
 
+
+
+// after 10 minutes session automatically expires
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(90);
+});
+
+
+
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,13 +35,15 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseSession();
+
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=admin}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 
