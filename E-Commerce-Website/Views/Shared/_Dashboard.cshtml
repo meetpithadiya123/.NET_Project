@@ -10,8 +10,8 @@
 
     <title>@ViewData["Title"] - E-Commerce Website</title>
 
-    <link rel="stylesheet"
-          href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -21,34 +21,23 @@
 
     <div class="app">
 
-        <!-- =========================================
-             SIDEBAR
-        ========================================== -->
-
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
 
-            <!-- Sidebar Brand -->
-
             <div class="brand">
-
                 <span class="brand-text">
                     Dashboard
                 </span>
-
             </div>
-
-
-            <!-- Sidebar Navigation -->
 
             <nav class="nav">
 
-                <!-- Home -->
+                <a href="@Url.Action("Index", "Home")"
+                   class="nav-item">
 
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="nav-item active">
-
-                    <span class="icon"><i class="fas fa-home"></i></span>
+                    <span class="icon">
+                        <i class="fas fa-home"></i>
+                    </span>
 
                     <span class="nav-text">
                         Home
@@ -56,13 +45,12 @@
 
                 </a>
 
-
-                <!-- Profile -->
-
-                <a href="#"
+                <a href="@Url.Action("Profile", "Admin")"
                    class="nav-item">
 
-                    <span class="icon"><i class="fas fa-user"></i></span>
+                    <span class="icon">
+                        <i class="fas fa-user"></i>
+                    </span>
 
                     <span class="nav-text">
                         Profile
@@ -70,56 +58,33 @@
 
                 </a>
 
-
-                <!-- Staff -->
-
-                <a href="#"
-                   class="nav-item">
-
-                    <span class="icon"><i class="fas fa-user-tie"></i></span>
-
-                    <span class="nav-text">
-                        Staff
+                <a href="#" class="nav-item">
+                    <span class="icon">
+                        <i class="fas fa-user-tie"></i>
                     </span>
-
+                    <span class="nav-text">Staff</span>
                 </a>
 
-
-                <!-- Customer -->
-
-                <a href="#"
-                   class="nav-item">
-
-                    <span class="icon"><i class="fas fa-users"></i></span>
-
-                    <span class="nav-text">
-                        Customer
+                <a href="#" class="nav-item">
+                    <span class="icon">
+                        <i class="fas fa-users"></i>
                     </span>
-
+                    <span class="nav-text">Customer</span>
                 </a>
 
-
-                <!-- Category -->
-
-                <a href="#"
-                   class="nav-item">
-
-                    <span class="icon"><i class="fas fa-list"></i></span>
-
-                    <span class="nav-text">
-                        Category
+                <a href="#" class="nav-item">
+                    <span class="icon">
+                        <i class="fas fa-list"></i>
                     </span>
-
+                    <span class="nav-text">Category</span>
                 </a>
 
-
-                <!-- Products -->
-
-                <a asp-controller="Product"
-                   asp-action="Index"
+                <a href="@Url.Action("Index", "Product")"
                    class="nav-item">
 
-                    <span class="icon"><i class="fas fa-box"></i></span>
+                    <span class="icon">
+                        <i class="fas fa-box"></i>
+                    </span>
 
                     <span class="nav-text">
                         Products
@@ -127,14 +92,12 @@
 
                 </a>
 
-
-                <!-- Cart -->
-
-                <a asp-controller="Cart"
-                   asp-action="Index"
+                <a href="@Url.Action("Index", "Cart")"
                    class="nav-item">
 
-                    <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                    <span class="icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </span>
 
                     <span class="nav-text">
                         Cart
@@ -142,14 +105,12 @@
 
                 </a>
 
-
-                <!-- Orders -->
-
-                <a asp-controller="Order"
-                   asp-action="Index"
+                <a href="@Url.Action("Index", "Order")"
                    class="nav-item">
 
-                    <span class="icon"><i class="fas fa-receipt"></i></span>
+                    <span class="icon">
+                        <i class="fas fa-receipt"></i>
+                    </span>
 
                     <span class="nav-text">
                         Orders
@@ -162,17 +123,10 @@
         </aside>
 
 
-        <!-- =========================================
-             MAIN SECTION
-        ========================================== -->
-
+        <!-- MAIN -->
         <main class="main">
 
-
-            <!-- =====================================
-                 TOP BAR
-            ====================================== -->
-
+            <!-- TOPBAR -->
             <header class="topbar">
 
                 <div class="topbar-left">
@@ -183,8 +137,7 @@
 
                     <button type="button"
                             id="menuButton"
-                            class="menu-button"
-                            aria-label="Toggle Sidebar">
+                            class="menu-button">
 
                         ☰
 
@@ -197,15 +150,27 @@
 
                     <div class="dropdown">
 
-                        <button class="account-button">♟</button>
+                        <button type="button"
+                                class="account-button">
+
+                            ♟
+
+                        </button>
 
                         <div class="dropdown-menu">
 
-                            <a class="dropdown-item" href="#">Profile</a>
+                            <a class="dropdown-item"
+                               href="@Url.Action("Profile", "Admin")">
+
+                                Profile
+
+                            </a>
 
                             <a class="dropdown-item"
-                               href="@Url.Action("logout","admin")">
+                               href="@Url.Action("Logout", "Admin")">
+
                                 Logout
+
                             </a>
 
                         </div>
@@ -217,23 +182,17 @@
             </header>
 
 
-            <!-- =====================================
-                 PAGE CONTENT
-            ====================================== -->
-
+            <!-- PAGE CONTENT -->
             <section class="content">
 
                 @RenderBody()
 
             </section>
 
-
         </main>
 
     </div>
 
-
-    <!-- JavaScript -->
 
     <script src="~/js/scripts.js"></script>
 

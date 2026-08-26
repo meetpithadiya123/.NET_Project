@@ -11,7 +11,7 @@
 html,
 body {
     width: 100%;
-    min-height: 100%;
+    height: 100%;
 }
 
 body {
@@ -20,6 +20,8 @@ body {
     color: #343a40;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
+    /* Prevent the whole browser page from scrolling */
+    overflow: hidden;
 }
 
 
@@ -30,8 +32,10 @@ body {
 .app {
     display: flex;
     width: 100%;
+    height: 100vh;
     min-height: 100vh;
     background: #ffffff;
+    overflow: hidden;
 }
 
 
@@ -42,11 +46,14 @@ body {
 .sidebar {
     width: 250px;
     min-width: 250px;
-    min-height: 100vh;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     background: #f8f9fa;
     border-right: 1px solid #e1e4e8;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: width 0.25s ease, min-width 0.25s ease;
-    overflow: hidden;
 }
 
 
@@ -56,6 +63,7 @@ body {
 
 .brand {
     height: 60px;
+    min-height: 60px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -95,9 +103,9 @@ body {
     min-height: 48px;
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 0 22px;
-    color: #4d5358;
+    gap: 10px;
+    padding: 12px 15px;
+    color: #333333;
     text-decoration: none;
     font-size: 15px;
     font-weight: 400;
@@ -107,21 +115,13 @@ body {
 }
 
 
-    /* =========================================================
+/* =========================================================
    ICON
 ========================================================= */
 
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 15px;
-    text-decoration: none;
-    color: #333;
-}
-
 .icon {
     width: 20px;
+    min-width: 20px;
     text-align: center;
 }
 
@@ -145,7 +145,6 @@ body {
     color: #212529;
 }
 
-
     .nav-item:hover .icon {
         color: #626a70;
     }
@@ -162,7 +161,6 @@ body {
     font-weight: 500;
 }
 
-
     .nav-item.active .icon {
         color: #6f42c1;
     }
@@ -174,9 +172,14 @@ body {
 
 .main {
     flex: 1;
+    width: calc(100% - 250px);
     min-width: 0;
+    height: 100vh;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     background: #ffffff;
+    overflow: visible;
 }
 
 
@@ -187,6 +190,7 @@ body {
 .topbar {
     width: 100%;
     height: 60px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -195,6 +199,7 @@ body {
     color: #ffffff;
     border-top: 2px solid #6f42c1;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
 }
 
 
@@ -242,7 +247,6 @@ body {
     transition: background 0.15s ease, color 0.15s ease;
 }
 
-
     .menu-button:hover {
         background: #343a40;
         color: #ffffff;
@@ -254,8 +258,10 @@ body {
 ========================================================= */
 
 .topbar-right {
+    height: 100%;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 
@@ -279,10 +285,80 @@ body {
     transition: background 0.15s ease, color 0.15s ease;
 }
 
-
     .account-button:hover {
         background: #343a40;
         color: #ffffff;
+    }
+
+
+/* =========================================================
+   ACCOUNT DROPDOWN
+========================================================= */
+
+.dropdown {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+
+/* =========================================================
+   DROPDOWN MENU
+========================================================= */
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 165px;
+    margin: 0;
+    padding: 8px 0;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 6px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+}
+
+
+/* Keep menu open while hovering button OR menu */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+
+/* =========================================================
+   DROPDOWN ITEMS
+========================================================= */
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px 18px;
+    text-decoration: none;
+    color: #343a40;
+    background: #ffffff;
+    font-size: 15px;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+
+    .dropdown-item:hover {
+        background: #f1f1f1;
+        color: #212529;
+    }
+
+
+    /* Make sure the first/last item doesn't look strange */
+    .dropdown-item:first-child {
+        border-radius: 6px 6px 0 0;
+    }
+
+    .dropdown-item:last-child {
+        border-radius: 0 0 6px 6px;
     }
 
 
@@ -291,10 +367,14 @@ body {
 ========================================================= */
 
 .content {
+    flex: 1;
     width: 100%;
-    min-height: calc(100vh - 60px);
-    padding: 0;
+    min-width: 0;
+    min-height: 0;
+    padding: 30px;
     background: #ffffff;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 
@@ -304,7 +384,7 @@ body {
 
 .dashboard-home {
     width: 100%;
-    min-height: calc(100vh - 60px);
+    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -334,6 +414,95 @@ body {
 
 
 /* =========================================================
+   PROFILE PAGE
+========================================================= */
+
+.profile-page {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 20px 40px;
+}
+
+
+/* =========================================================
+   PROFILE TITLE
+========================================================= */
+
+.dashboard-title {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 30px 0;
+    font-size: 32px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #212529;
+}
+
+
+/* =========================================================
+   PROFILE FORM
+========================================================= */
+
+.profile-form {
+    width: 500px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+
+    /* =========================================================
+   PROFILE INPUT
+========================================================= */
+
+    .profile-form .form-control {
+        width: 100%;
+        display: block;
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background: #ffffff;
+        color: #343a40;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .profile-form .form-control:focus {
+            border-color: #6f42c1;
+            box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.12);
+        }
+
+
+    /* =========================================================
+   PROFILE SUBMIT BUTTON
+========================================================= */
+
+    .profile-form input[type="submit"],
+    .profile-form button {
+        display: inline-block;
+        padding: 10px 20px;
+        border: 1px solid #6f42c1;
+        border-radius: 4px;
+        background: #6f42c1;
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+        .profile-form input[type="submit"]:hover,
+        .profile-form button:hover {
+            background: #59339d;
+            border-color: #59339d;
+        }
+
+
+/* =========================================================
    SIDEBAR COLLAPSED
 ========================================================= */
 
@@ -344,17 +513,45 @@ body {
 }
 
 
-/* =========================================================
-   COLLAPSED NAVIGATION
-========================================================= */
-
 .app.sidebar-collapsed .nav-item {
     opacity: 0;
 }
 
 
+/* Adjust main when sidebar is collapsed */
+.app.sidebar-collapsed .main {
+    width: 100%;
+}
+
+
 /* =========================================================
-   RESPONSIVE
+   SCROLLBAR
+========================================================= */
+
+.sidebar::-webkit-scrollbar,
+.content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.content::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 10px;
+}
+
+    .sidebar::-webkit-scrollbar-thumb:hover,
+    .content::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
@@ -362,6 +559,10 @@ body {
     .sidebar {
         width: 220px;
         min-width: 220px;
+    }
+
+    .main {
+        width: calc(100% - 220px);
     }
 
     .nav-item {
@@ -372,6 +573,10 @@ body {
         font-size: 24px;
         letter-spacing: 4px;
     }
+
+    .profile-page {
+        max-width: 100%;
+    }
 }
 
 
@@ -381,6 +586,17 @@ body {
 
 @media (max-width: 700px) {
 
+    body {
+        overflow: hidden;
+    }
+
+    .app {
+        position: relative;
+        height: 100vh;
+    }
+
+
+    /* Sidebar becomes overlay */
     .sidebar {
         position: fixed;
         left: 0;
@@ -390,6 +606,7 @@ body {
         min-width: 240px;
         height: calc(100vh - 60px);
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.12);
+        transform: translateX(0);
         transition: transform 0.25s ease;
     }
 
@@ -402,8 +619,17 @@ body {
     }
 
 
+    /* Main takes entire mobile width */
+    .main {
+        width: 100%;
+        min-width: 100%;
+        height: 100vh;
+    }
+
+
     .topbar {
         height: 60px;
+        min-height: 60px;
         padding: 0 15px;
     }
 
@@ -418,6 +644,11 @@ body {
     }
 
 
+    .content {
+        padding: 20px 15px;
+    }
+
+
     .dashboard-heading {
         padding-top: 35px;
         padding-left: 15px;
@@ -429,40 +660,34 @@ body {
             font-size: 21px;
             letter-spacing: 3px;
         }
-}
-.dropdown {
-    position: relative;
-}
 
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-}
 
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
-
-.dropdown-item {
-    display: block;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #333;
-}
-
-    .dropdown-item:hover {
-        background: #f4f4f4;
+    .profile-page {
+        padding: 10px 0 30px;
     }
-.dashboard-title {
+
+
+    .dashboard-title {
+        font-size: 25px;
+        letter-spacing: 1.5px;
+        margin-bottom: 25px;
+    }
+
+
+    .profile-form {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+.success-message {
+    width: 500px;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    padding: 12px 15px;
+    background: #d1e7dd;
+    border: 1px solid #badbcc;
+    border-radius: 5px;
+    color: #0f5132;
+    font-size: 14px;
     text-align: center;
-    margin-top: 10px;
-    font-size: 32px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    font-weight: 600;
 }
