@@ -1,0 +1,61 @@
+﻿@model Customer
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="detail-card">
+            <!-- Header Banner -->
+            <div class="detail-card-header">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar-lg">
+                        @(string.IsNullOrEmpty(Model.customer_name) ? "C" : Model.customer_name.Substring(0, 1).ToUpper())
+                    </div>
+                </div>
+                <div class="profile-header-meta">
+                    <h2 class="profile-name">@Model.customer_name</h2>
+                    <span class="profile-badge">ID #@Model.customer_id</span>
+                </div>
+            </div>
+
+            <!-- Profile Info Grid -->
+            <div class="detail-card-body">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Email Address</span>
+                        <span class="detail-value">@Model.customer_email</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone Number</span>
+                        <span class="detail-value">@Model.customer_phone</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Gender</span>
+                        <span class="detail-value">@Model.customer_gender</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Country</span>
+                        <span class="detail-value">@Model.customer_country</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">City</span>
+                        <span class="detail-value">@Model.customer_city</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Full Address</span>
+                        <span class="detail-value">@Model.customer_address</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="detail-card-footer">
+                <a href="@Url.Action("fetchCustomer", "Admin")" class="btn btn-back">
+                    &larr; Back to List
+                </a>
+                <div class="footer-actions">
+                    <a href="@Url.Action("updateCustomer", "Admin", new { id = Model.customer_id })" class="btn btn-info">Edit Profile</a>
+                    <a href="@Url.Action("deleteCustomer", "Admin", new { id = Model.customer_id })" class="btn btn-warning">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

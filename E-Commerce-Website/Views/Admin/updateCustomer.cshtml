@@ -1,0 +1,65 @@
+﻿@model Customer
+
+<div class="page-container">
+    <div class="form-panel">
+        <div class="form-panel-header">
+            <h3>Edit Customer Information</h3>
+            <span class="id-badge">ID: #@Model.customer_id</span>
+        </div>
+
+        <form method="post" asp-action="updateCustomer" asp-controller="Admin" class="form-panel-body">
+            <input type="hidden" asp-for="customer_id" />
+
+            <div class="form-grid">
+                <div class="input-group-custom">
+                    <label asp-for="customer_name">Full Name</label>
+                    <input type="text" asp-for="customer_name" required placeholder="Enter full name" />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="customer_phone">Phone Number</label>
+                    <input type="text" asp-for="customer_phone" required placeholder="Enter phone number" />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="customer_email">Email Address</label>
+                    <input type="email" asp-for="customer_email" required placeholder="name@domain.com" />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="customer_password">Password</label>
+                    <input type="password" asp-for="customer_password" required />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="customer_gender">Gender</label>
+                    <select asp-for="customer_gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="customer_country">Country</label>
+                    <input type="text" asp-for="customer_country" required />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="customer_city">City</label>
+                    <input type="text" asp-for="customer_city" required />
+                </div>
+
+                <div class="input-group-custom full-width">
+                    <label asp-for="customer_address">Full Address</label>
+                    <textarea asp-for="customer_address" rows="3" required placeholder="Street, landmark, zip code..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-panel-footer">
+                <a href="@Url.Action("fetchCustomer", "Admin")" class="btn btn-cancel">&larr; Back</a>
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>

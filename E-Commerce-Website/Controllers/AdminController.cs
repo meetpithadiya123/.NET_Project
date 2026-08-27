@@ -163,9 +163,52 @@ namespace E_Commerce_Website.Controllers
             return RedirectToAction("Profile");
         }
 
+        public IActionResult fetchCustomer()
+        {
+            return View(_context.tbl_customer.ToList());
+        }
+
+        public IActionResult customerDetails(int id)
+        {
+            return View(_context.tbl_customer.FirstOrDefault(c => c.customer_id == id));
+        }
 
 
 
+        // GET: Admin/updateCustomer/5
+        [HttpGet]
+        public IActionResult updateCustomer(int id)
+        {
+            var customer = _context.tbl_customer.Find(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
+        }
+
+        // POST: Admin/updateCustomer (Handles form submission)
+        [HttpPost]
+        public IActionResult updateCustomer(Customer customer)
+        {
+            _context.tbl_customer.Update(customer);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Customer updated successfully!";
+            return RedirectToAction("fetchCustomer");
+        }
+
+
+
+        public IActionResult deleteCustomer(int id)
+        {
+            var customer = _context.tbl_customer.Find(id);
+            _context.tbl_customer.Remove(customer);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Customer deleted successfully!";
+            return RedirectToAction("fetchCustomer");
+        }
 
     }
 

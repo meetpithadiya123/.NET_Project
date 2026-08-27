@@ -691,3 +691,424 @@ body {
     font-size: 14px;
     text-align: center;
 }
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Table Header */
+thead {
+    background-color: #1e293b;
+}
+
+    thead th {
+        color: #f8fafc;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 14px;
+        text-align: left;
+        border: none;
+        white-space: nowrap;
+    }
+
+/* Table Body */
+tbody tr {
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+tbody td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: #475569;
+    vertical-align: middle;
+}
+
+    /* Keep buttons on a single row */
+    tbody td:last-child {
+        white-space: nowrap;
+        width: 1%;
+    }
+
+
+
+/* Base Button Layout */
+.btn {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-right: 4px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+/* Details Button (Deep Indigo/Blue) */
+.btn-primary {
+    background-color: #4338ca;
+    color: #ffffff;
+}
+
+    .btn-primary:hover {
+        background-color: #3730a3;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(67, 56, 202, 0.35);
+    }
+
+/* Update Button (Emerald Green) */
+.btn-info {
+    background-color: #059669;
+    color: #ffffff;
+}
+
+    .btn-info:hover {
+        background-color: #047857;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+    }
+
+/* Delete Button (Crimson Red) */
+.btn-warning {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+    .btn-warning:hover {
+        background-color: #b91c1c;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+    }
+
+
+
+
+
+/* Customer Details Profile Card */
+.detail-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.detail-card-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 28px 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-avatar-lg {
+    width: 60px;
+    height: 60px;
+    background-color: #4338ca;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-name {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.profile-badge {
+    background: rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.detail-card-body {
+    padding: 30px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px 24px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid #edf2f7;
+}
+
+.detail-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    word-break: break-word;
+}
+
+.detail-card-footer {
+    padding: 16px 30px;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-back {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+    .btn-back:hover {
+        background-color: #cbd5e1;
+        color: #1e293b;
+    }
+
+
+
+
+/* Update Customer Form Styling */
+.form-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.form-card-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-title {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.form-card-body {
+    padding: 28px 30px;
+}
+
+.form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.form-control, .form-select {
+    font-size: 0.88rem;
+    padding: 9px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #1e293b;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+        outline: none;
+    }
+
+.form-card-footer {
+    padding: 16px 30px;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+
+/* Update Customer Panel Container */
+.form-panel {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    max-width: 850px;
+    margin: 20px auto;
+    overflow: hidden;
+}
+
+/* Panel Header */
+.form-panel-header {
+    background: #0f172a;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .form-panel-header h3 {
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+.id-badge {
+    background: #334155;
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* Form Body & Grid Alignment */
+.form-panel-body {
+    padding: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.input-group-custom {
+    display: flex;
+    flex-direction: column;
+}
+
+    .input-group-custom.full-width {
+        grid-column: span 2;
+    }
+
+    /* Labels & Input Controls */
+    .input-group-custom label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 6px;
+        letter-spacing: 0.4px;
+    }
+
+    .input-group-custom input,
+    .input-group-custom select,
+    .input-group-custom textarea {
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        outline: none;
+        color: #1e293b;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .input-group-custom input:focus,
+        .input-group-custom select:focus,
+        .input-group-custom textarea:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+        }
+
+/* Form Footer Actions */
+.form-panel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 6px;
+    border: none;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+}
+
+    .btn-cancel:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+.btn-save {
+    background: #059669;
+    color: #ffffff;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .btn-save:hover {
+        background: #047857;
+    }
+
+/* Responsive adjustment for small screens */
+@media (max-width: 640px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .input-group-custom.full-width {
+        grid-column: span 1;
+    }
+}
