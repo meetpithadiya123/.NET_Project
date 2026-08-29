@@ -1,0 +1,55 @@
+﻿@model E_Commerce_Website.Models.Product
+
+<div class="page-container">
+    <div class="form-panel">
+        <div class="form-panel-header">
+            <h3>Add New Product</h3>
+            <span class="id-badge">New</span>
+        </div>
+
+        <form method="post" asp-action="addProduct" asp-controller="Admin" enctype="multipart/form-data" class="form-panel-body">
+            @Html.AntiForgeryToken()
+
+            <div class="form-grid">
+                <div class="input-group-custom">
+                    <label asp-for="product_name">Product Name</label>
+                    <input type="text" asp-for="product_name" class="form-control" required placeholder="Enter product name" />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="product_price">Price</label>
+                    <input type="number" step="0.01" asp-for="product_price" class="form-control" required placeholder="Enter price" />
+                </div>
+
+                <div class="input-group-custom">
+                    <label asp-for="cat_id">Category</label>
+                    <select asp-for="cat_id" class="form-control" required>
+                        <option value="">-- Select Category --</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var cat in ViewBag.Categories)
+                            {
+                                <option value="@cat.category_id">@cat.category_name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="input-group-custom">
+                    <label>Product Image</label>
+                    <input type="file" name="product_image" class="form-control" accept="image/*" required />
+                </div>
+
+                <div class="input-group-custom" style="grid-column: 1 / -1;">
+                    <label asp-for="product_description">Description</label>
+                    <textarea asp-for="product_description" class="form-control" rows="4" placeholder="Enter product description"></textarea>
+                </div>
+            </div>
+
+            <div class="form-panel-footer">
+                <a href="@Url.Action("fetchProduct", "Admin")" class="btn btn-cancel">&larr; Back to List</a>
+                <button type="submit" class="btn btn-save">Create Product</button>
+            </div>
+        </form>
+    </div>
+</div>

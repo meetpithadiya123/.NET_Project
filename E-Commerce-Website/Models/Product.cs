@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E_Commerce_Website.Models
 {
@@ -6,10 +7,18 @@ namespace E_Commerce_Website.Models
     {
         [Key]
         public int product_id { get; set; }
-        public String product_name { get; set; }
-        public String product_price { get; set; }
-        public String product_description { get; set; }
+
+        public string product_name { get; set; } = string.Empty;
+
+        public string product_price { get; set; } = string.Empty;
+
+        public string product_description { get; set; } = string.Empty;
+
+        public string? product_image { get; set; }
+
         public int cat_id { get; set; }
 
+        [ForeignKey("cat_id")]
+        public Category? Category { get; set; }
     }
 }

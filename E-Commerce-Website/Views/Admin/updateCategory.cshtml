@@ -1,0 +1,28 @@
+﻿@model E_Commerce_Website.Models.Category
+
+<div class="page-container">
+    <div class="form-panel">
+        <div class="form-panel-header">
+            <h3>Update / Edit Category</h3>
+            <span class="id-badge">ID: #@Model.category_id</span>
+        </div>
+
+        <form method="post" asp-action="updateCategory" asp-controller="Admin" class="form-panel-body">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="category_id" />
+
+            <div class="form-grid">
+                <div class="input-group-custom">
+                    <label asp-for="category_name">Category Name</label>
+                    <input type="text" asp-for="category_name" class="form-control" required placeholder="Enter category name" />
+                    <span asp-validation-for="category_name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-panel-footer">
+                <a href="@Url.Action("fetchCategory", "Admin")" class="btn btn-cancel">&larr; Back</a>
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>

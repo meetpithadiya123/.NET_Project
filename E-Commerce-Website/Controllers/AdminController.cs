@@ -1,15 +1,19 @@
 ﻿using E_Commerce_Website.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Website.Controllers
 {
     public class AdminController : Controller
     {
-        private readonly Mycontext _context;
 
-        public AdminController(Mycontext context)
+        private readonly Mycontext _context;
+        private readonly IWebHostEnvironment _env;
+
+        public AdminController(Mycontext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // =========================
@@ -210,7 +214,288 @@ namespace E_Commerce_Website.Controllers
             return RedirectToAction("fetchCustomer");
         }
 
+
+
+        // =========================
+        // CATEGORY CRUD
+        // =========================
+
+        [HttpGet]
+        public IActionResult fetchCategory()
+        {
+            var categories = _context.tbl_category.ToList();
+            return View(categories);
+        }
+
+        [HttpGet]
+        public IActionResult addCategory()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult addCategory(Category cat)
+        {
+            if (!string.IsNullOrWhiteSpace(cat.category_name))
+            {
+                _context.tbl_category.Add(new Category
+                {
+                    category_name = cat.category_name
+                });
+                _context.SaveChanges();
+
+                TempData["SuccessMessage"] = "Category added successfully!";
+                return RedirectToAction("fetchCategory");
+            }
+
+            ViewBag.Error = "Category Name cannot be empty";
+            return View(cat);
+        }
+
+        [HttpGet]
+        public IActionResult updateCategory(int id)
+        {
+            var category = _context.tbl_category.Find(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return View(category);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult updateCategory(Category cat)
+        {
+            var existingCategory = _context.tbl_category.Find(cat.category_id);
+            if (existingCategory == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.IsNullOrWhiteSpace(cat.category_name))
+            {
+                existingCategory.category_name = cat.category_name;
+                _context.SaveChanges();
+
+                TempData["SuccessMessage"] = "Category updated successfully!";
+                return RedirectToAction("fetchCategory");
+            }
+
+            ViewBag.Error = "Category Name cannot be empty";
+            return View(cat);
+        }
+
+        [HttpGet]
+        public IActionResult deleteCategory(int id)
+        {
+            var category = _context.tbl_category.Find(id);
+            if (category != null)
+            {
+                try
+                {
+                    _context.tbl_category.Remove(category);
+                    _context.SaveChanges();
+                    TempData["SuccessMessage"] = "Category deleted successfully!";
+                }
+                catch (Exception)
+                {
+                    // Triggered if products in tbl_product reference this category_id (Foreign Key constraint)
+                    TempData["ErrorMessage"] = "Cannot delete: products are linked to this category!";
+                }
+            }
+
+            return RedirectToAction("fetchCategory");
+        }
+
+
+
+
+        // =========================
+        // FETCH PRODUCT
+        // =========================
+        [HttpGet]
+        public IActionResult fetchProduct()
+        {
+            // Includes Category data to display category name instead of raw cat_id
+            var products = _context.tbl_product.Include(p => p.Category).ToList();
+            return View(products);
+        }
+
+        // =========================
+        // ADD PRODUCT - GET
+        // =========================
+        [HttpGet]
+        public IActionResult addProduct()
+        {
+            // Pass categories to the view for dropdown list
+            ViewBag.Categories = _context.tbl_category.ToList();
+            return View();
+        }
+
+        // =========================
+        // ADD PRODUCT - POST
+        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult addProduct(Product prod, IFormFile? product_image)
+        {
+            if (product_image != null && product_image.Length > 0)
+            {
+                // Generate a unique file name using GUID to avoid name collisions
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(product_image.FileName);
+
+                // Define the destination path in wwwroot/product_images
+                string folderPath = Path.Combine(_env.WebRootPath, "product_images");
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string filePath = Path.Combine(folderPath, uniqueFileName);
+
+                // Save image file to wwwroot/product_images
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    product_image.CopyTo(fileStream);
+                }
+
+                // Store the filename into the database model
+                prod.product_image = uniqueFileName;
+            }
+
+            _context.tbl_product.Add(prod);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Product added successfully!";
+            return RedirectToAction("fetchProduct");
+        }
+
+
+
+
+        // =========================
+        // PRODUCT - DETAILS
+        // =========================
+        [HttpGet]
+        public IActionResult productDetails(int id)
+        {
+            var product = _context.tbl_product
+                .Include(p => p.Category)
+                .FirstOrDefault(p => p.product_id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        }
+
+        // =========================
+        // PRODUCT - UPDATE (GET)
+        // =========================
+        [HttpGet]
+        public IActionResult updateProduct(int id)
+        {
+            var product = _context.tbl_product.Find(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Categories = _context.tbl_category.ToList();
+            return View(product);
+        }
+
+        // =========================
+        // PRODUCT - UPDATE (POST)
+        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult updateProduct(Product prod, IFormFile? product_image)
+        {
+            var existingProduct = _context.tbl_product.Find(prod.product_id);
+            if (existingProduct == null)
+            {
+                return NotFound();
+            }
+
+            // Handle new image upload if provided
+            if (product_image != null && product_image.Length > 0)
+            {
+                string uploadFolder = Path.Combine(_env.WebRootPath, "product_images");
+
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+
+                // Delete old image if it exists
+                if (!string.IsNullOrEmpty(existingProduct.product_image))
+                {
+                    string oldPath = Path.Combine(uploadFolder, existingProduct.product_image);
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        System.IO.File.Delete(oldPath);
+                    }
+                }
+
+                // Save new image
+                string newFileName = Guid.NewGuid().ToString() + Path.GetExtension(product_image.FileName);
+                string newPath = Path.Combine(uploadFolder, newFileName);
+
+                using (var stream = new FileStream(newPath, FileMode.Create))
+                {
+                    product_image.CopyTo(stream);
+                }
+
+                existingProduct.product_image = newFileName;
+            }
+
+            // Update product fields
+            existingProduct.product_name = prod.product_name;
+            existingProduct.product_price = prod.product_price;
+            existingProduct.product_description = prod.product_description;
+            existingProduct.cat_id = prod.cat_id;
+
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Product updated successfully!";
+            return RedirectToAction("fetchProduct");
+        }
+
+        // =========================
+        // PRODUCT - DELETE
+        // =========================
+        [HttpGet]
+        public IActionResult deleteProduct(int id)
+        {
+            var product = _context.tbl_product.Find(id);
+            if (product != null)
+            {
+                // Delete image file from wwwroot/product_images if exists
+                if (!string.IsNullOrEmpty(product.product_image))
+                {
+                    string imagePath = Path.Combine(_env.WebRootPath, "product_images", product.product_image);
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+
+                _context.tbl_product.Remove(product);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "Product deleted successfully!";
+            }
+
+            return RedirectToAction("fetchProduct");
+        }
+
     }
 
-        
+
 }

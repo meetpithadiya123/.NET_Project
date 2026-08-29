@@ -1,0 +1,57 @@
+﻿@model List<E_Commerce_Website.Models.Category>
+
+<h1 class="dashboard-title">All Category</h1>
+<div class="row">
+    <div class="col-md-12">
+        <a href="@Url.Action("addCategory", "Admin")" class="btn btn-primary" style="margin-bottom: 15px; display: inline-block;">Add new Category</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Category Id</th>
+                    <th>Category Name</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td>@cat.category_id</td>
+                            <td>@cat.category_name</td>
+                            <td>
+                                <a href="@Url.Action("updateCategory", "Admin", new { id = cat.category_id })"
+                                   class="btn btn-warning">Update</a>
+                                <a href="@Url.Action("deleteCategory", "Admin", new { id = cat.category_id })"
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Are you sure you want to delete category: @cat.category_name?');">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center">No categories found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div id="modalOverlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;">
+                <div style="background:#fff;border-radius:10px;padding:28px;width:90%;max-width:380px;box-shadow:0 10px 25px rgba(0,0,0,0.2);font-family:sans-serif;">
+                    <h3 style="margin:0 0 10px;font-size:1.4rem;color:#2d3748;font-weight:700;">Success!</h3>
+                    <p style="margin:0 0 20px;color:#718096;font-size:0.9rem;line-height:1.5;">@TempData["SuccessMessage"]</p>
+                    <button onclick="document.getElementById('modalOverlay').remove()" style="width:100%;padding:10px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:0.95rem;font-weight:600;cursor:pointer;">OK</button>
+                </div>
+            </div>
+
+            <script>
+                setTimeout(() => document.getElementById('modalOverlay')?.remove(), 2000);
+            </script>
+        }
+    </div>
+</div>
