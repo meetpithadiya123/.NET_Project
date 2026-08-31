@@ -1,0 +1,24 @@
+﻿@model List<E_Commerce_Website.Models.Category>
+
+<ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px;">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var cat in Model)
+        {
+            <li>
+                <button type="button"
+                        class="category-item"
+                        data-category="@cat.category_name"
+                        style="width: 100%; text-align: left; background: none; border: none; padding: 10px 14px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; color: #1e293b; cursor: pointer; transition: all 0.2s ease;">
+                    @cat.category_name
+                </button>
+            </li>
+        }
+    }
+    else
+    {
+        <li style="padding: 10px 14px; font-size: 0.85rem; color: #94a3b8; font-weight: 600;">
+            No categories available
+        </li>
+    }
+</ul>
