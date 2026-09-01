@@ -18,5 +18,40 @@ namespace E_Commerce_Website.Controllers
             ViewData["category"] = category;
             return View();
         }
+
+        public IActionResult customerLogin()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult customerLogin(string customer_email, string customer_password)
+        {
+            var customer = _context.tbl_customer
+                .FirstOrDefault(c => c.customer_email == customer_email);
+
+            if (customer != null && customer.customer_password == customer_password)
+            {
+                HttpContext.Session.SetString("customerSession", customer.customer_id.ToString());
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewBag.message = "Incorrect Username or Password";
+                return View();
+            }
+        }
+        public IActionResult customerRegistration()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult customerRegistration(Customer customer)
+        {
+            _context.tbl_customer.Add(customer);
+            _context.SaveChanges();
+            return RedirectToAction("customerLogin");
+        }
     }
 }
