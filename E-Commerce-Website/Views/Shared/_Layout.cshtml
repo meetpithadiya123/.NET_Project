@@ -9,14 +9,23 @@
 </head>
 <body>
 
+    <!-- Announcement Bar -->
     <div class="announcement">
         <span><i class="fas fa-phone-alt"></i> Support: +0123 456 789</span>
-        <span class="announcement-right"><a href="@Url.Action("customerLogin", "customer")">Admin Panel / Sign In</a></span>
+        @if (string.IsNullOrEmpty(ViewBag.checkSession))
+        {
+            <span class="announcement-right"><a href="@Url.Action("customerLogin", "customer")">Admin Panel / Sign In</a></span>
+        }
+        else
+        {
+            <span class="announcement-right"><a href="@Url.Action("customerLogout", "customer")">Logout</a></span>
+        }
     </div>
 
+    <!-- Header Section (Brand, Search, Account, Wishlist, Cart) -->
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="#top">
+            <a class="brand" href="@Url.Action("Index", "customer")">
                 <span class="brand-mark"><i class="fas fa-cubes"></i></span>
                 <span>Molla</span>
             </a>
@@ -28,10 +37,10 @@
             </div>
 
             <div class="header-actions">
-                <button class="header-action" aria-label="Account">
+                <a href="@Url.Action("customerProfile", "customer")" class="header-action" aria-label="Account" style="text-decoration: none;">
                     <i class="fas fa-user"></i>
                     <span>Account</span>
-                </button>
+                </a>
                 <button class="header-action count-action" id="wishlistBtn" aria-label="Wishlist">
                     <i class="fas fa-heart"></i>
                     <span>Wishlist</span>
@@ -47,96 +56,20 @@
 
         <nav class="main-nav">
             <button class="mobile-menu" id="mobileMenu"><i class="fas fa-bars"></i></button>
-            <a href="#top">HOME</a>
-            <a href="#products">PRODUCTS</a>
-            <a href="#categories">CATEGORIES</a>
-            <a href="#support">DEALS</a>
-            <a href="#about">ABOUT US</a>
+            <a href="@Url.Action("Index", "customer")#top">HOME</a>
+            <a href="@Url.Action("Index", "customer")#products">PRODUCTS</a>
+            <a href="@Url.Action("Index", "customer")#categories">CATEGORIES</a>
+            <a href="@Url.Action("Index", "customer")#support">DEALS</a>
+            <a href="@Url.Action("Index", "customer")#about">ABOUT US</a>
         </nav>
     </header>
 
-    <main id="top">
-        <section class="hero container">
-            <!-- CATEGORY SIDEBAR -->
-            <aside class="category-card" id="categories">
-                <div class="category-title"><i class="fas fa-th-large"></i> CATEGORIES</div>
-                <div id="categoryList" class="category-list">
-                    @await Html.PartialAsync("fetchCategoryList", ViewData["category"])
-                </div>
-            </aside>
-
-            <section class="hero-main">
-                <div class="hero-slider" id="heroSlider">
-                    <article class="hero-slide active">
-                        <img src="/website/images/banner-space.svg" alt="Spacesity 2 sci-fi preorder banner">
-                        <div class="slide-copy">
-                            <span>PRE-ORDER NOW</span>
-                            <h1>SPACESITY 2</h1>
-                            <button class="btn-primary" data-scroll="products">PRE-ORDER NOW <i class="fas fa-arrow-right"></i></button>
-                        </div>
-                    </article>
-                    <article class="hero-slide">
-                        <img src="/website/images/banner-neon.svg" alt="Neon gamer weekend offer">
-                        <div class="slide-copy">
-                            <span>LEVEL UP</span>
-                            <h1>NEON LOADOUT</h1>
-                            <button class="btn-primary" data-scroll="products">SHOP DEALS <i class="fas fa-arrow-right"></i></button>
-                        </div>
-                    </article>
-                </div>
-            </section>
-
-            <aside class="hero-side">
-                <article class="side-banner">
-                    <img src="/website/images/side-viva.svg" alt="Viva deal">
-                    <div>
-                        <span>WEEKEND OFFER</span>
-                        <strong>VIVAMUS</strong>
-                        <button class="buy-btn" data-scroll="products">BUY NOW &rarr;</button>
-                    </div>
-                </article>
-                <article class="side-banner">
-                    <img src="/website/images/side-nesc.svg" alt="Donec deal">
-                    <div>
-                        <span>GAMING DEAL</span>
-                        <strong>DONEC NEC</strong>
-                        <button class="buy-btn" data-scroll="products">BUY NOW &rarr;</button>
-                    </div>
-                </article>
-            </aside>
-        </section>
-
-        <section class="benefits container" id="support">
-            <div class="benefit"><span class="benefit-icon"><i class="fas fa-truck-fast"></i></span><div><strong>Free Shipping</strong><small>Orders $50 or more</small></div></div>
-            <div class="benefit"><span class="benefit-icon"><i class="fas fa-rotate-left"></i></span><div><strong>Free Returns</strong><small>Within 30 days</small></div></div>
-            <div class="benefit"><span class="benefit-icon"><i class="fas fa-tags"></i></span><div><strong>Get 20% Off</strong><small>When you sign up</small></div></div>
-            <div class="benefit"><span class="benefit-icon"><i class="fas fa-headset"></i></span><div><strong>24/7 Support</strong><small>Live gaming help</small></div></div>
-        </section>
-
-        <section class="product-section container" id="products">
-            <div class="section-heading">
-                <div>
-                    <p>CURATED FOR YOU</p>
-                    <h2>Our Products</h2>
-                </div>
-                <button class="view-more" id="viewMore">VIEW ALL PRODUCTS &rarr;</button>
-            </div>
-            <div class="filters" id="filters"></div>
-            <div class="products-grid" id="productGrid"></div>
-            <div id="emptyState" class="empty-state" style="display:none; text-align:center; padding: 40px; color:#64748b;">No products match your search.</div>
-        </section>
-
-        <section class="promo container" id="about">
-            <div class="promo-copy">
-                <p>MOLLA CLUB</p>
-                <h2>Gear up. Game on.</h2>
-                <p>Join our community for weekly drops, exclusive deals and early access to hardware drops.</p>
-                <button class="btn-dark" id="signupBtn">JOIN NOW</button>
-            </div>
-            <img src="/website/images/promo-gamer.svg" alt="Gamer" />
-        </section>
+    <!-- Page Body Rendered Here -->
+    <main role="main">
+        @RenderBody()
     </main>
 
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="container footer-grid">
             <div>
@@ -176,8 +109,6 @@
         <p id="cartItemsText" style="color:#64748b; font-size:0.9rem;">Your cart is empty.</p>
         <div class="cart-total" id="cartTotal" style="margin-top:auto; font-weight:700; font-size:1.1rem;"></div>
     </div>
-
-    @RenderBody()
 
     <script src="~/website/script.js"></script>
 </body>

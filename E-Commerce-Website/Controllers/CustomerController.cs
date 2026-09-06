@@ -16,6 +16,7 @@ namespace E_Commerce_Website.Controllers
         {
             List<Category> category = _context.tbl_category.ToList();
             ViewData["category"] = category;
+            ViewBag.checkSession = HttpContext.Session.GetString("customerSession");
             return View();
         }
 
@@ -53,5 +54,35 @@ namespace E_Commerce_Website.Controllers
             _context.SaveChanges();
             return RedirectToAction("customerLogin");
         }
+
+        public IActionResult customerLogout()
+        {
+            HttpContext.Session.Remove("customerSession");
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult customerProfile()
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerSession")))
+            {
+                return RedirectToAction("customerLogin");
+            }
+            else
+            {
+                List<Category> category = _context.tbl_category.ToList();
+                ViewData["category"] = category;
+                var customerId = HttpContext.Session.GetString("customerSession");
+                var row = _context.tbl_customer.Where(c => c.customer_id == int.Parse(customerId)).ToList();
+                return View(row);
+            }
+        }
+        [HttpPost]
+        public IActionResult updatecustomerProfile(Customer customer)
+        {
+            _context.tbl_customer.Update(customer);
+            _context.SaveChanges();
+            return RedirectToAction("customerProfile");
+        }
+
     }
 }
