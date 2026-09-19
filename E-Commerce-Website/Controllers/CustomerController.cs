@@ -136,6 +136,16 @@ namespace E_Commerce_Website.Controllers
             return View(products);
         }
 
+        // 1. Action to show all products from the database
+        public IActionResult allProduct()
+        {
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+
+            var products = _context.tbl_product.ToList();
+            return View("allProduct", products);
+        }
+
         // 2. Action to show a single product detail
         public IActionResult productDetails(int id)
         {

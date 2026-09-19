@@ -1,0 +1,289 @@
+﻿@model IEnumerable<E_Commerce_Website.Models.Product>
+
+@{
+    ViewData["Title"] = "All Products - Molla Gaming & Electronics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .catalog-page-container {
+        max-width: 1300px;
+        margin: 30px auto 80px;
+        padding: 0 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Breadcrumbs */
+    .catalog-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 24px;
+    }
+
+        .catalog-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+            .catalog-breadcrumb a:hover {
+                color: #0f172a;
+            }
+
+    /* Page Header */
+    .catalog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-bottom: 20px;
+        margin-bottom: 35px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .catalog-title-wrap h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 6px 0;
+        letter-spacing: -0.02em;
+    }
+
+    .catalog-title-wrap p {
+        font-size: 0.95rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .catalog-count-badge {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 9999px;
+    }
+
+    /* Product Grid */
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 28px;
+    }
+
+    /* Product Card */
+    .catalog-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+
+        .catalog-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.1);
+            border-color: #cbd5e1;
+        }
+
+    .catalog-card-media {
+        position: relative;
+        width: 100%;
+        height: 250px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+        .catalog-card-media img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.35s ease;
+        }
+
+    .catalog-card:hover .catalog-card-media img {
+        transform: scale(1.06);
+    }
+
+    .catalog-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background: #ffffff;
+        color: #16a34a;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .catalog-card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
+
+    .catalog-rating {
+        color: #f59e0b;
+        font-size: 0.78rem;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        margin-bottom: 8px;
+    }
+
+        .catalog-rating span {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+    .catalog-prod-title {
+        font-size: 1.12rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 12px 0;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .catalog-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .catalog-current-price {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .catalog-mrp {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+
+    .catalog-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background-color: #f5a623;
+        color: #111827;
+        font-weight: 700;
+        font-size: 0.92rem;
+        padding: 13px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .catalog-btn:hover {
+            background-color: #e0961b;
+            color: #000000;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.35);
+        }
+</style>
+
+<div class="catalog-page-container">
+    <!-- Breadcrumbs -->
+    <div class="catalog-breadcrumb">
+        <a href="@Url.Action("Index", "Customer")"><i class="fas fa-house"></i> Home</a>
+        <span>&rsaquo;</span>
+        <span style="color: #0f172a; font-weight: 600;">All Products</span>
+    </div>
+
+    <!-- Header -->
+    <div class="catalog-header">
+        <div class="catalog-title-wrap">
+            <h1>All Products</h1>
+            <p>Explore our complete catalog of gaming equipment and electronics</p>
+        </div>
+        <div class="catalog-count-badge">
+            Showing @(Model?.Count() ?? 0) Products
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="catalog-grid">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="catalog-card">
+                    <div class="catalog-card-media">
+                        <span class="catalog-badge">
+                            <i class="fas fa-check-circle"></i> In Stock
+                        </span>
+
+                        @if (!string.IsNullOrEmpty(item.product_image))
+                        {
+                            <img src="~/product_images/@item.product_image" alt="@item.product_name" />
+                        }
+                        else
+                        {
+                            <img src="https://picsum.photos/seed/@item.product_id/400/400" alt="@item.product_name" />
+                        }
+                    </div>
+
+                    <div class="catalog-card-body">
+                        <div>
+                            <div class="catalog-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-stroke"></i>
+                                <span>(4.8)</span>
+                            </div>
+
+                            <h3 class="catalog-prod-title" title="@item.product_name">
+                                @item.product_name
+                            </h3>
+
+                            <div class="catalog-pricing">
+                                <span class="catalog-current-price">₹@item.product_price</span>
+                                <span class="catalog-mrp">
+                                    ₹@((decimal.TryParse(item.product_price, out var p) ? p * 1.25m : 0).ToString("0.00"))
+                                </span>
+                            </div>
+                        </div>
+
+                        <a href="@Url.Action("productDetails", "Customer", new { id = item.product_id })" class="catalog-btn">
+                            View Details <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: #64748b;">
+                <i class="fas fa-box-open fa-3x" style="color: #cbd5e1; margin-bottom: 14px; display: block;"></i>
+                <p style="font-size: 1.2rem; font-weight: 600; color: #334155; margin: 0 0 6px 0;">No products found</p>
+                <p style="margin: 0;">Check back later or browse other categories.</p>
+            </div>
+        }
+    </div>
+</div>
