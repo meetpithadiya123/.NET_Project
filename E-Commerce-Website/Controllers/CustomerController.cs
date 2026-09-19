@@ -17,7 +17,12 @@ namespace E_Commerce_Website.Controllers
             List<Category> category = _context.tbl_category.ToList();
             ViewData["category"] = category;
             ViewBag.checkSession = HttpContext.Session.GetString("customerSession");
-            return View();
+
+            // 1. Fetch products from the database
+            List<Product> products = _context.tbl_product.ToList();
+
+            // 2. Pass the list into View()
+            return View(products);
         }
 
         public IActionResult customerLogin()
@@ -118,6 +123,32 @@ namespace E_Commerce_Website.Controllers
                 _context.SaveChanges();
             }
             return RedirectToAction("fetchfeedback");
+        }
+
+
+        // 1. Action to show all products from the database
+        public IActionResult AllProducts()
+        {
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+
+            var products = _context.tbl_product.ToList();
+            return View(products);
+        }
+
+        // 2. Action to show a single product detail
+        public IActionResult productDetails(int id)
+        {
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+
+            var product = _context.tbl_product.FirstOrDefault(p => p.product_id == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
         }
     }
 }

@@ -1,7 +1,207 @@
-﻿@{
+﻿@model IEnumerable<E_Commerce_Website.Models.Product>
+
+@{
     ViewData["Title"] = "Home - Molla Gaming & Electronics";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<style>
+    /* ===================================================
+           MODERN PRODUCTS SHOWCASE SECTION
+           =================================================== */
+    .shop-section-wrapper {
+        margin: 60px auto 80px;
+        padding: 0 20px;
+    }
+
+    .shop-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-bottom: 20px;
+        margin-bottom: 35px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .shop-header-left .sub-tag {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #f5a623;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .shop-header-left h2 {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .shop-header-right .see-all-btn {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+        .shop-header-right .see-all-btn:hover {
+            color: #f5a623;
+            transform: translateX(4px);
+        }
+
+    /* Product Grid */
+    .store-grid-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 30px;
+    }
+
+    /* Product Card */
+    .store-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+
+        .store-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.1);
+            border-color: #cbd5e1;
+        }
+
+    /* Image Container */
+    .store-card-media {
+        position: relative;
+        width: 100%;
+        height: 250px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+        .store-card-media img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.35s ease;
+        }
+
+    .store-card:hover .store-card-media img {
+        transform: scale(1.06);
+    }
+
+    .verified-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background: #ffffff;
+        color: #16a34a;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Card Information Body */
+    .store-card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
+
+    .store-rating-bar {
+        color: #f59e0b;
+        font-size: 0.78rem;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        margin-bottom: 8px;
+    }
+
+        .store-rating-bar span {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+    .store-card-title {
+        font-size: 1.12rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 12px 0;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .store-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .store-actual-price {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .store-cut-price {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+
+    /* Action Button */
+    .store-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background-color: #f5a623;
+        color: #111827;
+        font-weight: 700;
+        font-size: 0.92rem;
+        padding: 13px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .store-action-btn:hover {
+            background-color: #e0961b;
+            color: #000000;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.35);
+        }
+
+  
+</style>
 
 <div id="top">
     <!-- Hero Section with Categories and Slider -->
@@ -62,18 +262,82 @@
         <div class="benefit"><span class="benefit-icon"><i class="fas fa-headset"></i></span><div><strong>24/7 Support</strong><small>Live gaming help</small></div></div>
     </section>
 
-    <!-- Products Catalog Section -->
-    <section class="product-section container" id="products">
-        <div class="section-heading">
-            <div>
-                <p>CURATED FOR YOU</p>
+    <!-- Featured Products Showcase Section -->
+    <section class="shop-section-wrapper container" id="products">
+        <div class="shop-header-row">
+            <div class="shop-header-left">
+                <span class="sub-tag">Curated Collection</span>
                 <h2>Our Products</h2>
             </div>
-            <button class="view-more" id="viewMore">VIEW ALL PRODUCTS &rarr;</button>
+            <div class="shop-header-right">
+                <a href="#products" class="see-all-btn">
+                    VIEW ALL PRODUCTS <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
-        <div class="filters" id="filters"></div>
-        <div class="products-grid" id="productGrid"></div>
-        <div id="emptyState" class="empty-state" style="display:none; text-align:center; padding: 40px; color:#64748b;">No products match your search.</div>
+
+        <div class="store-grid-layout">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <div class="store-card">
+                        <!-- Product Visual Media -->
+                        <div class="store-card-media">
+                            <span class="verified-badge">
+                                <i class="fas fa-check-circle"></i> In Stock
+                            </span>
+
+                            @if (!string.IsNullOrEmpty(item.product_image))
+                            {
+                                <img src="~/product_images/@item.product_image" alt="@item.product_name" />
+                            }
+                            else
+                            {
+                                <img src="https://picsum.photos/seed/@item.product_id/400/400" alt="@item.product_name" />
+                            }
+                        </div>
+
+                        <!-- Card Content & Details -->
+                        <div class="store-card-body">
+                            <div>
+                                <div class="store-rating-bar">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-stroke"></i>
+                                    <span>(4.8)</span>
+                                </div>
+
+                                <h3 class="store-card-title" title="@item.product_name">
+                                    @item.product_name
+                                </h3>
+
+                                <div class="store-pricing">
+                                    <span class="store-actual-price">₹@item.product_price</span>
+                                    <span class="store-cut-price">
+                                        ₹@((decimal.TryParse(item.product_price, out var p) ? p * 1.25m : 0).ToString("0.00"))
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Detail Navigation Button -->
+                            <a href="@Url.Action("productDetails", "Customer", new { id = item.product_id })" class="store-action-btn">
+                                View Details <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #64748b;">
+                    <i class="fas fa-box-open fa-3x" style="color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
+                    No products found in the database.
+                </div>
+            }
+        </div>
     </section>
 
     <!-- Promo Banner Section -->
