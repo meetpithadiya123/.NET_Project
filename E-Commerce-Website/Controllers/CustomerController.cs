@@ -84,5 +84,40 @@ namespace E_Commerce_Website.Controllers
             return RedirectToAction("customerProfile");
         }
 
+        [HttpGet]
+        public IActionResult feedback()
+        {
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult feedback(Feedback feedback)
+        {
+            _context.tbl_feedback.Add(feedback);
+            _context.SaveChanges();
+
+            // Reload categories for layout/navbar
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+
+            // Set the success message
+            ViewBag.FeedbackSuccess = "Thank you! Your feedback has been submitted successfully.";
+
+            ModelState.Clear();
+            return View();
+        }
+
+        public IActionResult deletePermissionFeedback(int id)
+        {
+            var feedback = _context.tbl_feedback.Find(id);
+            if (feedback != null)
+            {
+                _context.tbl_feedback.Remove(feedback);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("fetchfeedback");
+        }
     }
 }
