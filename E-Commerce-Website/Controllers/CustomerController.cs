@@ -160,5 +160,50 @@ namespace E_Commerce_Website.Controllers
 
             return View(product);
         }
+
+
+
+
+
+        [HttpPost]
+        public IActionResult AddToCart(int prod_id)
+        {
+            string? isLogin = HttpContext.Session.GetString("customerSession");
+
+            // If not logged in, notify frontend to redirect to login
+            if (string.IsNullOrEmpty(isLogin))
+            {
+                return Json(new { success = false, redirect = Url.Action("customerLogin", "Customer") });
+            }
+
+            int customerId = int.Parse(isLogin);
+
+            // Check if the item already exists in customer's cart
+            var existingCartItem = _context.tbl_cart.FirstOrDefault(c =>
+                c.prod_id == prod_id &&
+                c.cust_id == customerId &&
+                c.cart_status == 0);
+
+            if (existingCartItem != null)
+            {
+                existingCartItem.product_quantity += 1;
+                _context.tbl_cart.Update(existingCartItem);
+            }
+            else
+            {
+                Cart cart = new Cart
+                {
+                    prod_id = prod_id,
+                    cust_id = customerId,
+                    product_quantity = 1,
+                    cart_status = 0
+                };
+                _context.tbl_cart.Add(cart);
+            }
+
+            _context.SaveChanges();
+
+            return Json(new { success = true, message = "Product successfully added to cart!" });
+        }
     }
 }

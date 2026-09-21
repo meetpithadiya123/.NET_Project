@@ -6,448 +6,266 @@
 }
 
 <style>
-    .store-product-wrapper {
-        max-width: 1350px;
-        margin: 25px auto 80px;
+    .clean-product-page {
+        max-width: 1240px;
+        margin: 30px auto 80px;
         padding: 0 20px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        color: #1a1a1a;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    /* Breadcrumbs */
-    .store-breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    /* Minimal Breadcrumb */
+    .clean-breadcrumb {
         font-size: 13px;
         color: #71717a;
-        margin-bottom: 24px;
+        margin-bottom: 28px;
     }
 
-        .store-breadcrumb a {
-            color: #52525b;
-            text-decoration: none;
-        }
+    .clean-breadcrumb a {
+        color: #71717a;
+        text-decoration: none;
+    }
 
-            .store-breadcrumb a:hover {
-                color: #09090b;
-                text-decoration: underline;
-            }
+    .clean-breadcrumb a:hover {
+        color: #09090b;
+        text-decoration: underline;
+    }
 
-    /* 3-Column Product Showcase */
-    .product-stage {
+    /* 2-Column Clean Presentation */
+    .clean-layout-grid {
         display: grid;
-        grid-template-columns: 440px 1fr 340px;
-        gap: 36px;
+        grid-template-columns: 58% 42%;
+        gap: 50px;
         align-items: start;
     }
 
-    /* Column 1: Image & Showcase */
-    .media-card {
+    /* Large Image Display */
+    .big-image-wrapper {
         background: #ffffff;
         border: 1px solid #e4e4e7;
-        border-radius: 14px;
-        padding: 20px;
-        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
-        position: sticky;
-        top: 20px;
-    }
-
-        .media-card .img-container {
-            width: 100%;
-            height: 420px;
-            background-color: #fafafa;
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .media-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }
-
-            .media-card img:hover {
-                transform: scale(1.04);
-            }
-
-    /* Column 2: Details & Specs */
-    .details-pane {
-        padding-right: 15px;
-    }
-
-    .brand-eyebrow {
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #2563eb;
-        display: inline-block;
-        margin-bottom: 8px;
-    }
-
-    .item-heading {
-        font-size: 26px;
-        font-weight: 700;
-        line-height: 1.3;
-        margin: 0 0 12px 0;
-        color: #18181b;
-    }
-
-    .rating-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #f4f4f5;
-    }
-
-        .rating-badge .stars {
-            color: #eab308;
-            font-size: 14px;
-        }
-
-        .rating-badge .count {
-            font-size: 13px;
-            color: #71717a;
-        }
-
-    .spec-block {
-        margin: 20px 0;
-    }
-
-    .spec-block-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #27272a;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-
-    .spec-content {
-        font-size: 15px;
-        line-height: 1.6;
-        color: #52525b;
-        background: #f8fafc;
-        border-left: 3px solid #3b82f6;
-        padding: 14px 18px;
-        border-radius: 0 8px 8px 0;
-        margin: 0;
-    }
-
-    .feature-highlights {
-        margin-top: 24px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .highlight-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 13px;
-        color: #3f3f46;
-        padding: 10px;
-        background: #fafafa;
-        border-radius: 6px;
-        border: 1px solid #f4f4f5;
-    }
-
-        .highlight-item i {
-            color: #10b981;
-            font-size: 15px;
-        }
-
-    /* Column 3: Buy Box */
-    .order-box {
-        background: #ffffff;
-        border: 1px solid #e4e4e7;
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-        position: sticky;
-        top: 20px;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 520px;
     }
 
-    .price-headline {
-        margin-bottom: 18px;
+    .big-image-wrapper img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
     }
 
-    .price-value {
+    .big-image-wrapper img:hover {
+        transform: scale(1.02);
+    }
+
+    /* Info & Action Side */
+    .info-action-panel {
+        display: flex;
+        flex-direction: column;
+        padding-top: 10px;
+    }
+
+    .clean-title {
         font-size: 32px;
         font-weight: 800;
-        color: #09090b;
-        display: block;
+        color: #18181b;
+        line-height: 1.25;
+        margin: 0 0 16px 0;
     }
 
-    .price-subtext {
-        font-size: 12px;
-        color: #71717a;
-        margin-top: 4px;
-        display: block;
-    }
-
-    .stock-indicator {
-        font-size: 14px;
-        font-weight: 600;
-        color: #15803d;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 16px;
-    }
-
-    .delivery-eta {
-        font-size: 13px;
-        color: #3f3f46;
-        margin-bottom: 20px;
-        line-height: 1.5;
-        padding-bottom: 16px;
+    .clean-price-box {
+        margin-bottom: 24px;
+        padding-bottom: 20px;
         border-bottom: 1px solid #f4f4f5;
     }
 
-        .delivery-eta strong {
-            color: #09090b;
-        }
-
-    .qty-select-wrapper {
-        margin-bottom: 20px;
+    .clean-price {
+        font-size: 36px;
+        font-weight: 800;
+        color: #09090b;
     }
 
-        .qty-select-wrapper label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #52525b;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
+    .clean-description {
+        font-size: 15px;
+        color: #52525b;
+        line-height: 1.7;
+        margin: 0 0 32px 0;
+    }
 
-    .qty-counter-control {
+    /* Quantity Control */
+    .clean-qty-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .clean-qty-row label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #27272a;
+    }
+
+    .clean-counter {
         display: inline-flex;
         border: 1px solid #d4d4d8;
-        border-radius: 6px;
+        border-radius: 8px;
         overflow: hidden;
     }
 
-        .qty-counter-control button {
-            background: #f4f4f5;
-            border: none;
-            width: 38px;
-            height: 38px;
-            cursor: pointer;
-            font-size: 18px;
-            color: #27272a;
-            transition: background 0.15s;
-        }
-
-            .qty-counter-control button:hover {
-                background: #e4e4e7;
-            }
-
-        .qty-counter-control input {
-            width: 48px;
-            border: none;
-            border-left: 1px solid #d4d4d8;
-            border-right: 1px solid #d4d4d8;
-            text-align: center;
-            font-size: 15px;
-            font-weight: 600;
-            color: #18181b;
-            outline: none;
-        }
-
-    .actions-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+    .clean-counter button {
+        background: #f4f4f5;
+        border: none;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 600;
+        color: #27272a;
+        transition: background 0.15s;
     }
 
-    .btn-cart-action,
-    .btn-buy-action {
-        width: 100%;
-        height: 48px;
-        border-radius: 8px;
+    .clean-counter button:hover {
+        background: #e4e4e7;
+    }
+
+    .clean-counter input {
+        width: 48px;
+        border: none;
+        border-left: 1px solid #d4d4d8;
+        border-right: 1px solid #d4d4d8;
+        text-align: center;
         font-size: 15px;
+        font-weight: 600;
+        color: #18181b;
+        outline: none;
+    }
+
+    /* Action Buttons */
+    .clean-action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .btn-buy-full,
+    .btn-cart-full {
+        width: 100%;
+        height: 52px;
+        border-radius: 10px;
+        font-size: 16px;
         font-weight: 700;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 10px;
         cursor: pointer;
         text-decoration: none;
-        transition: all 0.2s ease;
         border: none;
+        transition: all 0.2s ease;
     }
 
-    .btn-cart-action {
+    .btn-buy-full {
+        background: #f5a623;
+        color: #111827;
+    }
+
+    .btn-buy-full:hover {
+        background: #e0961b;
+        box-shadow: 0 4px 14px rgba(245, 166, 35, 0.35);
+    }
+
+    .btn-cart-full {
         background: #f4f4f5;
         color: #18181b;
         border: 1px solid #d4d4d8;
     }
 
-        .btn-cart-action:hover {
-            background: #e4e4e7;
-        }
-
-    .btn-buy-action {
-        background: #f59e0b;
-        color: #111827;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    .btn-cart-full:hover {
+        background: #e4e4e7;
     }
-
-        .btn-buy-action:hover {
-            background: #d97706;
-        }
-
-    .security-note {
-        font-size: 12px;
-        color: #71717a;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        margin-top: 16px;
-    }
-
-  
 
 </style>
 
-<div class="store-product-wrapper">
-    <!-- Breadcrumb path -->
-    <nav class="store-breadcrumb">
+<div class="clean-product-page">
+    <!-- Breadcrumb Navigation -->
+    <div class="clean-breadcrumb">
         <a href="@Url.Action("Index", "Customer")">Home</a>
-        <span>/</span>
-        <a href="@Url.Action("Index", "Customer")#products">Catalog</a>
-        <span>/</span>
+        <span> / </span>
+        <a href="@Url.Action("allProduct", "Customer")">Products</a>
+        <span> / </span>
         <span style="color: #18181b; font-weight: 600;">@Model.product_name</span>
-    </nav>
+    </div>
 
-    <!-- Main 3-Column Display -->
-    <div class="product-stage">
-
-        <!-- 1. Visual Card -->
-        <div class="media-card">
-            <div class="img-container">
-                @if (!string.IsNullOrEmpty(Model.product_image))
-                {
-                    <img src="~/product_images/@Model.product_image" alt="@Model.product_name" />
-                }
-                else
-                {
-                    <img src="https://picsum.photos/seed/@Model.product_id/600/600" alt="@Model.product_name" />
-                }
-            </div>
+    <!-- Product Grid -->
+    <div class="clean-layout-grid">
+        <!-- Big Product Image -->
+        <div class="big-image-wrapper">
+            @if (!string.IsNullOrEmpty(Model.product_image))
+            {
+                <img src="~/product_images/@Model.product_image" alt="@Model.product_name" />
+            }
+            else
+            {
+                <img src="https://picsum.photos/seed/@Model.product_id/800/600" alt="@Model.product_name" />
+            }
         </div>
 
-        <!-- 2. Technical Details & Specifications -->
-        <div class="details-pane">
-            <span class="brand-eyebrow">Verified Merchant Listing</span>
-            <h1 class="item-heading">@Model.product_name</h1>
+        <!-- Clean Product Info & Actions -->
+        <div class="info-action-panel">
+            <h1 class="clean-title">@Model.product_name</h1>
 
-            <div class="rating-badge">
-                <div class="stars">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-stroke"></i>
-                </div>
-                <span class="count">4.8 Rating &bull; 94 Verified Reviews</span>
+            <div class="clean-price-box">
+                <span class="clean-price">₹@Model.product_price</span>
             </div>
 
-            <div class="spec-block">
-                <div class="spec-block-title">About This Item</div>
-                <p class="spec-content">
-                    @(string.IsNullOrWhiteSpace(Model.product_description)
-                        ? "Genuine equipment built to industry-standard performance specifications with full warranty coverage."
-                        : Model.product_description)
-                </p>
-            </div>
+            <p class="clean-description">
+                @(string.IsNullOrWhiteSpace(Model.product_description)
+                    ? "No detailed description available for this product."
+                    : Model.product_description)
+            </p>
 
-            <div class="feature-highlights">
-                <div class="highlight-item">
-                    <i class="fas fa-circle-check"></i>
-                    <span>Brand New Condition</span>
-                </div>
-                <div class="highlight-item">
-                    <i class="fas fa-circle-check"></i>
-                    <span>Official Manufacturer Guarantee</span>
-                </div>
-                <div class="highlight-item">
-                    <i class="fas fa-circle-check"></i>
-                    <span>Secure Packaging Dispatch</span>
-                </div>
-                <div class="highlight-item">
-                    <i class="fas fa-circle-check"></i>
-                    <span>Hassle-free 7-Day Exchange</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Conversion / Order Box -->
-        <div class="order-box">
-            <div class="price-headline">
-                <span class="price-value">₹@Model.product_price</span>
-                <span class="price-subtext">Free shipping & all taxes included</span>
-            </div>
-
-            <div class="stock-indicator">
-                <i class="fas fa-check-circle"></i> In Stock & Ready to Ship
-            </div>
-
-            <div class="delivery-eta">
-                Ships via Express Courier.<br />
-                Delivery estimated within <strong>2 to 4 business days</strong>.
-            </div>
-
-            <div class="qty-select-wrapper">
-                <label>Quantity</label>
-                <div class="qty-counter-control">
-                    <button type="button" onclick="modifyQty(-1)">&minus;</button>
-                    <input type="number" id="detailQtyInput" value="1" min="1" max="10" readonly />
-                    <button type="button" onclick="modifyQty(1)">&#43;</button>
+            <!-- Quantity Row -->
+            <div class="clean-qty-row">
+                <label>Quantity:</label>
+                <div class="clean-counter">
+                    <button type="button" onclick="updateQty(-1)">&minus;</button>
+                    <input type="number" id="buyQty" value="1" min="1" max="10" readonly />
+                    <button type="button" onclick="updateQty(1)">&#43;</button>
                 </div>
             </div>
 
-            <div class="actions-stack">
-                <form method="post" action="/Cart/AddToCart" style="margin: 0; width: 100%;">
-                    <input type="hidden" name="productId" value="@Model.product_id" />
-                    <input type="hidden" name="quantity" id="cartFormQtyField" value="1" />
-                    <button type="submit" class="btn-cart-action">
-                        <i class="fas fa-cart-shopping"></i> Add to Cart
-                    </button>
-                </form>
-
-                <a href="@Url.Action("Checkout", "Order", new { id = Model.product_id })" class="btn-buy-action">
+            <!-- Buy / Cart Buttons -->
+            <div class="clean-action-stack">
+                <a href="@Url.Action("Checkout", "Order", new { id = Model.product_id })" class="btn-buy-full">
                     <i class="fas fa-bolt"></i> Buy Now
                 </a>
-            </div>
 
-            <div class="security-note">
-                <i class="fas fa-lock"></i> Encrypted 256-bit checkout
+                <form method="post" asp-controller="Customer" asp-action="AddToCart" style="margin: 0; width: 100%;">
+                    <input type="hidden" name="productId" value="@Model.product_id" />
+                    <input type="hidden" name="quantity" id="hiddenCartQty" value="1" />
+                    <button type="button" class="btn-cart-full" onclick="addToCartAjax(@Model.product_id)">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </form>
             </div>
         </div>
-
     </div>
 </div>
 
 <script>
-    function modifyQty(change) {
-        const input = document.getElementById('detailQtyInput');
-        let val = parseInt(input.value) || 1;
-        val += change;
-        if (val >= 1 && val <= 10) {
-            input.value = val;
-            document.getElementById('cartFormQtyField').value = val;
+    function updateQty(change) {
+        const input = document.getElementById('buyQty');
+        let current = parseInt(input.value) || 1;
+        current += change;
+        if (current >= 1 && current <= 10) {
+            input.value = current;
+            document.getElementById('hiddenCartQty').value = current;
         }
     }
 </script>

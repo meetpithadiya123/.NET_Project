@@ -46,11 +46,11 @@
                     <span>Wishlist</span>
                     <b id="wishlistCount">0</b>
                 </button>
-                <button class="header-action count-action" id="cartBtn" aria-label="Cart">
+                <a href="@Url.Action("Cart", "Customer")" class="header-action count-action" id="cartBtn" aria-label="Cart" style="text-decoration: none;">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Cart</span>
                     <b id="cartCount">0</b>
-                </button>
+                </a>
             </div>
         </div>
 
@@ -111,5 +111,50 @@
     </div>
 
     <script src="~/website/script.js"></script>
+
+
+    <!-- Toast Notification Pop-up -->
+    <div id="cartToast" style="display: none; position: fixed; bottom: 30px; right: 30px; background-color: #10b981; color: #ffffff; padding: 14px 24px; border-radius: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 9999; align-items: center; gap: 10px; transition: all 0.3s ease;">
+        <i class="fas fa-check-circle" style="font-size: 18px;"></i>
+        <span id="cartToastMsg">Product successfully added to cart!</span>
+    </div>
+
+    <script>
+            function addToCartAjax(productId) {
+                fetch('/Customer/AddToCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'prod_id=' + encodeURIComponent(productId)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success toast pop-up
+                        const toast = document.getElementById('cartToast');
+                        const toastMsg = document.getElementById('cartToastMsg');
+                        toastMsg.innerText = data.message;
+                        toast.style.display = 'flex';
+
+                        // Increment cart badge counter if present
+                        const cartBadge = document.getElementById('cartCount');
+                        if (cartBadge) {
+                            let currentCount = parseInt(cartBadge.innerText) || 0;
+                            cartBadge.innerText = currentCount + 1;
+                        }
+
+                        // Hide after 3 seconds
+                        setTimeout(() => {
+                            toast.style.display = 'none';
+                        }, 3000);
+                    } else if (data.redirect) {
+                        // If not logged in, send to login
+                        window.location.href = data.redirect;
+                    }
+                })
+                .catch(err => console.error('Error adding to cart:', err));
+            }
+    </script>
 </body>
 </html>

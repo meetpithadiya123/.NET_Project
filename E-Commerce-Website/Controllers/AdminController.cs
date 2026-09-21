@@ -495,8 +495,23 @@ namespace E_Commerce_Website.Controllers
             return RedirectToAction("fetchProduct");
         }
 
-        
+        public IActionResult fetchCart()
+        {
+            return View(_context.tbl_cart.ToList());
+        }
 
+
+        public IActionResult deletecart(int id)
+        {
+            var cartItem = _context.tbl_cart.Find(id);
+            if (cartItem != null)
+            {
+                _context.tbl_cart.Remove(cartItem);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "Cart item deleted successfully!";
+            }
+            return RedirectToAction("fetchCart");
+        }
     }
 
 }
