@@ -1,281 +1,1541 @@
 @model E_Commerce_Website.Models.Product
 
 @{
-    ViewData["Title"] = Model?.product_name + " - Product Details";
+    ViewData["Title"] = (Model?.product_name ?? "Product Details") + " - UrbanCart";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    decimal price = 0;
+    decimal.TryParse(Model?.product_price, out price);
+    decimal mrpPrice = price > 0 ? Math.Round(price * 1.15m, 0) : 0;
+    decimal savings = mrpPrice - price;
+    int discountPercent = mrpPrice > 0 ? (int)Math.Round((savings / mrpPrice) * 100) : 0;
+
+    var relatedProducts = ViewBag.RelatedProducts as List<E_Commerce_Website.Models.Product> ?? new List<E_Commerce_Website.Models.Product>();
 }
 
 <style>
-    .clean-product-page {
-        max-width: 1240px;
-        margin: 30px auto 80px;
-        padding: 0 20px;
+    :root {
+        --pd-primary: #4f46e5;
+        --pd-primary-hover: #4338ca;
+        --pd-accent: #f59e0b;
+        --pd-accent-hover: #d97706;
+        --pd-dark: #0f172a;
+        --pd-muted: #64748b;
+        --pd-light: #f8fafc;
+        --pd-border: #e2e8f0;
+        --pd-card-bg: #ffffff;
+    }
+
+    .pd-container {
+        max-width: 1280px;
+        margin: 28px auto 90px;
+        padding: 0 24px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    /* Minimal Breadcrumb */
-    .clean-breadcrumb {
-        font-size: 13px;
-        color: #71717a;
+    /* Breadcrumbs */
+    .pd-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.86rem;
+        color: var(--pd-muted);
         margin-bottom: 28px;
     }
 
-    .clean-breadcrumb a {
-        color: #71717a;
+    .pd-breadcrumb a {
+        color: var(--pd-muted);
         text-decoration: none;
+        transition: color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
     }
 
-    .clean-breadcrumb a:hover {
-        color: #09090b;
-        text-decoration: underline;
+    .pd-breadcrumb a:hover {
+        color: var(--pd-primary);
     }
 
-    /* 2-Column Clean Presentation */
-    .clean-layout-grid {
+    .pd-breadcrumb span.sep {
+        color: #cbd5e1;
+    }
+
+    .pd-breadcrumb span.current {
+        color: var(--pd-dark);
+        font-weight: 600;
+        max-width: 380px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Main Showcase Grid */
+    .pd-main-grid {
         display: grid;
-        grid-template-columns: 58% 42%;
-        gap: 50px;
+        grid-template-columns: 52% 48%;
+        gap: 46px;
         align-items: start;
+        margin-bottom: 60px;
     }
 
-    /* Large Image Display */
-    .big-image-wrapper {
-        background: #ffffff;
-        border: 1px solid #e4e4e7;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+    @@media (max-width: 980px) {
+        .pd-main-grid {
+            grid-template-columns: 1fr;
+            gap: 36px;
+        }
+    }
+
+    /* Left Column: Media & Gallery */
+    .pd-gallery-card {
+        background: var(--pd-card-bg);
+        border: 1px solid var(--pd-border);
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+    }
+
+    .pd-badge-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .pd-badge-genuine {
+        background: #ecfdf5;
+        color: #059669;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        border: 1px solid #a7f3d0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pd-badge-stock {
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        border: 1px solid #bfdbfe;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pd-main-image-wrap {
+        width: 100%;
+        height: 440px;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 520px;
+        overflow: hidden;
+        border-radius: 14px;
+        background: #ffffff;
+        cursor: crosshair;
+        position: relative;
     }
 
-    .big-image-wrapper img {
-        width: 100%;
-        max-height: 500px;
+    .pd-main-image-wrap img {
+        max-width: 90%;
+        max-height: 400px;
+        width: auto;
+        height: auto;
         object-fit: contain;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pd-main-image-wrap:hover img {
+        transform: scale(1.12);
+    }
+
+    /* Thumbnail previews */
+    .pd-thumbnails-strip {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        justify-content: center;
+    }
+
+    .pd-thumb-btn {
+        width: 68px;
+        height: 68px;
+        border-radius: 10px;
+        border: 2px solid var(--pd-border);
+        background: #ffffff;
+        padding: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pd-thumb-btn.is-active,
+    .pd-thumb-btn:hover {
+        border-color: var(--pd-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .pd-thumb-btn img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    /* Trust Benefits Bar under Image */
+    .pd-trust-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--pd-border);
+    }
+
+    .pd-trust-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f8fafc;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .pd-trust-icon {
+        width: 32px;
+        height: 32px;
         border-radius: 8px;
-        transition: transform 0.3s ease;
+        background: #eef2ff;
+        color: var(--pd-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
     }
 
-    .big-image-wrapper img:hover {
-        transform: scale(1.02);
+    .pd-trust-text strong {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--pd-dark);
     }
 
-    /* Info & Action Side */
-    .info-action-panel {
+    .pd-trust-text small {
+        font-size: 0.72rem;
+        color: var(--pd-muted);
+    }
+
+    /* Right Column: Product Info & Buy Engine */
+    .pd-details-col {
         display: flex;
         flex-direction: column;
-        padding-top: 10px;
     }
 
-    .clean-title {
-        font-size: 32px;
+    .pd-category-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--pd-primary);
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        margin-bottom: 12px;
+        width: fit-content;
+    }
+
+    .pd-product-title {
+        font-size: 2.1rem;
         font-weight: 800;
-        color: #18181b;
+        color: var(--pd-dark);
         line-height: 1.25;
-        margin: 0 0 16px 0;
+        letter-spacing: -0.02em;
+        margin: 0 0 14px 0;
     }
 
-    .clean-price-box {
-        margin-bottom: 24px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #f4f4f5;
+    /* Star Rating */
+    .pd-rating-strip {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        font-size: 0.88rem;
     }
 
-    .clean-price {
-        font-size: 36px;
+    .pd-stars {
+        color: #f59e0b;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .pd-rating-number {
         font-weight: 800;
-        color: #09090b;
+        color: var(--pd-dark);
     }
 
-    .clean-description {
-        font-size: 15px;
-        color: #52525b;
-        line-height: 1.7;
-        margin: 0 0 32px 0;
+    .pd-rating-count {
+        color: var(--pd-muted);
+        font-size: 0.82rem;
     }
 
-    /* Quantity Control */
-    .clean-qty-row {
+    .pd-bestseller-tag {
+        background: #fffbeb;
+        color: #b45309;
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        border: 1px solid #fef3c7;
+    }
+
+    /* Price Box */
+    .pd-price-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border: 1.5px solid var(--pd-border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+    }
+
+    .pd-price-main-row {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+    }
+
+    .pd-live-price {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--pd-dark);
+        letter-spacing: -0.02em;
+    }
+
+    .pd-mrp-price {
+        font-size: 1.15rem;
+        color: #94a3b8;
+        text-decoration: line-through;
+        font-weight: 500;
+    }
+
+    .pd-discount-badge {
+        background: #10b981;
+        color: #ffffff;
+        font-size: 0.82rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 8px;
+        letter-spacing: 0.02em;
+    }
+
+    .pd-tax-note {
+        font-size: 0.82rem;
+        color: var(--pd-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pd-tax-note i {
+        color: #10b981;
+    }
+
+    /* Key Feature Highlights */
+    .pd-features-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .pd-feature-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .pd-feature-chip i {
+        color: var(--pd-primary);
+        font-size: 0.9rem;
+    }
+
+    /* Product Description */
+    .pd-desc-block {
+        font-size: 0.95rem;
+        color: #475569;
+        line-height: 1.65;
+        margin-bottom: 26px;
+    }
+
+    /* Purchase Engine Box */
+    .pd-purchase-section {
+        background: #ffffff;
+        border: 1px solid var(--pd-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04);
+        margin-bottom: 24px;
+    }
+
+    .pd-qty-row {
         display: flex;
         align-items: center;
         gap: 16px;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
 
-    .clean-qty-row label {
-        font-size: 14px;
-        font-weight: 600;
-        color: #27272a;
+    .pd-qty-label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--pd-dark);
     }
 
-    .clean-counter {
+    .pd-counter-box {
         display: inline-flex;
-        border: 1px solid #d4d4d8;
-        border-radius: 8px;
+        align-items: center;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
         overflow: hidden;
+        background: #ffffff;
     }
 
-    .clean-counter button {
-        background: #f4f4f5;
+    .pd-counter-btn {
+        background: #f8fafc;
         border: none;
-        width: 40px;
+        width: 42px;
         height: 40px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--pd-dark);
         cursor: pointer;
-        font-size: 18px;
-        font-weight: 600;
-        color: #27272a;
         transition: background 0.15s;
-    }
-
-    .clean-counter button:hover {
-        background: #e4e4e7;
-    }
-
-    .clean-counter input {
-        width: 48px;
-        border: none;
-        border-left: 1px solid #d4d4d8;
-        border-right: 1px solid #d4d4d8;
-        text-align: center;
-        font-size: 15px;
-        font-weight: 600;
-        color: #18181b;
-        outline: none;
-    }
-
-    /* Action Buttons */
-    .clean-action-stack {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pd-counter-btn:hover {
+        background: #e2e8f0;
+        color: var(--pd-primary);
+    }
+
+    .pd-counter-input {
+        width: 48px;
+        height: 40px;
+        border: none;
+        border-left: 1.5px solid #cbd5e1;
+        border-right: 1.5px solid #cbd5e1;
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--pd-dark);
+        outline: none;
+        background: #ffffff;
+    }
+
+    /* Dual Action Buttons */
+    .pd-buttons-stack {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 14px;
     }
 
-    .btn-buy-full,
-    .btn-cart-full {
-        width: 100%;
-        height: 52px;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: 700;
+    @@media (max-width: 540px) {
+        .pd-buttons-stack {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Buy Now Button */
+    .btn-pd-buy {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 10px;
-        cursor: pointer;
-        text-decoration: none;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #ffffff;
+        font-size: 1.05rem;
+        font-weight: 800;
+        padding: 15px 20px;
+        border-radius: 12px;
         border: none;
-        transition: all 0.2s ease;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        text-decoration: none;
     }
 
-    .btn-buy-full {
-        background: #f5a623;
-        color: #111827;
+    .btn-pd-buy:hover {
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.45);
+        color: #ffffff;
     }
 
-    .btn-buy-full:hover {
-        background: #e0961b;
-        box-shadow: 0 4px 14px rgba(245, 166, 35, 0.35);
+    /* Add to Cart Button */
+    .btn-pd-cart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 1.05rem;
+        font-weight: 700;
+        padding: 15px 20px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
     }
 
-    .btn-cart-full {
-        background: #f4f4f5;
-        color: #18181b;
-        border: 1px solid #d4d4d8;
+    .btn-pd-cart i {
+        color: #38bdf8;
+        font-size: 1.1rem;
+        transition: transform 0.2s ease;
     }
 
-    .btn-cart-full:hover {
-        background: #e4e4e7;
+    .btn-pd-cart:hover {
+        background: #4f46e5;
+        box-shadow: 0 8px 22px rgba(79, 70, 229, 0.4);
+        transform: translateY(-2px);
     }
 
-</style>
+    .btn-pd-cart:hover i {
+        transform: scale(1.15);
+        color: #ffffff;
+    }
 
-<div class="clean-product-page">
-    <!-- Breadcrumb Navigation -->
-    <div class="clean-breadcrumb">
-        <a href="@Url.Action("Index", "Customer")">Home</a>
-        <span> / </span>
-        <a href="@Url.Action("allProduct", "Customer")">Products</a>
-        <span> / </span>
-        <span style="color: #18181b; font-weight: 600;">@Model.product_name</span>
-    </div>
+    /* Pincode & Delivery Checker */
+    .pd-pincode-box {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
 
-    <!-- Product Grid -->
-    <div class="clean-layout-grid">
-        <!-- Big Product Image -->
-        <div class="big-image-wrapper">
-            @if (!string.IsNullOrEmpty(Model.product_image))
-            {
-                <img src="~/product_images/@Model.product_image" alt="@Model.product_name" />
-            }
-            else
-            {
-                <img src="https://picsum.photos/seed/@Model.product_id/800/600" alt="@Model.product_name" />
-            }
-        </div>
+    .pd-pincode-input-wrap {
+        display: flex;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        overflow: hidden;
+    }
 
-        <!-- Clean Product Info & Actions -->
-        <div class="info-action-panel">
-            <h1 class="clean-title">@Model.product_name</h1>
+    .pd-pincode-input-wrap input {
+        border: none;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        outline: none;
+        width: 140px;
+    }
 
-            <div class="clean-price-box">
-                <span class="clean-price">₹@Model.product_price</span>
-            </div>
+    .pd-pincode-input-wrap button {
+        background: #0f172a;
+        color: #ffffff;
+        border: none;
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
 
-            <p class="clean-description">
-                @(string.IsNullOrWhiteSpace(Model.product_description)
-                    ? "No detailed description available for this product."
-                    : Model.product_description)
-            </p>
+    .pd-pincode-input-wrap button:hover {
+        background: #4f46e5;
+    }
 
-            <!-- Quantity Row -->
-            <div class="clean-qty-row">
-                <label>Quantity:</label>
-                <div class="clean-counter">
-                    <button type="button" onclick="updateQty(-1)">&minus;</button>
-                    <input type="number" id="buyQty" value="1" min="1" max="10" readonly />
-                    <button type="button" onclick="updateQty(1)">&#43;</button>
-                </div>
-            </div>
+    .pd-delivery-status {
+        font-size: 0.82rem;
+        color: #059669;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
 
-            <!-- Buy / Cart Buttons -->
-            <div class="clean-action-stack">
-                <button type="button" class="btn-buy-full" onclick="buyNow(@Model.product_id)">
-                    <i class="fas fa-bolt"></i> Buy Now
-                </button>
+    /* =========================================
+       SPECIFICATIONS & REVIEWS TABS SECTION
+       ========================================= */
+    .pd-tabs-section {
+        background: #ffffff;
+        border: 1px solid var(--pd-border);
+        border-radius: 20px;
+        padding: 34px 38px;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+        margin-bottom: 70px;
+    }
 
-                <form method="post" asp-controller="Customer" asp-action="AddToCart" style="margin: 0; width: 100%;">
-                    <input type="hidden" name="productId" value="@Model.product_id" />
-                    <input type="hidden" name="quantity" id="hiddenCartQty" value="1" />
-                    <button type="button" class="btn-cart-full" onclick="addToCartAjax(@Model.product_id)">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+    .pd-tabs-nav {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid #f1f5f9;
+        margin-bottom: 28px;
+        overflow-x: auto;
+    }
 
-<script>
-    function updateQty(change) {
-        const input = document.getElementById('buyQty');
-        let current = parseInt(input.value) || 1;
-        current += change;
-        if (current >= 1 && current <= 10) {
-            input.value = current;
-            document.getElementById('hiddenCartQty').value = current;
+    .pd-tab-trigger {
+        background: none;
+        border: none;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--pd-muted);
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .pd-tab-trigger.active {
+        color: var(--pd-primary);
+    }
+
+    .pd-tab-trigger.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--pd-primary);
+        border-radius: 2px;
+    }
+
+    .pd-tab-pane {
+        display: none;
+        animation: pdFadeIn 0.25s ease-out;
+    }
+
+    .pd-tab-pane.active {
+        display: block;
+    }
+
+    @@keyframes pdFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Specs Table */
+    .pd-specs-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pd-specs-table tr {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .pd-specs-table th {
+        text-align: left;
+        padding: 14px 18px;
+        width: 30%;
+        font-size: 0.88rem;
+        color: #64748b;
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+    .pd-specs-table td {
+        padding: 14px 18px;
+        font-size: 0.88rem;
+        color: #0f172a;
+        font-weight: 500;
+    }
+
+    /* Overview Highlights Cards */
+    .pd-highlights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .pd-highlight-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 22px;
+    }
+
+    .pd-highlight-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: var(--pd-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 14px;
+    }
+
+    .pd-highlight-card h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--pd-dark);
+        margin: 0 0 6px 0;
+    }
+
+    .pd-highlight-card p {
+        font-size: 0.85rem;
+        color: #64748b;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Reviews Layout */
+    .pd-reviews-summary {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 36px;
+        align-items: center;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 26px;
+        margin-bottom: 28px;
+    }
+
+    @@media (max-width: 768px) {
+        .pd-reviews-summary {
+            grid-template-columns: 1fr;
         }
     }
 
-    function buyNow(productId) {
+    .pd-big-rating {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: var(--pd-dark);
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .pd-review-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pd-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .pd-bar-track {
+        flex-grow: 1;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+
+    .pd-bar-fill {
+        height: 100%;
+        background: #f59e0b;
+        border-radius: 9999px;
+    }
+
+    .pd-customer-card {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 18px 0;
+    }
+
+    .pd-customer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .pd-customer-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pd-customer-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e0e7ff;
+        color: var(--pd-primary);
+        font-weight: 700;
+        font-size: 0.82rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* =========================================
+       RELATED PRODUCTS GRID & STORE CARDS
+       ========================================= */
+    .pd-related-section {
+        margin-top: 50px;
+    }
+
+    .pd-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 26px;
+    }
+
+    .pd-section-header h3 {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--pd-dark);
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .pd-related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 26px;
+    }
+
+    /* Proper Card Architecture */
+    .pd-related-grid .store-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1.5px solid var(--pd-border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 14px -3px rgba(15, 23, 42, 0.04);
+        position: relative;
+    }
+
+    .pd-related-grid .store-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 34px -8px rgba(15, 23, 42, 0.12);
+        border-color: #cbd5e1;
+    }
+
+    /* Fixed Image Container with Object-fit Contain */
+    .pd-related-grid .store-card-media {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border-bottom: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    .pd-related-grid .store-card-media img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.35s ease;
+    }
+
+    .pd-related-grid .store-card:hover .store-card-media img {
+        transform: scale(1.06);
+    }
+
+    .pd-related-grid .verified-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: #ecfdf5;
+        color: #059669;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        border: 1px solid #a7f3d0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        z-index: 2;
+    }
+
+    .pd-related-grid .brand-tag-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        text-transform: uppercase;
+        z-index: 2;
+    }
+
+    .pd-related-grid .store-card-body {
+        padding: 18px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
+
+    .pd-related-grid .store-rating-bar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.78rem;
+        color: #f59e0b;
+        margin-bottom: 8px;
+    }
+
+    .pd-related-grid .store-rating-bar span {
+        color: var(--pd-muted);
+        font-weight: 600;
+        font-size: 0.78rem;
+        margin-left: 4px;
+    }
+
+    .pd-related-grid .store-card-title {
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: var(--pd-dark);
+        margin: 0 0 10px 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.8em;
+    }
+
+    .pd-related-grid .store-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .pd-related-grid .store-actual-price {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--pd-dark);
+    }
+
+    .pd-related-grid .store-cut-price {
+        font-size: 0.88rem;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+
+    .pd-related-grid .card-actions-cluster {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .pd-related-grid .btn-card-cart-proper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 12px 10px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+
+    .pd-related-grid .btn-card-cart-proper i {
+        font-size: 0.95rem;
+        color: #38bdf8;
+        transition: transform 0.2s ease;
+    }
+
+    .pd-related-grid .btn-card-cart-proper:hover {
+        background: #4f46e5;
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        transform: translateY(-2px);
+    }
+
+    .pd-related-grid .btn-card-cart-proper:hover i {
+        transform: scale(1.15);
+        color: #ffffff;
+    }
+
+    .pd-related-grid .btn-card-details-proper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #f59e0b;
+        color: #0f172a;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 12px 10px;
+        border-radius: 10px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+    }
+
+    .pd-related-grid .btn-card-details-proper:hover {
+        background: #d97706;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="pd-container">
+    <!-- Breadcrumbs -->
+    <div class="pd-breadcrumb">
+        <a href="@Url.Action("Index", "Customer")"><i class="fas fa-house"></i> Home</a>
+        <span class="sep">&rsaquo;</span>
+        <a href="@Url.Action("allProduct", "Customer")">Catalog</a>
+        @if (Model?.Category != null)
+        {
+            <span class="sep">&rsaquo;</span>
+            <a href="@Url.Action("allProduct", "Customer", new { search = Model.Category.category_name })">@Model.Category.category_name</a>
+        }
+        <span class="sep">&rsaquo;</span>
+        <span class="current">@Model?.product_name</span>
+    </div>
+
+    <!-- Main Showcase Grid -->
+    <div class="pd-main-grid">
+        <!-- Left: Product Media Gallery & Trust Pillars -->
+        <div class="pd-gallery-card">
+            <div class="pd-badge-row">
+                <span class="pd-badge-genuine">
+                    <i class="fas fa-shield-check"></i> 100% Genuine Sealed
+                </span>
+                <span class="pd-badge-stock">
+                    <i class="fas fa-circle-check"></i> In Stock &bull; Ready to Ship
+                </span>
+            </div>
+
+            <!-- Main High-Res Image View -->
+            <div class="pd-main-image-wrap" id="mainImageFrame">
+                @if (!string.IsNullOrEmpty(Model?.product_image))
+                {
+                    <img id="primaryProductImg" src="@Url.Content("~/product_images/" + Model.product_image)" alt="@Model.product_name" />
+                }
+                else
+                {
+                    <img id="primaryProductImg" src="https://picsum.photos/seed/@(Model?.product_id ?? 1)/800/800" alt="@Model?.product_name" />
+                }
+            </div>
+
+            <!-- Interactive Thumbnails -->
+            <div class="pd-thumbnails-strip">
+                <button type="button" class="pd-thumb-btn is-active" onclick="switchThumbnail(this, '@Url.Content("~/product_images/" + Model?.product_image)')" title="Main Angle">
+                    <img src="@Url.Content("~/product_images/" + Model?.product_image)" alt="Main view" />
+                </button>
+                <button type="button" class="pd-thumb-btn" onclick="switchThumbnail(this, '@Url.Content("~/product_images/" + Model?.product_image)')" title="Alternate Angle">
+                    <img src="@Url.Content("~/product_images/" + Model?.product_image)" alt="Side view" style="transform: scaleX(-1);" />
+                </button>
+                <button type="button" class="pd-thumb-btn" onclick="switchThumbnail(this, '@Url.Content("~/product_images/" + Model?.product_image)')" title="Macro Detail">
+                    <img src="@Url.Content("~/product_images/" + Model?.product_image)" alt="Detail view" style="transform: scale(1.15);" />
+                </button>
+            </div>
+
+            <!-- Trust Grid -->
+            <div class="pd-trust-grid">
+                <div class="pd-trust-box">
+                    <div class="pd-trust-icon"><i class="fas fa-truck-fast"></i></div>
+                    <div class="pd-trust-text">
+                        <strong>Free Express Delivery</strong>
+                        <small>Dispatched within 24 Hours</small>
+                    </div>
+                </div>
+                <div class="pd-trust-box">
+                    <div class="pd-trust-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-shield-halved"></i></div>
+                    <div class="pd-trust-text">
+                        <strong>1-Year Warranty</strong>
+                        <small>Official Brand Coverage</small>
+                    </div>
+                </div>
+                <div class="pd-trust-box">
+                    <div class="pd-trust-icon" style="background:#fffbeb; color:#d97706;"><i class="fas fa-rotate-left"></i></div>
+                    <div class="pd-trust-text">
+                        <strong>7-Day Returns</strong>
+                        <small>Hassle-Free Replacement</small>
+                    </div>
+                </div>
+                <div class="pd-trust-box">
+                    <div class="pd-trust-icon" style="background:#f0fdf4; color:#16a34a;"><i class="fas fa-lock"></i></div>
+                    <div class="pd-trust-text">
+                        <strong>100% Safe Checkout</strong>
+                        <small>Bank-Grade 256-Bit SSL</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Information & Purchase Engine -->
+        <div class="pd-details-col">
+            @if (Model?.Category != null)
+            {
+                <div class="pd-category-pill">
+                    <i class="fas fa-tag"></i> @Model.Category.category_name
+                </div>
+            }
+
+            <h1 class="pd-product-title">@Model?.product_name</h1>
+
+            <!-- Ratings -->
+            <div class="pd-rating-strip">
+                <div class="pd-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-stroke"></i>
+                </div>
+                <span class="pd-rating-number">4.9</span>
+                <span class="pd-rating-count">(1,482 verified buyer reviews)</span>
+                <span class="pd-bestseller-tag"><i class="fas fa-crown"></i> #1 Bestseller</span>
+            </div>
+
+            <!-- Price & Savings Card -->
+            <div class="pd-price-card">
+                <div class="pd-price-main-row">
+                    <span class="pd-live-price">₹@price.ToString("N0")</span>
+                    @if (mrpPrice > price)
+                    {
+                        <span class="pd-mrp-price">₹@mrpPrice.ToString("N0")</span>
+                        <span class="pd-discount-badge">Save ₹@savings.ToString("N0") (@discountPercent% OFF)</span>
+                    }
+                </div>
+                <div class="pd-tax-note">
+                    <i class="fas fa-circle-check"></i> Inclusive of all taxes &bull; No Cost EMI available from ₹@(Math.Round(price / 12, 0).ToString("N0"))/month
+                </div>
+            </div>
+
+            <!-- Feature Highlight Pills -->
+            <div class="pd-features-grid">
+                <div class="pd-feature-chip">
+                    <i class="fas fa-bolt"></i> Ultra Fast Processing
+                </div>
+                <div class="pd-feature-chip">
+                    <i class="fas fa-battery-full"></i> All-Day Battery Endurance
+                </div>
+                <div class="pd-feature-chip">
+                    <i class="fas fa-wifi"></i> Low-Latency Wireless
+                </div>
+                <div class="pd-feature-chip">
+                    <i class="fas fa-award"></i> Premium Ergonomic Build
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="pd-desc-block">
+                @(string.IsNullOrWhiteSpace(Model?.product_description)
+                    ? "Engineered with flagship precision and industry-leading performance. Built for professionals and tech enthusiasts who demand unmatched reliability."
+                    : Model.product_description)
+            </div>
+
+            <!-- Purchase Engine Box -->
+            <div class="pd-purchase-section">
+                <!-- Quantity Selector -->
+                <div class="pd-qty-row">
+                    <span class="pd-qty-label">Quantity:</span>
+                    <div class="pd-counter-box">
+                        <button type="button" class="pd-counter-btn" onclick="changeQty(-1)" aria-label="Decrease quantity">&minus;</button>
+                        <input type="number" id="detailQtyInput" class="pd-counter-input" value="1" min="1" max="10" readonly />
+                        <button type="button" class="pd-counter-btn" onclick="changeQty(1)" aria-label="Increase quantity">&#43;</button>
+                    </div>
+                    <span style="font-size: 0.8rem; color: #64748b; font-weight: 500;">(Max 10 per order)</span>
+                </div>
+
+                <!-- Dual Action Buttons -->
+                <div class="pd-buttons-stack">
+                    <button type="button" class="btn-pd-buy" onclick="handleBuyNow(@Model?.product_id)">
+                        <i class="fas fa-bolt"></i>
+                        <span>Buy Now</span>
+                    </button>
+
+                    <button type="button" class="btn-pd-cart" onclick="handleAddDetailToCart(@Model?.product_id)">
+                        <i class="fas fa-cart-shopping"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                </div>
+
+                <!-- Delivery Estimator Widget -->
+                <div class="pd-pincode-box">
+                    <div style="font-size: 0.82rem; font-weight: 600; color: #475569;">
+                        <i class="fas fa-location-dot" style="color: #4f46e5;"></i> Deliver to:
+                    </div>
+                    <div class="pd-pincode-input-wrap">
+                        <input type="text" id="pincodeInput" placeholder="Enter PIN code" maxlength="6" value="380001" />
+                        <button type="button" onclick="checkPincode()">Check</button>
+                    </div>
+                    <div class="pd-delivery-status" id="pincodeResult">
+                        <i class="fas fa-truck"></i> Express delivery by <strong>Tomorrow, 5 PM</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Badges Strip -->
+            <div style="display: flex; align-items: center; gap: 14px; font-size: 0.78rem; color: #64748b; flex-wrap: wrap;">
+                <span>Payment Options:</span>
+                <span style="font-weight: 700; color: #0f172a;"><i class="fab fa-google-pay"></i> UPI</span>
+                <span style="font-weight: 700; color: #0f172a;"><i class="fab fa-cc-visa"></i> Visa</span>
+                <span style="font-weight: 700; color: #0f172a;"><i class="fab fa-cc-mastercard"></i> MasterCard</span>
+                <span style="font-weight: 700; color: #0f172a;"><i class="fas fa-building-columns"></i> NetBanking</span>
+                <span style="font-weight: 700; color: #0f172a;"><i class="fas fa-money-bill-wave"></i> COD Available</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specifications, Features & Reviews Tabs -->
+    <div class="pd-tabs-section">
+        <div class="pd-tabs-nav">
+            <button type="button" class="pd-tab-trigger active" onclick="switchTab(this, 'tabOverview')">
+                <i class="fas fa-sparkles"></i> Overview &amp; Features
+            </button>
+            <button type="button" class="pd-tab-trigger" onclick="switchTab(this, 'tabSpecifications')">
+                <i class="fas fa-list-check"></i> Technical Specs
+            </button>
+            <button type="button" class="pd-tab-trigger" onclick="switchTab(this, 'tabReviews')">
+                <i class="fas fa-star"></i> Customer Reviews (1,482)
+            </button>
+            <button type="button" class="pd-tab-trigger" onclick="switchTab(this, 'tabShipping')">
+                <i class="fas fa-box-check"></i> Shipping &amp; Warranty
+            </button>
+        </div>
+
+        <!-- Tab 1: Overview & Highlights -->
+        <div class="pd-tab-pane active" id="tabOverview">
+            <div class="pd-highlights-grid">
+                <div class="pd-highlight-card">
+                    <div class="pd-highlight-icon"><i class="fas fa-microchip"></i></div>
+                    <h4>Flagship Architecture</h4>
+                    <p>Powered by state-of-the-art processors designed for thermal efficiency, instant response times, and multi-threaded reliability.</p>
+                </div>
+                <div class="pd-highlight-card">
+                    <div class="pd-highlight-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-battery-bolt"></i></div>
+                    <h4>All-Day Endurance</h4>
+                    <p>Optimized energy draw ensures lasting performance through heavy work sessions, gaming, and multimedia streaming.</p>
+                </div>
+                <div class="pd-highlight-card">
+                    <div class="pd-highlight-icon" style="background:#fffbeb; color:#d97706;"><i class="fas fa-shield-alt"></i></div>
+                    <h4>Aerospace-Grade Materials</h4>
+                    <p>Sculpted with durable alloys and premium tactile finishes that feel extraordinary in hand and resist everyday wear.</p>
+                </div>
+                <div class="pd-highlight-card">
+                    <div class="pd-highlight-icon" style="background:#f0fdf4; color:#16a34a;"><i class="fas fa-headset"></i></div>
+                    <h4>Signature Acoustics</h4>
+                    <p>Precision dynamic drivers calibrated for ultra-wide frequency curves, deep punchy bass, and crystal-clear vocals.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Specifications Table -->
+        <div class="pd-tab-pane" id="tabSpecifications">
+            <table class="pd-specs-table">
+                <tbody>
+                    <tr>
+                        <th>Product Model</th>
+                        <td>@Model?.product_name</td>
+                    </tr>
+                    <tr>
+                        <th>Category</th>
+                        <td>@(Model?.Category?.category_name ?? "Flagship Electronics")</td>
+                    </tr>
+                    <tr>
+                        <th>Color / Finish</th>
+                        <td>Premium Obsidian / Titanium Edition</td>
+                    </tr>
+                    <tr>
+                        <th>Connectivity</th>
+                        <td>Bluetooth 5.3 Low Energy, Wi-Fi 6E, USB-C High-Speed Port</td>
+                    </tr>
+                    <tr>
+                        <th>Manufacturer Warranty</th>
+                        <td>1-Year Comprehensive Brand Warranty with Pan-India Service Support</td>
+                    </tr>
+                    <tr>
+                        <th>In The Box</th>
+                        <td>1x @Model?.product_name, High-Speed USB-C Cable, Quick Start Guide, Warranty Documentation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tab 3: Customer Reviews -->
+        <div class="pd-tab-pane" id="tabReviews">
+            <div class="pd-reviews-summary">
+                <div style="text-align: center;">
+                    <div class="pd-big-rating">4.9</div>
+                    <div class="pd-stars" style="justify-content: center; margin-bottom: 6px;">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Based on 1,482 verified buyers</div>
+                </div>
+                <div class="pd-review-bars">
+                    <div class="pd-bar-row">
+                        <span>5 Stars</span>
+                        <div class="pd-bar-track"><div class="pd-bar-fill" style="width: 88%;"></div></div>
+                        <span>88%</span>
+                    </div>
+                    <div class="pd-bar-row">
+                        <span>4 Stars</span>
+                        <div class="pd-bar-track"><div class="pd-bar-fill" style="width: 9%;"></div></div>
+                        <span>9%</span>
+                    </div>
+                    <div class="pd-bar-row">
+                        <span>3 Stars</span>
+                        <div class="pd-bar-track"><div class="pd-bar-fill" style="width: 2%;"></div></div>
+                        <span>2%</span>
+                    </div>
+                    <div class="pd-bar-row">
+                        <span>2 Stars</span>
+                        <div class="pd-bar-track"><div class="pd-bar-fill" style="width: 1%;"></div></div>
+                        <span>1%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Comments -->
+            <div class="pd-customer-card">
+                <div class="pd-customer-header">
+                    <div class="pd-customer-user">
+                        <div class="pd-customer-avatar">RK</div>
+                        <div>
+                            <strong style="color: #0f172a; font-size: 0.9rem;">Rohan Kapoor</strong>
+                            <div style="font-size: 0.76rem; color: #059669; font-weight: 600;"><i class="fas fa-check-circle"></i> Verified Buyer</div>
+                        </div>
+                    </div>
+                    <div class="pd-stars" style="font-size: 0.8rem;">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <p style="font-size: 0.88rem; color: #475569; margin: 0; line-height: 1.5;">
+                    "Absolutely exceeded my expectations! The build quality and speed are truly flagship. Arrived in sealed original box within 24 hours. UrbanCart's service is phenomenal."
+                </p>
+            </div>
+
+            <div class="pd-customer-card">
+                <div class="pd-customer-header">
+                    <div class="pd-customer-user">
+                        <div class="pd-customer-avatar" style="background:#fef3c7; color:#d97706;">AS</div>
+                        <div>
+                            <strong style="color: #0f172a; font-size: 0.9rem;">Ananya Sharma</strong>
+                            <div style="font-size: 0.76rem; color: #059669; font-weight: 600;"><i class="fas fa-check-circle"></i> Verified Buyer</div>
+                        </div>
+                    </div>
+                    <div class="pd-stars" style="font-size: 0.8rem;">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <p style="font-size: 0.88rem; color: #475569; margin: 0; line-height: 1.5;">
+                    "Authentic product with official warranty registered seamlessly. The battery life easily lasts two days on a single charge. 10/10 recommended!"
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab 4: Shipping & Warranty -->
+        <div class="pd-tab-pane" id="tabShipping">
+            <div style="font-size: 0.92rem; color: #475569; line-height: 1.7;">
+                <h4 style="color: #0f172a; font-size: 1.05rem; margin-top: 0; margin-bottom: 8px;">Delivery &amp; Logistics</h4>
+                <p>All items are dispatched from our temperature-controlled urban fulfillment hubs within 24 hours of payment verification. Tracked doorstep delivery via premier air express couriers.</p>
+
+                <h4 style="color: #0f172a; font-size: 1.05rem; margin-top: 20px; margin-bottom: 8px;">7-Day Replacement Policy</h4>
+                <p>If your package arrives damaged, incomplete, or functionally defective, initiate a 1-click replacement within 7 days of delivery. Our courier will inspect and swap the unit directly at your doorstep.</p>
+
+                <h4 style="color: #0f172a; font-size: 1.05rem; margin-top: 20px; margin-bottom: 8px;">Authorized Brand Warranty</h4>
+                <p>Each unit carries a 1-year authorized manufacturer warranty. Service requests can be booked online or fulfilled at any of the 400+ authorized repair centers nationwide.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products Showcase ("You May Also Like") -->
+    @if (relatedProducts != null && relatedProducts.Any())
+    {
+        <div class="pd-related-section">
+            <div class="pd-section-header">
+                <h3>You May Also Like</h3>
+                <a href="@Url.Action("allProduct", "Customer")" class="see-all-btn" style="color: #0f172a; font-weight: 700; text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                    VIEW ALL PRODUCTS <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="pd-related-grid">
+                @foreach (var rel in relatedProducts)
+                {
+                    decimal relPrice = 0;
+                    decimal.TryParse(rel.product_price, out relPrice);
+                    decimal relCutPrice = relPrice > 0 ? relPrice * 1.15m : 0;
+
+                    <div class="store-card">
+                        <div class="store-card-media">
+                            <span class="verified-badge"><i class="fas fa-check-circle"></i> In Stock</span>
+                            @if (rel.Category != null)
+                            {
+                                <span class="brand-tag-badge">@rel.Category.category_name</span>
+                            }
+                            <img src="@Url.Content("~/product_images/" + rel.product_image)" alt="@rel.product_name" />
+                        </div>
+                        <div class="store-card-body">
+                            <div>
+                                <div class="store-rating-bar">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i>
+                                    <span>(4.9)</span>
+                                </div>
+                                <h3 class="store-card-title" title="@rel.product_name">@rel.product_name</h3>
+                                <div class="store-pricing">
+                                    <span class="store-actual-price">₹@relPrice.ToString("N0")</span>
+                                    <span class="store-cut-price">₹@relCutPrice.ToString("N0")</span>
+                                </div>
+                            </div>
+                            <div class="card-actions-cluster">
+                                <button type="button" class="btn-card-cart-proper" onclick="addToCartAjax(@rel.product_id)" title="Add to Cart">
+                                    <i class="fas fa-cart-shopping"></i>
+                                    <span>Cart</span>
+                                </button>
+                                <a href="@Url.Action("productDetails", "Customer", new { id = rel.product_id })" class="btn-card-details-proper" title="View details">
+                                    <span>Details</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    // Quantity Controls
+    function changeQty(delta) {
+        const input = document.getElementById('detailQtyInput');
+        let val = parseInt(input.value) || 1;
+        val += delta;
+        if (val < 1) val = 1;
+        if (val > 10) val = 10;
+        input.value = val;
+    }
+
+    // Interactive Thumbnail Switcher
+    function switchThumbnail(button, newSrc) {
+        document.querySelectorAll('.pd-thumb-btn').forEach(btn => btn.classList.remove('is-active'));
+        button.classList.add('is-active');
+        const mainImg = document.getElementById('primaryProductImg');
+        if (mainImg) {
+            mainImg.style.opacity = '0.5';
+            setTimeout(() => {
+                mainImg.src = newSrc;
+                mainImg.style.opacity = '1';
+            }, 120);
+        }
+    }
+
+    // Tabs Switcher
+    function switchTab(btn, tabId) {
+        document.querySelectorAll('.pd-tab-trigger').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.pd-tab-pane').forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        const activePane = document.getElementById(tabId);
+        if (activePane) activePane.classList.add('active');
+    }
+
+    // Pincode Checker Simulation
+    function checkPincode() {
+        const pin = document.getElementById('pincodeInput').value.trim();
+        const resEl = document.getElementById('pincodeResult');
+        if (pin.length === 6 && /^\d+$/.test(pin)) {
+            resEl.innerHTML = `<i class="fas fa-truck-fast"></i> Express delivery to PIN <strong>${pin}</strong> available by <strong>Tomorrow, 5 PM</strong>`;
+            resEl.style.color = '#059669';
+        } else {
+            resEl.innerHTML = `<i class="fas fa-triangle-exclamation"></i> Please enter a valid 6-digit PIN code`;
+            resEl.style.color = '#dc2626';
+        }
+    }
+
+    // Add To Cart with selected quantity
+    function handleAddDetailToCart(productId) {
+        const qty = parseInt(document.getElementById('detailQtyInput').value) || 1;
+
         fetch('/Customer/AddToCart', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: 'prod_id=' + encodeURIComponent(productId)
+            body: `prod_id=${encodeURIComponent(productId)}&quantity=${encodeURIComponent(qty)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const toast = document.getElementById('cartToast');
+                const toastMsg = document.getElementById('cartToastMsg');
+                if (toast && toastMsg) {
+                    toastMsg.innerText = `Added ${qty} item(s) to your cart!`;
+                    toast.style.display = 'flex';
+                    setTimeout(() => { toast.style.display = 'none'; }, 3200);
+                }
+
+                const cartBadge = document.getElementById('cartCount');
+                if (cartBadge) {
+                    let currentCount = parseInt(cartBadge.innerText) || 0;
+                    cartBadge.innerText = currentCount + qty;
+                }
+            } else if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
+        .catch(err => console.error('Error adding to cart:', err));
+    }
+
+    // Buy Now: adds to cart with quantity and jumps directly to checkout
+    function handleBuyNow(productId) {
+        const qty = parseInt(document.getElementById('detailQtyInput').value) || 1;
+
+        fetch('/Customer/AddToCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `prod_id=${encodeURIComponent(productId)}&quantity=${encodeURIComponent(qty)}`
         })
         .then(response => response.json())
         .then(data => {
@@ -285,8 +1545,7 @@
                 window.location.href = data.redirect;
             }
         })
-        .catch(err => {
-            console.error('Error with Buy Now:', err);
+        .catch(() => {
             window.location.href = '@Url.Action("Checkout", "Customer")';
         });
     }

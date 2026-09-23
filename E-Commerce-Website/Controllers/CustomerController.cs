@@ -218,27 +218,41 @@ namespace E_Commerce_Website.Controllers
             return Json(results);
         }
 
-        // 2. Action to show a single product detail
+        // 2. Action to show a single product detail with category and related products
         public IActionResult productDetails(int id)
         {
             List<Category> category = _context.tbl_category.ToList();
             ViewData["category"] = category;
 
-            var product = _context.tbl_product.FirstOrDefault(p => p.product_id == id);
+            var product = _context.tbl_product.Include(p => p.Category).FirstOrDefault(p => p.product_id == id);
             if (product == null)
             {
                 return NotFound();
             }
 
+            // Fetch related products (same category or flagship companions)
+            var related = _context.tbl_product
+                .Include(p => p.Category)
+                .Where(p => p.product_id != id && p.cat_id == product.cat_id)
+                .Take(4)
+                .ToList();
+
+            if (related.Count < 4)
+            {
+                var extra = _context.tbl_product
+                    .Include(p => p.Category)
+                    .Where(p => p.product_id != id && !related.Select(r => r.product_id).Contains(p.product_id))
+                    .Take(4 - related.Count)
+                    .ToList();
+                related.AddRange(extra);
+            }
+
+            ViewBag.RelatedProducts = related;
             return View(product);
         }
 
-
-
-
-
         [HttpPost]
-        public IActionResult AddToCart(int prod_id)
+        public IActionResult AddToCart(int prod_id, int quantity = 1)
         {
             string? isLogin = HttpContext.Session.GetString("customerSession");
 
@@ -248,6 +262,7 @@ namespace E_Commerce_Website.Controllers
                 return Json(new { success = false, redirect = Url.Action("customerLogin", "Customer") });
             }
 
+            if (quantity < 1) quantity = 1;
             int customerId = int.Parse(isLogin);
 
             // Check if the item already exists in customer's cart
@@ -258,7 +273,7 @@ namespace E_Commerce_Website.Controllers
 
             if (existingCartItem != null)
             {
-                existingCartItem.product_quantity += 1;
+                existingCartItem.product_quantity += quantity;
                 _context.tbl_cart.Update(existingCartItem);
             }
             else
@@ -267,7 +282,7 @@ namespace E_Commerce_Website.Controllers
                 {
                     prod_id = prod_id,
                     cust_id = customerId,
-                    product_quantity = 1,
+                    product_quantity = quantity,
                     cart_status = 0
                 };
                 _context.tbl_cart.Add(cart);
