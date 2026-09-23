@@ -205,5 +205,10 @@ namespace E_Commerce_Website.Controllers
 
             return Json(new { success = true, message = "Product successfully added to cart!" });
         }
+
+        public IActionResult fetchCart()
+        {
+            return View();
+        }
     }
 }
