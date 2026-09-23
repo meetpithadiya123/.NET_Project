@@ -497,7 +497,9 @@ namespace E_Commerce_Website.Controllers
 
         public IActionResult fetchCart()
         {
-            return View(_context.tbl_cart.ToList());
+            var cart = _context.tbl_cart.Include(c => c.products)
+                .Include(c => c.customers).ToList();
+            return View(cart);
         }
 
 
