@@ -1,0 +1,985 @@
+@model E_Commerce_Website.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Secure Checkout - Molla";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --checkout-primary: #4f46e5;
+        --checkout-primary-hover: #4338ca;
+        --checkout-success: #10b981;
+        --checkout-dark: #0f172a;
+        --checkout-muted: #64748b;
+        --checkout-border: #e2e8f0;
+        --checkout-card-bg: #ffffff;
+    }
+
+    .checkout-page-container {
+        max-width: 1200px;
+        margin: 30px auto 90px;
+        padding: 0 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Breadcrumbs */
+    .checkout-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--checkout-muted);
+        margin-bottom: 24px;
+    }
+
+    .checkout-breadcrumb a {
+        color: var(--checkout-muted);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .checkout-breadcrumb a:hover {
+        color: var(--checkout-dark);
+    }
+
+    /* Checkout Page Header */
+    .checkout-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .checkout-title {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--checkout-dark);
+        margin: 0;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .security-badge-top {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #059669;
+        background-color: #ecfdf5;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid #a7f3d0;
+    }
+
+    /* 2-Column Grid Layout */
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 32px;
+        align-items: start;
+    }
+
+    @@media (max-width: 992px) {
+        .checkout-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cards */
+    .checkout-card {
+        background: var(--checkout-card-bg);
+        border: 1px solid var(--checkout-border);
+        border-radius: 14px;
+        padding: 24px 28px;
+        box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.05);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--checkout-dark);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background-color: var(--checkout-primary);
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: 50%;
+    }
+
+    /* Form Fields */
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    @@media (max-width: 600px) {
+        .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--checkout-border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background-color: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: var(--checkout-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    /* Payment Tabs */
+    .payment-tab-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 22px;
+    }
+
+    @@media (max-width: 650px) {
+        .payment-tab-group {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .payment-tab-btn {
+        background: #f8fafc;
+        border: 1.5px solid var(--checkout-border);
+        border-radius: 10px;
+        padding: 12px 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .payment-tab-btn i {
+        font-size: 1.3rem;
+        color: #64748b;
+        transition: color 0.2s;
+    }
+
+    .payment-tab-btn:hover {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+    }
+
+    .payment-tab-btn.active {
+        background: #eef2ff;
+        border-color: var(--checkout-primary);
+        color: var(--checkout-primary);
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
+    }
+
+    .payment-tab-btn.active i {
+        color: var(--checkout-primary);
+    }
+
+    /* Visual Card Mockup */
+    .card-preview-box {
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+        border-radius: 16px;
+        padding: 24px;
+        color: #ffffff;
+        box-shadow: 0 12px 28px -6px rgba(49, 46, 129, 0.35);
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-preview-box::after {
+        content: "";
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        top: -80px;
+        right: -60px;
+        border-radius: 50%;
+    }
+
+    .card-chip-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .card-chip {
+        width: 44px;
+        height: 32px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        border-radius: 6px;
+        position: relative;
+    }
+
+    .card-chip::after {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(0,0,0,0.15);
+    }
+
+    .card-brand-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        font-style: italic;
+    }
+
+    .card-number-display {
+        font-size: 1.35rem;
+        font-family: "Courier New", Courier, monospace;
+        letter-spacing: 0.12em;
+        margin-bottom: 22px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .card-footer-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .card-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #c7d2fe;
+        margin-bottom: 2px;
+    }
+
+    .card-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* UPI Panel */
+    .upi-panel {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid var(--checkout-border);
+    }
+
+    .qr-box {
+        display: inline-block;
+        padding: 16px;
+        background: #ffffff;
+        border: 2px dashed #cbd5e1;
+        border-radius: 14px;
+        margin: 14px 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .qr-box svg {
+        display: block;
+    }
+
+    .upi-apps-row {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 14px;
+    }
+
+    .upi-badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 6px 14px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        color: #334155;
+    }
+
+    /* Netbanking Panel */
+    .netbanking-panel {
+        display: none;
+    }
+
+    .bank-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    @@media (max-width: 500px) {
+        .bank-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .bank-option {
+        padding: 12px;
+        border: 1.5px solid var(--checkout-border);
+        border-radius: 10px;
+        cursor: pointer;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+        transition: all 0.2s ease;
+    }
+
+    .bank-option:hover {
+        border-color: var(--checkout-primary);
+        background-color: #f8fafc;
+    }
+
+    .bank-option.selected {
+        border-color: var(--checkout-primary);
+        background-color: #eef2ff;
+        color: var(--checkout-primary);
+    }
+
+    /* COD Panel */
+    .cod-panel {
+        display: none;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid var(--checkout-border);
+        text-align: center;
+    }
+
+    /* Helper badge */
+    .test-card-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: #f1f5f9;
+        color: #475569;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom: 14px;
+        transition: background 0.2s;
+        border: 1px solid #e2e8f0;
+    }
+
+    .test-card-pill:hover {
+        background-color: #e2e8f0;
+    }
+
+    /* Submit Button */
+    .btn-pay-now {
+        width: 100%;
+        background-color: var(--checkout-primary);
+        color: #ffffff;
+        font-size: 1.05rem;
+        font-weight: 700;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-pay-now:hover {
+        background-color: var(--checkout-primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-pay-now:active {
+        transform: translateY(1px);
+    }
+
+    /* Order Summary Card */
+    .summary-card {
+        background: var(--checkout-card-bg);
+        border: 1px solid var(--checkout-border);
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.05);
+        position: sticky;
+        top: 24px;
+    }
+
+    .summary-items-list {
+        max-height: 280px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        padding-right: 4px;
+    }
+
+    .summary-item-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .summary-item-img {
+        width: 54px;
+        height: 54px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .summary-item-img img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+
+    .summary-item-details {
+        flex-grow: 1;
+    }
+
+    .summary-item-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--checkout-dark);
+        margin-bottom: 2px;
+        line-height: 1.3;
+    }
+
+    .summary-item-sub {
+        font-size: 0.8rem;
+        color: var(--checkout-muted);
+    }
+
+    .summary-item-price {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--checkout-dark);
+        white-space: nowrap;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        color: #475569;
+        margin-bottom: 12px;
+    }
+
+    .summary-row.total-row {
+        border-top: 2px dashed #e2e8f0;
+        padding-top: 14px;
+        margin-top: 14px;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--checkout-dark);
+    }
+
+    .guarantee-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background-color: #f8fafc;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-top: 20px;
+        font-size: 0.8rem;
+        color: #475569;
+    }
+
+    .guarantee-box i {
+        font-size: 1.4rem;
+        color: #10b981;
+    }
+
+    /* Processing Overlay */
+    .processing-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #ffffff;
+    }
+
+    .spinner-ring {
+        width: 56px;
+        height: 56px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 18px;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="checkout-page-container">
+    <!-- Breadcrumb -->
+    <div class="checkout-breadcrumb">
+        <a href="@Url.Action("Index", "Customer")"><i class="fas fa-house"></i> Home</a>
+        <span>&rsaquo;</span>
+        <a href="@Url.Action("allProduct", "Customer")">Products</a>
+        <span>&rsaquo;</span>
+        <a href="@Url.Action("fetchCart", "Customer")">Cart</a>
+        <span>&rsaquo;</span>
+        <span style="color: var(--checkout-dark); font-weight: 600;">Checkout</span>
+    </div>
+
+    <!-- Header -->
+    <div class="checkout-header">
+        <h1 class="checkout-title">
+            <i class="fas fa-lock" style="color: var(--checkout-primary); font-size: 1.5rem;"></i>
+            Secure Checkout
+        </h1>
+        <div class="security-badge-top">
+            <i class="fas fa-shield-halved"></i>
+            256-Bit SSL Encrypted Payment
+        </div>
+    </div>
+
+    <form id="checkoutForm" method="post" asp-controller="Customer" asp-action="ProcessPayment">
+        <!-- Hidden input for selected payment method -->
+        <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="Credit/Debit Card" />
+
+        <div class="checkout-grid">
+            <!-- Left Column: Shipping & Payment Method -->
+            <div class="checkout-left">
+                <!-- Step 1: Delivery Address -->
+                <div class="checkout-card">
+                    <div class="section-title">
+                        <span class="step-number">1</span>
+                        <span>Shipping & Delivery Details</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" name="customer_name" class="form-control-custom" value="@Model.Customer.customer_name" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone Number *</label>
+                            <input type="tel" name="shipping_phone" class="form-control-custom" value="@Model.Customer.customer_phone" placeholder="+91 98765 43210" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-control-custom" value="@Model.Customer.customer_email" readonly style="background-color: #f8fafc;" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Delivery Street Address *</label>
+                        <input type="text" name="shipping_address" class="form-control-custom" value="@Model.Customer.customer_address" placeholder="Flat, House no., Apartment, Street" required />
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>City *</label>
+                            <input type="text" name="shipping_city" class="form-control-custom" value="@(string.IsNullOrEmpty(Model.Customer.customer_city) ? "Mumbai" : Model.Customer.customer_city)" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" class="form-control-custom" value="@(string.IsNullOrEmpty(Model.Customer.customer_country) ? "India" : Model.Customer.customer_country)" readonly style="background-color: #f8fafc;" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment Gateway Selection -->
+                <div class="checkout-card">
+                    <div class="section-title">
+                        <span class="step-number">2</span>
+                        <span>Select Payment Method (Dummy Gateway)</span>
+                    </div>
+
+                    <!-- Payment Tabs -->
+                    <div class="payment-tab-group">
+                        <div class="payment-tab-btn active" onclick="switchPayment('card', this)">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Card</span>
+                        </div>
+                        <div class="payment-tab-btn" onclick="switchPayment('upi', this)">
+                            <i class="fas fa-qrcode"></i>
+                            <span>UPI / QR</span>
+                        </div>
+                        <div class="payment-tab-btn" onclick="switchPayment('netbanking', this)">
+                            <i class="fas fa-building-columns"></i>
+                            <span>Net Banking</span>
+                        </div>
+                        <div class="payment-tab-btn" onclick="switchPayment('cod', this)">
+                            <i class="fas fa-hand-holding-dollar"></i>
+                            <span>Cash on Delivery</span>
+                        </div>
+                    </div>
+
+                    <!-- 1. CARD PAYMENT PANEL -->
+                    <div id="cardPanel">
+                        <div class="test-card-pill" onclick="fillTestCard()">
+                            <i class="fas fa-wand-magic-sparkles" style="color: #6366f1;"></i>
+                            Auto-Fill Demo Card Details
+                        </div>
+
+                        <!-- Card Preview -->
+                        <div class="card-preview-box">
+                            <div class="card-chip-row">
+                                <div class="card-chip"></div>
+                                <span class="card-brand-logo"><i class="fab fa-cc-visa"></i> VISA</span>
+                            </div>
+                            <div class="card-number-display" id="cardNumDisplay">•••• •••• •••• ••••</div>
+                            <div class="card-footer-info">
+                                <div>
+                                    <div class="card-label">Card Holder</div>
+                                    <div class="card-value" id="cardHolderDisplay">@(string.IsNullOrEmpty(Model.Customer.customer_name) ? "YOUR NAME" : Model.Customer.customer_name.ToUpper())</div>
+                                </div>
+                                <div>
+                                    <div class="card-label">Expires</div>
+                                    <div class="card-value" id="cardExpiryDisplay">MM/YY</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Form Inputs -->
+                        <div class="form-group">
+                            <label>Card Number *</label>
+                            <input type="text" id="cardInputNumber" class="form-control-custom" placeholder="4532 8900 1234 5678" maxlength="19" oninput="formatCardNumber(this)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Cardholder Name *</label>
+                            <input type="text" id="cardInputHolder" class="form-control-custom" placeholder="e.g. John Doe" value="@Model.Customer.customer_name" oninput="updateCardHolder(this)" />
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Expiry Date (MM/YY) *</label>
+                                <input type="text" id="cardInputExpiry" class="form-control-custom" placeholder="12/28" maxlength="5" oninput="formatCardExpiry(this)" />
+                            </div>
+                            <div class="form-group">
+                                <label>CVV / CVC *</label>
+                                <input type="password" id="cardInputCvv" class="form-control-custom" placeholder="•••" maxlength="4" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. UPI / QR CODE PANEL -->
+                    <div id="upiPanel" class="upi-panel">
+                        <strong style="font-size: 1.05rem; color: #1e293b;">Scan & Pay with Any UPI App</strong>
+                        <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">Google Pay, PhonePe, Paytm, BHIM</p>
+
+                        <div class="qr-box">
+                            <!-- SVG QR Code Simulation -->
+                            <svg width="160" height="160" viewBox="0 0 100 100" fill="#0f172a" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="100" height="100" fill="white"/>
+                                <path fill-rule="evenodd" d="M10 10h30v30H10V10zm5 5h20v20H15V15zm5 5h10v10H20V20zm40-10h30v30H60V10zm5 5h20v20H65V15zm5 5h10v10H70V20zM10 60h30v30H10V60zm5 5h20v20H15V65zm5 5h10v10H20V70zm45-5h5v5h-5v-5zm10 0h5v5h-5v-5zm10 0h5v5h-5v-5zm-20 10h5v5h-5v-5zm10 0h5v5h-5v-5zm10 0h5v5h-5v-5zm-20 10h5v5h-5v-5zm10 0h5v5h-5v-5zm10 0h5v5h-5v-5zm-5-25h5v5h-5v-5zm10 0h5v5h-5v-5zm-35-15h5v5h-5v-5zm10 0h5v5h-5v-5zm10 0h5v5h-5v-5zm-20 10h5v5h-5v-5zm10 0h5v5h-5v-5zm10 0h5v5h-5v-5z"/>
+                            </svg>
+                        </div>
+
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #4338ca;">
+                            UPI ID: molla.store@hdfcbank
+                        </div>
+
+                        <div class="upi-apps-row">
+                            <span class="upi-badge"><i class="fab fa-google-pay"></i> GPay</span>
+                            <span class="upi-badge"><i class="fas fa-wallet"></i> PhonePe</span>
+                            <span class="upi-badge"><i class="fas fa-money-bill-wave"></i> Paytm</span>
+                        </div>
+
+                        <div style="margin-top: 18px; text-align: left;">
+                            <label style="font-size: 0.85rem; font-weight: 600; color: #334155;">Or Enter your UPI ID</label>
+                            <input type="text" id="upiIdInput" class="form-control-custom" placeholder="username@okhdfcbank" style="margin-top: 4px;" />
+                        </div>
+                    </div>
+
+                    <!-- 3. NET BANKING PANEL -->
+                    <div id="netbankingPanel" class="netbanking-panel">
+                        <label style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 10px; display: block;">Select Popular Bank</label>
+                        <div class="bank-grid">
+                            <div class="bank-option selected" onclick="selectBank(this, 'HDFC Bank')">
+                                <i class="fas fa-university" style="display:block; margin-bottom: 4px;"></i> HDFC Bank
+                            </div>
+                            <div class="bank-option" onclick="selectBank(this, 'State Bank of India')">
+                                <i class="fas fa-university" style="display:block; margin-bottom: 4px;"></i> SBI
+                            </div>
+                            <div class="bank-option" onclick="selectBank(this, 'ICICI Bank')">
+                                <i class="fas fa-university" style="display:block; margin-bottom: 4px;"></i> ICICI Bank
+                            </div>
+                            <div class="bank-option" onclick="selectBank(this, 'Axis Bank')">
+                                <i class="fas fa-university" style="display:block; margin-bottom: 4px;"></i> Axis Bank
+                            </div>
+                            <div class="bank-option" onclick="selectBank(this, 'Kotak Mahindra')">
+                                <i class="fas fa-university" style="display:block; margin-bottom: 4px;"></i> Kotak Bank
+                            </div>
+                            <div class="bank-option" onclick="selectBank(this, 'Punjab National Bank')">
+                                <i class="fas fa-university" style="display:block; margin-bottom: 4px;"></i> PNB
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. COD PANEL -->
+                    <div id="codPanel" class="cod-panel">
+                        <i class="fas fa-truck-ramp-box fa-3x" style="color: #6366f1; margin-bottom: 12px; display: block;"></i>
+                        <h4 style="margin: 0 0 6px; font-weight: 700; color: #0f172a;">Cash on Delivery Available</h4>
+                        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 0;">You can pay in cash or via UPI when the courier delivers your package to your doorstep.</p>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <button type="button" class="btn-pay-now" id="submitPaymentBtn" onclick="handlePaymentSubmission()">
+                            <i class="fas fa-shield-alt"></i>
+                            <span id="btnPayText">Complete Payment of ₹@Model.GrandTotal.ToString("N0")</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="checkout-right">
+                <div class="summary-card">
+                    <div class="section-title" style="margin-bottom: 14px;">
+                        <span>Order Summary</span>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--checkout-muted);">(@Model.CartItems.Count items)</span>
+                    </div>
+
+                    <!-- Items List -->
+                    <div class="summary-items-list">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            decimal price = 0;
+                            if (item.products != null)
+                            {
+                                decimal.TryParse(item.products.product_price, out price);
+                            }
+                            var lineTotal = price * item.product_quantity;
+
+                            <div class="summary-item-row">
+                                <div class="summary-item-img">
+                                    @if (!string.IsNullOrEmpty(item.products?.product_image))
+                                    {
+                                        <img src="@Url.Content("~/product_images/" + item.products.product_image)" alt="@item.products?.product_name" />
+                                    }
+                                    else
+                                    {
+                                        <img src="https://picsum.photos/seed/@item.prod_id/100/100" alt="Product" />
+                                    }
+                                </div>
+                                <div class="summary-item-details">
+                                    <div class="summary-item-title">@(item.products?.product_name ?? $"Item #{item.prod_id}")</div>
+                                    <div class="summary-item-sub">Qty: @item.product_quantity &times; ₹@price.ToString("N0")</div>
+                                </div>
+                                <div class="summary-item-price">
+                                    ₹@lineTotal.ToString("N0")
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Pricing Breakdown -->
+                    <div class="summary-row">
+                        <span>Items Subtotal</span>
+                        <span class="fw-bold" style="color: #0f172a;">₹@Model.Subtotal.ToString("N0")</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span style="color: #10b981; font-weight: 700;">FREE</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Estimated Taxes</span>
+                        <span>₹0</span>
+                    </div>
+
+                    <div class="summary-row total-row">
+                        <span>Grand Total</span>
+                        <span style="color: var(--checkout-primary);">₹@Model.GrandTotal.ToString("N0")</span>
+                    </div>
+
+                    <div class="guarantee-box">
+                        <i class="fas fa-circle-check"></i>
+                        <div>
+                            <strong>100% Satisfaction Guaranteed</strong>
+                            <div style="color: #64748b; font-size: 0.75rem;">7-Day Easy Returns &bull; Real-time tracking</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Simulated Processing Modal -->
+<div class="processing-overlay" id="processingOverlay">
+    <div class="spinner-ring"></div>
+    <h3 style="font-weight: 700; margin-bottom: 6px;">Processing Payment...</h3>
+    <p style="color: #cbd5e1; font-size: 0.9rem;" id="processingStatusText">Connecting with banking gateway...</p>
+</div>
+
+<script>
+    // Tab Switching
+    function switchPayment(type, tabElem) {
+        document.querySelectorAll('.payment-tab-btn').forEach(btn => btn.classList.remove('active'));
+        tabElem.classList.add('active');
+
+        document.getElementById('cardPanel').style.display = 'none';
+        document.getElementById('upiPanel').style.display = 'none';
+        document.getElementById('netbankingPanel').style.display = 'none';
+        document.getElementById('codPanel').style.display = 'none';
+
+        const methodInput = document.getElementById('selectedPaymentMethod');
+        const btnText = document.getElementById('btnPayText');
+
+        if (type === 'card') {
+            document.getElementById('cardPanel').style.display = 'block';
+            methodInput.value = 'Credit/Debit Card';
+            btnText.innerText = 'Complete Payment of ₹@Model.GrandTotal.ToString("N0")';
+        } else if (type === 'upi') {
+            document.getElementById('upiPanel').style.display = 'block';
+            methodInput.value = 'UPI / QR Code';
+            btnText.innerText = 'Verify & Pay ₹@Model.GrandTotal.ToString("N0")';
+        } else if (type === 'netbanking') {
+            document.getElementById('netbankingPanel').style.display = 'block';
+            methodInput.value = 'Net Banking (HDFC Bank)';
+            btnText.innerText = 'Pay ₹@Model.GrandTotal.ToString("N0") with Net Banking';
+        } else if (type === 'cod') {
+            document.getElementById('codPanel').style.display = 'block';
+            methodInput.value = 'Cash on Delivery (COD)';
+            btnText.innerText = 'Confirm Order (Cash on Delivery)';
+        }
+    }
+
+    // Select Bank
+    function selectBank(elem, bankName) {
+        document.querySelectorAll('.bank-option').forEach(b => b.classList.remove('selected'));
+        elem.classList.add('selected');
+        document.getElementById('selectedPaymentMethod').value = 'Net Banking (' + bankName + ')';
+    }
+
+    // Auto-fill Test Card details
+    function fillTestCard() {
+        document.getElementById('cardInputNumber').value = '4532 8900 1234 8899';
+        document.getElementById('cardNumDisplay').innerText = '4532 8900 1234 8899';
+        document.getElementById('cardInputHolder').value = '@(string.IsNullOrEmpty(Model.Customer.customer_name) ? "JOHN DOE" : Model.Customer.customer_name.ToUpper())';
+        document.getElementById('cardHolderDisplay').innerText = '@(string.IsNullOrEmpty(Model.Customer.customer_name) ? "JOHN DOE" : Model.Customer.customer_name.ToUpper())';
+        document.getElementById('cardInputExpiry').value = '12/28';
+        document.getElementById('cardExpiryDisplay').innerText = '12/28';
+        document.getElementById('cardInputCvv').value = '889';
+    }
+
+    // Interactive Card Number
+    function formatCardNumber(input) {
+        let v = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formatted = '';
+        for (let i = 0; i < v.length; i++) {
+            if (i > 0 && i % 4 === 0) formatted += ' ';
+            formatted += v[i];
+        }
+        input.value = formatted;
+        document.getElementById('cardNumDisplay').innerText = formatted || '•••• •••• •••• ••••';
+    }
+
+    function updateCardHolder(input) {
+        document.getElementById('cardHolderDisplay').innerText = input.value.toUpperCase() || 'YOUR NAME';
+    }
+
+    function formatCardExpiry(input) {
+        let v = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        if (v.length >= 2) {
+            input.value = v.substring(0, 2) + '/' + v.substring(2, 4);
+        } else {
+            input.value = v;
+        }
+        document.getElementById('cardExpiryDisplay').innerText = input.value || 'MM/YY';
+    }
+
+    // Payment Submission with realistic spinner transition
+    function handlePaymentSubmission() {
+        const form = document.getElementById('checkoutForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const overlay = document.getElementById('processingOverlay');
+        const statusText = document.getElementById('processingStatusText');
+        overlay.style.display = 'flex';
+
+        setTimeout(() => {
+            statusText.innerText = 'Authorizing transaction with bank...';
+        }, 800);
+
+        setTimeout(() => {
+            statusText.innerText = 'Payment Approved! Finalizing your order...';
+        }, 1600);
+
+        setTimeout(() => {
+            form.submit();
+        }, 2200);
+    }
+</script>

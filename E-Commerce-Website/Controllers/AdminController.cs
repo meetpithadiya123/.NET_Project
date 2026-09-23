@@ -1,4 +1,4 @@
-﻿using E_Commerce_Website.Models;
+using E_Commerce_Website.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +30,41 @@ namespace E_Commerce_Website.Controllers
                 return RedirectToAction("Login");
             }
 
-            return View();
+            int.TryParse(adminSession, out int adminId);
+            var currentAdmin = _context.tbl_admin.Find(adminId);
+
+            var products = _context.tbl_product.Include(p => p.Category).ToList();
+            var categories = _context.tbl_category.ToList();
+            var customers = _context.tbl_customer.ToList();
+            var carts = _context.tbl_cart.Include(c => c.products).Include(c => c.customers).ToList();
+            var feedbacks = _context.tbl_feedback.ToList();
+
+            decimal totalRevenue = 0;
+            foreach (var item in carts.Where(c => c.cart_status == 1))
+            {
+                if (item.products != null && decimal.TryParse(item.products.product_price, out decimal price))
+                {
+                    totalRevenue += price * item.product_quantity;
+                }
+            }
+
+            var viewModel = new AdminDashboardViewModel
+            {
+                CurrentAdmin = currentAdmin,
+                TotalProducts = products.Count,
+                TotalCategories = categories.Count,
+                TotalCustomers = customers.Count,
+                TotalOrders = carts.Count,
+                CompletedOrders = carts.Count(c => c.cart_status == 1),
+                PendingCarts = carts.Count(c => c.cart_status == 0),
+                TotalRevenue = totalRevenue,
+                TotalFeedbacks = feedbacks.Count,
+                RecentOrders = carts.OrderByDescending(c => c.cart_id).Take(5).ToList(),
+                RecentCustomers = customers.OrderByDescending(c => c.customer_id).Take(5).ToList(),
+                RecentProducts = products.OrderByDescending(p => p.product_id).Take(5).ToList()
+            };
+
+            return View(viewModel);
         }
 
 
@@ -538,6 +572,41 @@ namespace E_Commerce_Website.Controllers
                 TempData["SuccessMessage"] = "Cart item deleted successfully!";
             }
             return RedirectToAction("fetchCart");
+        }
+
+        // =========================
+        // FEEDBACK MANAGEMENT
+        // =========================
+        [HttpGet]
+        public IActionResult fetchfeedback()
+        {
+            string? adminSession = HttpContext.Session.GetString("admin_session");
+            if (string.IsNullOrEmpty(adminSession))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var feedbacks = _context.tbl_feedback.ToList();
+            return View(feedbacks);
+        }
+
+        [HttpGet]
+        public IActionResult deletePermissionFeedback(int id)
+        {
+            string? adminSession = HttpContext.Session.GetString("admin_session");
+            if (string.IsNullOrEmpty(adminSession))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var feedback = _context.tbl_feedback.Find(id);
+            if (feedback != null)
+            {
+                _context.tbl_feedback.Remove(feedback);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "Feedback deleted successfully!";
+            }
+            return RedirectToAction("fetchfeedback");
         }
 
     }

@@ -1,0 +1,268 @@
+@{
+    ViewData["Title"] = "Order Confirmed - Molla";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var orderId = TempData["OrderId"]?.ToString() ?? "ORD-2026-0001";
+    var transactionId = TempData["TransactionId"]?.ToString() ?? "TXN-MOCK-999999";
+    var totalAmount = TempData["TotalAmount"]?.ToString() ?? "0";
+    var itemsCount = TempData["ItemsCount"]?.ToString() ?? "1";
+    var paymentMethod = TempData["PaymentMethod"]?.ToString() ?? "Online Payment";
+    var customerName = TempData["CustomerName"]?.ToString() ?? "Valued Customer";
+    var customerEmail = TempData["CustomerEmail"]?.ToString() ?? "";
+    var customerPhone = TempData["CustomerPhone"]?.ToString() ?? "";
+    var deliveryAddress = TempData["DeliveryAddress"]?.ToString() ?? "Standard Shipping Address";
+}
+
+<style>
+    .success-page-container {
+        max-width: 760px;
+        margin: 50px auto 90px;
+        padding: 0 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+    }
+
+    .success-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 44px 36px;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Animated Checkmark Circle */
+    .success-icon-wrap {
+        width: 84px;
+        height: 84px;
+        background: #ecfdf5;
+        border: 3px solid #a7f3d0;
+        color: #059669;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.4rem;
+        margin-bottom: 22px;
+        box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.3);
+        animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @@keyframes popIn {
+        0% { transform: scale(0.6); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+    }
+
+    .success-subtext {
+        font-size: 1.05rem;
+        color: #64748b;
+        margin-bottom: 32px;
+    }
+
+    /* Receipt Details Grid */
+    .receipt-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 24px;
+        text-align: left;
+        margin-bottom: 32px;
+    }
+
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #edf2f7;
+        font-size: 0.95rem;
+    }
+
+    .receipt-row:last-child {
+        border-bottom: none;
+    }
+
+    .receipt-label {
+        color: #64748b;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .receipt-value {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .receipt-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: #eef2ff;
+        color: #4f46e5;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    /* Delivery Estimate Box */
+    .delivery-box {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        text-align: left;
+        margin-bottom: 32px;
+    }
+
+    .delivery-icon {
+        width: 48px;
+        height: 48px;
+        background-color: #16a34a;
+        color: #ffffff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .delivery-title {
+        font-weight: 700;
+        color: #14532d;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+
+    .delivery-desc {
+        color: #15803d;
+        font-size: 0.85rem;
+    }
+
+    /* Action Buttons */
+    .success-actions {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-action-primary {
+        background-color: #4f46e5;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 14px 28px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-action-primary:hover {
+        background-color: #4338ca;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-action-secondary {
+        background-color: #ffffff;
+        color: #334155;
+        font-weight: 600;
+        padding: 14px 24px;
+        border-radius: 10px;
+        border: 1.5px solid #cbd5e1;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-secondary:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        color: #0f172a;
+    }
+</style>
+
+<div class="success-page-container">
+    <div class="success-card">
+        <!-- Checkmark Icon -->
+        <div class="success-icon-wrap">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h1 class="success-title">Payment Successful!</h1>
+        <p class="success-subtext">Thank you, <strong>@customerName</strong>. Your order has been placed and is being prepared.</p>
+
+        <!-- Delivery Box -->
+        <div class="delivery-box">
+            <div class="delivery-icon">
+                <i class="fas fa-truck-fast"></i>
+            </div>
+            <div>
+                <div class="delivery-title">Estimated Delivery: @DateTime.Now.AddDays(3).ToString("ddd, dd MMM") - @DateTime.Now.AddDays(5).ToString("ddd, dd MMM")</div>
+                <div class="delivery-desc">We will dispatch your order with live tracking updates.</div>
+            </div>
+        </div>
+
+        <!-- Receipt Details -->
+        <div class="receipt-box">
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-hashtag"></i> Order ID</span>
+                <span class="receipt-badge">@orderId</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-receipt"></i> Transaction Reference</span>
+                <span class="receipt-value" style="font-family: monospace; font-size: 0.9rem;">@transactionId</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-calendar-check"></i> Date & Time</span>
+                <span class="receipt-value">@DateTime.Now.ToString("dd MMM yyyy, hh:mm tt")</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-wallet"></i> Payment Method</span>
+                <span class="receipt-value">@paymentMethod</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-boxes-stacked"></i> Items Ordered</span>
+                <span class="receipt-value">@itemsCount items</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-location-dot"></i> Shipping To</span>
+                <span class="receipt-value" style="text-align: right; max-width: 320px;">@deliveryAddress</span>
+            </div>
+            <div class="receipt-row" style="padding-top: 14px; margin-top: 4px; border-top: 2px dashed #cbd5e1;">
+                <span class="receipt-label" style="font-size: 1.1rem; color: #0f172a; font-weight: 700;">Amount Paid</span>
+                <span class="receipt-value" style="font-size: 1.35rem; color: #4f46e5;">₹@totalAmount</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="success-actions">
+            <a href="@Url.Action("allProduct", "Customer")" class="btn-action-primary">
+                <i class="fas fa-bag-shopping"></i> Continue Shopping
+            </a>
+            <a href="@Url.Action("customerProfile", "Customer")" class="btn-action-secondary">
+                <i class="fas fa-user"></i> View Profile & Orders
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -32,37 +32,24 @@
 
             <nav class="nav">
 
-                <a href="@Url.Action("Index", "Home")"
+                <a href="@Url.Action("Index", "Admin")"
                    class="nav-item">
-
                     <span class="icon">
                         <i class="fas fa-home"></i>
                     </span>
-
                     <span class="nav-text">
                         Home
                     </span>
-
                 </a>
 
                 <a href="@Url.Action("Profile", "Admin")"
                    class="nav-item">
-
                     <span class="icon">
-                        <i class="fas fa-user"></i>
+                        <i class="fas fa-user-shield"></i>
                     </span>
-
                     <span class="nav-text">
                         Profile
                     </span>
-
-                </a>
-
-                <a href="#" class="nav-item">
-                    <span class="icon">
-                        <i class="fas fa-user-tie"></i>
-                    </span>
-                    <span class="nav-text">Staff</span>
                 </a>
 
                 <a href="@Url.Action("fetchCustomer", "Admin")" class="nav-item">
@@ -81,55 +68,42 @@
 
                 <a href="@Url.Action("fetchProduct", "Admin")"
                    class="nav-item">
-
                     <span class="icon">
                         <i class="fas fa-box"></i>
                     </span>
-
                     <span class="nav-text">
                         Products
                     </span>
-
                 </a>
 
-                <a href="@Url.Action("fetchCart", "admin")"
+                <a href="@Url.Action("fetchCart", "Admin")"
                    class="nav-item">
-
                     <span class="icon">
                         <i class="fas fa-shopping-cart"></i>
                     </span>
-
                     <span class="nav-text">
-                        Cart
+                        Cart & Orders
                     </span>
-
                 </a>
 
-                <a href="@Url.Action("Index", "Order")"
+                <a href="@Url.Action("fetchfeedback", "Admin")"
                    class="nav-item">
-
-                    <span class="icon">
-                        <i class="fas fa-receipt"></i>
-                    </span>
-
-                    <span class="nav-text">
-                        Orders
-                    </span>
-
-                </a>
-
-
-                <a href="@Url.Action("fetchfeedback", "admin")"
-                   class="nav-item">
-
                     <span class="icon">
                         <i class="fas fa-comments"></i>
                     </span>
-
                     <span class="nav-text">
-                        feedback
+                        Feedback
                     </span>
+                </a>
 
+                <a href="@Url.Action("Index", "Customer")" target="_blank"
+                   class="nav-item" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+                    <span class="icon">
+                        <i class="fas fa-external-link-alt"></i>
+                    </span>
+                    <span class="nav-text">
+                        View Store
+                    </span>
                 </a>
 
             </nav>

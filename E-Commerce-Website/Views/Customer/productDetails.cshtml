@@ -1,4 +1,4 @@
-﻿@model E_Commerce_Website.Models.Product
+@model E_Commerce_Website.Models.Product
 
 @{
     ViewData["Title"] = Model?.product_name + " - Product Details";
@@ -242,9 +242,9 @@
 
             <!-- Buy / Cart Buttons -->
             <div class="clean-action-stack">
-                <a href="@Url.Action("Checkout", "Order", new { id = Model.product_id })" class="btn-buy-full">
+                <button type="button" class="btn-buy-full" onclick="buyNow(@Model.product_id)">
                     <i class="fas fa-bolt"></i> Buy Now
-                </a>
+                </button>
 
                 <form method="post" asp-controller="Customer" asp-action="AddToCart" style="margin: 0; width: 100%;">
                     <input type="hidden" name="productId" value="@Model.product_id" />
@@ -267,5 +267,27 @@
             input.value = current;
             document.getElementById('hiddenCartQty').value = current;
         }
+    }
+
+    function buyNow(productId) {
+        fetch('/Customer/AddToCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'prod_id=' + encodeURIComponent(productId)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '@Url.Action("Checkout", "Customer")';
+            } else if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
+        .catch(err => {
+            console.error('Error with Buy Now:', err);
+            window.location.href = '@Url.Action("Checkout", "Customer")';
+        });
     }
 </script>
