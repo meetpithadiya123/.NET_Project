@@ -1,0 +1,478 @@
+@{
+    ViewData["Title"] = "About Us — UrbanCart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --about-primary: #4f46e5;
+        --about-primary-hover: #4338ca;
+        --about-dark: #0f172a;
+        --about-muted: #64748b;
+        --about-border: #e2e8f0;
+        --about-card-bg: #ffffff;
+    }
+
+    .about-page-container {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #334155;
+    }
+
+    /* Hero Section */
+    .about-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        color: #ffffff;
+        padding: 70px 20px 80px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-hero::after {
+        content: "";
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+        top: -100px;
+        right: -100px;
+        border-radius: 50%;
+    }
+
+    .about-hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.12);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        padding: 6px 16px;
+        border-radius: 9999px;
+        margin-bottom: 18px;
+    }
+
+    .about-hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 auto 16px;
+        max-width: 800px;
+        line-height: 1.15;
+    }
+
+    .about-hero-title span {
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .about-hero-desc {
+        font-size: 1.15rem;
+        color: #cbd5e1;
+        max-width: 650px;
+        margin: 0 auto 30px;
+        line-height: 1.6;
+    }
+
+    /* Stats Strip */
+    .about-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1100px;
+        margin: -40px auto 70px;
+        padding: 0 20px;
+        position: relative;
+        z-index: 10;
+    }
+
+    @@media (max-width: 768px) {
+        .about-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            margin-top: 20px;
+        }
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid var(--about-border);
+        border-radius: 16px;
+        padding: 26px 20px;
+        text-align: center;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+        transition: transform 0.25s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .stat-num {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+        letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+        font-size: 0.88rem;
+        color: var(--about-muted);
+        font-weight: 600;
+    }
+
+    /* Story Section */
+    .about-story-section {
+        max-width: 1100px;
+        margin: 0 auto 80px;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        align-items: center;
+    }
+
+    @@media (max-width: 850px) {
+        .about-story-section {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .story-copy h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 18px;
+        letter-spacing: -0.02em;
+    }
+
+    .story-copy p {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #475569;
+        margin-bottom: 16px;
+    }
+
+    .story-visual-card {
+        background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+        border: 1px solid #c7d2fe;
+        border-radius: 20px;
+        padding: 36px;
+        position: relative;
+    }
+
+    .story-highlight-box {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .highlight-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .icon-indigo { background: #eef2ff; color: #4f46e5; }
+    .icon-emerald { background: #ecfdf5; color: #10b981; }
+    .icon-amber { background: #fffbeb; color: #d97706; }
+
+    /* Core Pillars */
+    .about-pillars-section {
+        background: #f8fafc;
+        border-top: 1px solid var(--about-border);
+        border-bottom: 1px solid var(--about-border);
+        padding: 80px 20px;
+        margin-bottom: 80px;
+    }
+
+    .pillars-header {
+        text-align: center;
+        max-width: 650px;
+        margin: 0 auto 50px;
+    }
+
+    .pillars-header h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 10px;
+        letter-spacing: -0.02em;
+    }
+
+    .pillars-header p {
+        font-size: 1.05rem;
+        color: var(--about-muted);
+    }
+
+    .pillars-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 26px;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .pillar-card {
+        background: #ffffff;
+        border: 1px solid var(--about-border);
+        border-radius: 16px;
+        padding: 30px 24px;
+        transition: all 0.25s ease;
+    }
+
+    .pillar-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08);
+        border-color: #cbd5e1;
+    }
+
+    .pillar-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+
+    .pillar-card h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
+
+    .pillar-card p {
+        font-size: 0.92rem;
+        color: #64748b;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* CTA Section */
+    .about-cta-card {
+        max-width: 1100px;
+        margin: 0 auto 90px;
+        padding: 50px 30px;
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        border-radius: 20px;
+        color: #ffffff;
+        text-align: center;
+        box-shadow: 0 14px 35px -5px rgba(30, 27, 75, 0.3);
+    }
+
+    .about-cta-card h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .about-cta-card p {
+        font-size: 1.05rem;
+        color: #c7d2fe;
+        max-width: 550px;
+        margin: 0 auto 28px;
+    }
+
+    .cta-btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .btn-cta-white {
+        background: #ffffff;
+        color: #0f172a;
+        font-weight: 700;
+        padding: 14px 28px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-cta-white:hover {
+        background: #f8fafc;
+        transform: translateY(-2px);
+    }
+
+    .btn-cta-outline {
+        background: transparent;
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        font-weight: 600;
+        padding: 14px 28px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-cta-outline:hover {
+        border-color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+    }
+</style>
+
+<div class="about-page-container">
+    <!-- Hero Banner -->
+    <section class="about-hero">
+        <div class="about-hero-tag">
+            <i class="fas fa-cubes"></i> The UrbanCart Story
+        </div>
+        <h1 class="about-hero-title">
+            Redefining How India Shops For <span>Premium Technology</span>
+        </h1>
+        <p class="about-hero-desc">
+            At UrbanCart, we bring you authentic flagship smartphones, gaming hardware, high-fidelity audio, and computing gear &mdash; delivered straight to your door with unmatched speed and care.
+        </p>
+    </section>
+
+    <!-- Key Stats Strip -->
+    <div class="about-stats-grid">
+        <div class="stat-card">
+            <div class="stat-num" style="color: #4f46e5;">50,000+</div>
+            <div class="stat-label">Happy Tech Shoppers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: #10b981;">100%</div>
+            <div class="stat-label">Genuine &amp; Sealed Products</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: #0284c7;">24 Hours</div>
+            <div class="stat-label">Average Order Dispatch</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: #f59e0b;">4.9 / 5.0</div>
+            <div class="stat-label">Verified Customer Rating</div>
+        </div>
+    </div>
+
+    <!-- Company Story Section -->
+    <section class="about-story-section">
+        <div class="story-copy">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 8px;">
+                Who We Are
+            </span>
+            <h2>Born From a Passion for Performance</h2>
+            <p>
+                Founded in 2024, <strong>UrbanCart</strong> was built to solve a simple problem: finding genuine, top-tier consumer electronics without the risk of grey-market counterfeits, delayed deliveries, or poor post-purchase support.
+            </p>
+            <p>
+                Whether you're a competitive gamer chasing ultra-low latency gear, a creative professional seeking maximum compute power, or an audio purist who demands studio-grade acoustics, UrbanCart curates only the finest products from global tech leaders including Apple, Sony, Samsung, ASUS ROG, and Bose.
+            </p>
+            <p>
+                Every single item in our catalog is procured directly through authorized manufacturer distribution channels, complete with full manufacturer warranties and official brand seals.
+            </p>
+        </div>
+
+        <div class="story-visual-card">
+            <div class="story-highlight-box">
+                <div class="highlight-icon icon-indigo">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div>
+                    <strong style="color: #0f172a; font-size: 1rem; display: block;">Authorized Retail Partner</strong>
+                    <span style="font-size: 0.85rem; color: #64748b;">Every product backed by official brand warranty.</span>
+                </div>
+            </div>
+
+            <div class="story-highlight-box">
+                <div class="highlight-icon icon-emerald">
+                    <i class="fas fa-truck-fast"></i>
+                </div>
+                <div>
+                    <strong style="color: #0f172a; font-size: 1rem; display: block;">Express Tracked Logistics</strong>
+                    <span style="font-size: 0.85rem; color: #64748b;">Real-time dispatch updates across 19,000+ PIN codes.</span>
+                </div>
+            </div>
+
+            <div class="story-highlight-box" style="margin-bottom: 0;">
+                <div class="highlight-icon icon-amber">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div>
+                    <strong style="color: #0f172a; font-size: 1rem; display: block;">Dedicated Tech Specialists</strong>
+                    <span style="font-size: 0.85rem; color: #64748b;">24/7 expert advice before and after your purchase.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Pillars -->
+    <section class="about-pillars-section">
+        <div class="pillars-header">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px;">
+                The UrbanCart Difference
+            </span>
+            <h2>Why Shoppers Choose Us</h2>
+            <p>We believe in high standards, full transparency, and customer obsession at every step of your journey.</p>
+        </div>
+
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3>100% Brand-Sealed</h3>
+                <p>Never refurbished, never open-box. Every device arrives in pristine factory condition with tamper-evident seals intact.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon" style="background: #ecfdf5; color: #10b981;">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3>7-Day Easy Returns</h3>
+                <p>Enjoy complete peace of mind. If your product is defective or damaged during transit, we replace it immediately without hassle.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon" style="background: #f0f9ff; color: #0284c7;">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Secure Checkout</h3>
+                <p>Bank-grade 256-bit SSL encryption supports UPI, Cards, Net Banking, and Cash on Delivery for absolute safety.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon" style="background: #fffbeb; color: #d97706;">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>Live Tech Support</h3>
+                <p>Have compatibility questions or need setup help? Our technical team is ready to assist you round the clock.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <div class="about-cta-card">
+        <h2>Ready to Upgrade Your Tech?</h2>
+        <p>Explore our curated catalog of latest-generation smartphones, gaming laptops, and audio gear today.</p>
+        <div class="cta-btn-group">
+            <a href="@Url.Action("allProduct", "Customer")" class="btn-cta-white">
+                <i class="fas fa-bag-shopping"></i> Browse All Products
+            </a>
+            <a href="@Url.Action("feedback", "Customer")" class="btn-cta-outline">
+                <i class="fas fa-envelope"></i> Contact Our Team
+            </a>
+        </div>
+    </div>
+</div>

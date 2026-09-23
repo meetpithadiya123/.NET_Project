@@ -1,32 +1,246 @@
-﻿@model IEnumerable<E_Commerce_Website.Models.Product>
+@model IEnumerable<E_Commerce_Website.Models.Product>
 
 @{
-    ViewData["Title"] = "Home - Molla Gaming & Electronics";
+    ViewData["Title"] = "UrbanCart — Flagship Electronics & Next-Gen Tech";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
     /* ===================================================
-       MODERN PRODUCTS SHOWCASE SECTION
+       URBANCART MODERN HERO & STOREFRONT
        =================================================== */
+    :root {
+        --uc-primary: #4f46e5;
+        --uc-primary-hover: #4338ca;
+        --uc-amber: #f59e0b;
+        --uc-amber-hover: #d97706;
+        --uc-dark: #0f172a;
+        --uc-slate: #1e293b;
+        --uc-muted: #64748b;
+        --uc-border: #e2e8f0;
+        --uc-bg-light: #f8fafc;
+    }
+
+    /* Main Modern Hero Banner */
+    .uc-hero-wrapper {
+        background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
+        color: #ffffff;
+        border-radius: 20px;
+        padding: 50px 40px;
+        margin: 25px auto 45px;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 30px;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.4);
+    }
+
+    @@media (max-width: 900px) {
+        .uc-hero-wrapper {
+            grid-template-columns: 1fr;
+            padding: 35px 24px;
+            text-align: center;
+        }
+    }
+
+    .uc-hero-wrapper::after {
+        content: "";
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+        top: -60px;
+        right: 10%;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .hero-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+        border: 1px solid rgba(165, 180, 252, 0.3);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+    }
+
+    .uc-hero-title {
+        font-size: 2.7rem;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin-bottom: 16px;
+    }
+
+    .uc-hero-title span {
+        background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .uc-hero-desc {
+        font-size: 1.05rem;
+        color: #cbd5e1;
+        line-height: 1.6;
+        margin-bottom: 28px;
+        max-width: 520px;
+    }
+
+    .uc-hero-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    @@media (max-width: 900px) {
+        .uc-hero-actions {
+            justify-content: center;
+        }
+    }
+
+    .btn-hero-primary {
+        background: var(--uc-primary);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 13px 26px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-hero-primary:hover {
+        background: var(--uc-primary-hover);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    .btn-hero-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 13px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-hero-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .hero-featured-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        border-radius: 18px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .hero-featured-tag {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #38bdf8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+    }
+
+    .hero-featured-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .hero-featured-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #f59e0b;
+        margin-bottom: 12px;
+    }
+
+    /* Category Quick-Filter Bar */
+    .category-pills-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 6px 0 20px;
+        margin-bottom: 35px;
+        scrollbar-width: none;
+    }
+
+    .category-pills-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .cat-pill-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: #ffffff;
+        border: 1.5px solid var(--uc-border);
+        border-radius: 50px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #334155;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(15, 23, 42, 0.03);
+    }
+
+    .cat-pill-item i {
+        color: var(--uc-primary);
+        font-size: 0.95rem;
+    }
+
+    .cat-pill-item:hover {
+        background: #eef2ff;
+        border-color: var(--uc-primary);
+        color: var(--uc-primary);
+        transform: translateY(-2px);
+    }
+
+    /* Products Section */
     .shop-section-wrapper {
-        margin: 60px auto 80px;
-        padding: 0 20px;
+        margin: 20px auto 70px;
     }
 
     .shop-header-row {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        padding-bottom: 20px;
-        margin-bottom: 35px;
+        padding-bottom: 16px;
+        margin-bottom: 30px;
         border-bottom: 2px solid #f1f5f9;
     }
 
     .shop-header-left .sub-tag {
         font-size: 0.8rem;
         font-weight: 700;
-        color: #f5a623;
+        color: var(--uc-primary);
         letter-spacing: 0.1em;
         text-transform: uppercase;
         margin-bottom: 4px;
@@ -34,17 +248,17 @@
     }
 
     .shop-header-left h2 {
-        font-size: 2.1rem;
+        font-size: 2rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--uc-dark);
         margin: 0;
         letter-spacing: -0.02em;
     }
 
-    .shop-header-right .see-all-btn {
+    .see-all-btn {
         font-size: 0.9rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--uc-dark);
         text-decoration: none;
         display: inline-flex;
         align-items: center;
@@ -52,8 +266,8 @@
         transition: color 0.2s ease, transform 0.2s ease;
     }
 
-    .shop-header-right .see-all-btn:hover {
-        color: #f5a623;
+    .see-all-btn:hover {
+        color: var(--uc-primary);
         transform: translateX(4px);
     }
 
@@ -61,24 +275,25 @@
     .store-grid-layout {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 30px;
+        gap: 26px;
     }
 
     /* Product Card */
     .store-card {
         background: #ffffff;
         border-radius: 16px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--uc-border);
         display: flex;
         flex-direction: column;
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 14px -3px rgba(15, 23, 42, 0.04);
         position: relative;
     }
 
     .store-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.1);
+        box-shadow: 0 18px 34px -8px rgba(15, 23, 42, 0.12);
         border-color: #cbd5e1;
     }
 
@@ -86,12 +301,13 @@
     .store-card-media {
         position: relative;
         width: 100%;
-        height: 250px;
-        background: #f8fafc;
+        height: 240px;
+        background: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 20px;
+        border-bottom: 1px solid #f1f5f9;
         overflow: hidden;
     }
 
@@ -103,28 +319,44 @@
     }
 
     .store-card:hover .store-card-media img {
-        transform: scale(1.06);
+        transform: scale(1.05);
     }
 
     .verified-badge {
         position: absolute;
         top: 14px;
         left: 14px;
-        background: #ffffff;
-        color: #16a34a;
+        background: #ecfdf5;
+        color: #059669;
         font-size: 0.72rem;
         font-weight: 700;
         padding: 4px 10px;
         border-radius: 9999px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        display: flex;
+        border: 1px solid #a7f3d0;
+        display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
+        z-index: 2;
     }
 
-    /* Card Information Body */
+    .brand-tag-badge {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        text-transform: uppercase;
+        z-index: 2;
+    }
+
+    /* Card Body */
     .store-card-body {
-        padding: 20px;
+        padding: 18px 20px 20px;
         display: flex;
         flex-direction: column;
         flex-grow: 1;
@@ -132,31 +364,32 @@
     }
 
     .store-rating-bar {
-        color: #f59e0b;
-        font-size: 0.78rem;
         display: flex;
         align-items: center;
-        gap: 3px;
+        gap: 4px;
+        font-size: 0.78rem;
+        color: #f59e0b;
         margin-bottom: 8px;
     }
 
     .store-rating-bar span {
-        color: #94a3b8;
-        font-size: 0.75rem;
+        color: var(--uc-muted);
         font-weight: 600;
-        margin-left: 6px;
+        font-size: 0.78rem;
+        margin-left: 4px;
     }
 
     .store-card-title {
-        font-size: 1.12rem;
+        font-size: 1.05rem;
         font-weight: 700;
-        color: #1e293b;
-        margin: 0 0 12px 0;
-        line-height: 1.35;
+        color: var(--uc-dark);
+        margin: 0 0 10px 0;
+        line-height: 1.4;
         display: -webkit-box;
-        -webkit-line-clamp: 1;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        min-height: 2.8em;
     }
 
     .store-pricing {
@@ -167,18 +400,20 @@
     }
 
     .store-actual-price {
-        font-size: 1.45rem;
+        font-size: 1.4rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--uc-dark);
     }
 
     .store-cut-price {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         color: #94a3b8;
         text-decoration: line-through;
     }
 
-    /* Dual Button Action Cluster */
+    /* =========================================
+       PROPER DUAL BUTTON DESIGN (CART & DETAILS)
+       ========================================= */
     .card-actions-cluster {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -186,114 +421,239 @@
         margin-top: auto;
     }
 
-    .btn-card-action {
+    /* Proper Cart Button */
+    .btn-card-cart-proper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 12px 10px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+
+    .btn-card-cart-proper i {
+        font-size: 0.95rem;
+        color: #38bdf8;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-card-cart-proper:hover {
+        background: #4f46e5;
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        transform: translateY(-2px);
+    }
+
+    .btn-card-cart-proper:hover i {
+        transform: scale(1.15);
+        color: #ffffff;
+    }
+
+    .btn-card-cart-proper:active {
+        transform: translateY(0);
+    }
+
+    /* Details Button */
+    .btn-card-details-proper {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
+        background: #f59e0b;
+        color: #0f172a;
         font-size: 0.88rem;
         font-weight: 700;
-        padding: 11px 8px;
-        border-radius: 8px;
+        padding: 12px 10px;
+        border-radius: 10px;
         text-decoration: none;
-        cursor: pointer;
         border: none;
-        transition: all 0.2s ease;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
     }
 
-    /* Add To Cart Button */
-    .btn-add-cart-outline {
-        background-color: #f8fafc;
-        color: #1e293b;
-        border: 1px solid #cbd5e1;
+    .btn-card-details-proper i {
+        font-size: 0.8rem;
+        transition: transform 0.2s ease;
     }
 
-    .btn-add-cart-outline:hover {
-        background-color: #0f172a;
+    .btn-card-details-proper:hover {
+        background: #d97706;
         color: #ffffff;
-        border-color: #0f172a;
+        box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+        transform: translateY(-2px);
     }
 
-    /* View Details Button */
-    .btn-view-details {
-        background-color: #f5a623;
-        color: #111827;
+    .btn-card-details-proper:hover i {
+        transform: translateX(3px);
     }
 
-    .btn-view-details:hover {
-        background-color: #e0961b;
-        color: #000000;
-        box-shadow: 0 4px 10px rgba(245, 166, 35, 0.35);
+    /* Benefits Strip */
+    .benefits-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 24px;
+        background: #ffffff;
+        border: 1px solid var(--uc-border);
+        border-radius: 16px;
+        margin: 40px auto 60px;
+        box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.04);
     }
 
-  
+    @@media (max-width: 850px) {
+        .benefits-strip {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .benefit-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: var(--uc-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .benefit-info strong {
+        display: block;
+        font-size: 0.95rem;
+        color: var(--uc-dark);
+        margin-bottom: 2px;
+    }
+
+    .benefit-info small {
+        color: var(--uc-muted);
+        font-size: 0.8rem;
+    }
 </style>
 
-<div id="top">
-    <!-- Hero Section with Categories and Slider -->
-    <section class="hero container">
-        <aside class="category-card" id="categories">
-            <div class="category-title"><i class="fas fa-th-large"></i> CATEGORIES</div>
-            <div id="categoryList" class="category-list">
-                @await Html.PartialAsync("fetchCategoryList", ViewData["category"])
+<div class="container" id="top">
+    <!-- Modern Hero Showcase -->
+    <section class="uc-hero-wrapper">
+        <div class="uc-hero-left">
+            <div class="hero-badge-pill">
+                <i class="fas fa-shield-halved"></i> 100% Genuine Authorized Store
             </div>
-        </aside>
-
-        <section class="hero-main">
-            <div class="hero-slider" id="heroSlider">
-                <article class="hero-slide active">
-                    <img src="/website/images/banner-space.svg" alt="Spacesity 2 sci-fi preorder banner">
-                    <div class="slide-copy">
-                        <span>PRE-ORDER NOW</span>
-                        <h1>SPACESITY 2</h1>
-                        <button class="btn-primary" data-scroll="products">PRE-ORDER NOW <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </article>
-                <article class="hero-slide">
-                    <img src="/website/images/banner-neon.svg" alt="Neon gamer weekend offer">
-                    <div class="slide-copy">
-                        <span>LEVEL UP</span>
-                        <h1>NEON LOADOUT</h1>
-                        <button class="btn-primary" data-scroll="products">SHOP DEALS <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </article>
+            <h1 class="uc-hero-title">
+                Next-Gen Tech.<br />
+                <span>Unbeatable Prices.</span>
+            </h1>
+            <p class="uc-hero-desc">
+                Discover flagship smartphones, gaming laptops, noise-cancelling audio, and consoles with official brand warranties and express doorstep delivery.
+            </p>
+            <div class="uc-hero-actions">
+                <a href="#products" class="btn-hero-primary">
+                    <i class="fas fa-bag-shopping"></i> Explore Products
+                </a>
+                <a href="@Url.Action("allProduct", "Customer")" class="btn-hero-secondary">
+                    View Catalog <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-        </section>
+        </div>
 
-        <aside class="hero-side">
-            <article class="side-banner">
-                <img src="/website/images/side-viva.svg" alt="Viva deal">
-                <div>
-                    <span>WEEKEND OFFER</span>
-                    <strong>VIVAMUS</strong>
-                    <button class="buy-btn" data-scroll="products">BUY NOW &rarr;</button>
-                </div>
-            </article>
-            <article class="side-banner">
-                <img src="/website/images/side-nesc.svg" alt="Donec deal">
-                <div>
-                    <span>GAMING DEAL</span>
-                    <strong>DONEC NEC</strong>
-                    <button class="buy-btn" data-scroll="products">BUY NOW &rarr;</button>
-                </div>
-            </article>
-        </aside>
+        <div class="uc-hero-right">
+            <div class="hero-featured-box">
+                <div class="hero-featured-tag">🔥 Featured Flagship Drop</div>
+                <div class="hero-featured-name">Apple iPhone 16 Pro Max</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 6px;">Titanium &bull; A18 Pro Chip &bull; 48MP Camera</div>
+                <div class="hero-featured-price">₹134,900</div>
+                <a href="@Url.Action("productDetails", "Customer", new { id = 1 })" class="btn-hero-primary" style="padding: 10px 20px; font-size: 0.85rem;">
+                    View Details &rarr;
+                </a>
+            </div>
+        </div>
     </section>
 
-    <!-- Benefits Strip -->
-    <section class="benefits container" id="support">
-        <div class="benefit"><span class="benefit-icon"><i class="fas fa-truck-fast"></i></span><div><strong>Free Shipping</strong><small>Orders $50 or more</small></div></div>
-        <div class="benefit"><span class="benefit-icon"><i class="fas fa-rotate-left"></i></span><div><strong>Free Returns</strong><small>Within 30 days</small></div></div>
-        <div class="benefit"><span class="benefit-icon"><i class="fas fa-tags"></i></span><div><strong>Get 20% Off</strong><small>When you sign up</small></div></div>
-        <div class="benefit"><span class="benefit-icon"><i class="fas fa-headset"></i></span><div><strong>24/7 Support</strong><small>Live gaming help</small></div></div>
-    </section>
+    <!-- Category Pills Quick Navigation -->
+    <div class="category-pills-bar">
+        <a href="@Url.Action("allProduct", "Customer")" class="cat-pill-item">
+            <i class="fas fa-th-large"></i> All Categories
+        </a>
+        <a href="@Url.Action("allProduct", "Customer")" class="cat-pill-item">
+            <i class="fas fa-mobile-screen"></i> Smartphones &amp; Tablets
+        </a>
+        <a href="@Url.Action("allProduct", "Customer")" class="cat-pill-item">
+            <i class="fas fa-laptop"></i> Laptops &amp; Computers
+        </a>
+        <a href="@Url.Action("allProduct", "Customer")" class="cat-pill-item">
+            <i class="fas fa-headphones"></i> Audio &amp; Headphones
+        </a>
+        <a href="@Url.Action("allProduct", "Customer")" class="cat-pill-item">
+            <i class="fas fa-gamepad"></i> Gaming Consoles &amp; Gear
+        </a>
+        <a href="@Url.Action("allProduct", "Customer")" class="cat-pill-item">
+            <i class="fas fa-clock"></i> Smartwatches &amp; Wearables
+        </a>
+    </div>
+
+    <!-- Trust Benefits Strip -->
+    <div class="benefits-strip">
+        <div class="benefit-item">
+            <div class="benefit-icon-box">
+                <i class="fas fa-truck-fast"></i>
+            </div>
+            <div class="benefit-info">
+                <strong>Express Delivery</strong>
+                <small>Dispatched within 24h</small>
+            </div>
+        </div>
+
+        <div class="benefit-item">
+            <div class="benefit-icon-box" style="background: #ecfdf5; color: #10b981;">
+                <i class="fas fa-rotate-left"></i>
+            </div>
+            <div class="benefit-info">
+                <strong>7-Day Returns</strong>
+                <small>Hassle-free replacement</small>
+            </div>
+        </div>
+
+        <div class="benefit-item">
+            <div class="benefit-icon-box" style="background: #fffbeb; color: #d97706;">
+                <i class="fas fa-shield-check"></i>
+            </div>
+            <div class="benefit-info">
+                <strong>100% Genuine</strong>
+                <small>Brand-sealed warranty</small>
+            </div>
+        </div>
+
+        <div class="benefit-item">
+            <div class="benefit-icon-box" style="background: #f0fdf4; color: #16a34a;">
+                <i class="fas fa-headset"></i>
+            </div>
+            <div class="benefit-info">
+                <strong>24/7 Support</strong>
+                <small>Live technical assistance</small>
+            </div>
+        </div>
+    </div>
 
     <!-- Featured Products Showcase Section -->
-    <section class="shop-section-wrapper container" id="products">
+    <section class="shop-section-wrapper" id="products">
         <div class="shop-header-row">
             <div class="shop-header-left">
                 <span class="sub-tag">Curated Collection</span>
-                <h2>Our Products</h2>
+                <h2>Flagship Products</h2>
             </div>
             <div class="shop-header-right">
                 <a href="@Url.Action("allProduct", "Customer")" class="see-all-btn">
@@ -302,11 +662,43 @@
             </div>
         </div>
 
-        <div class="store-grid-layout">
+        <!-- Server-Side Search Filter Banner (if loaded with ?search= query) -->
+        @if (!string.IsNullOrEmpty(ViewBag.SearchQuery as string))
+        {
+            <div class="search-active-banner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: #eef2ff; border: 1.5px solid #c7d2fe; border-radius: 14px; padding: 12px 20px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 32px; height: 32px; border-radius: 8px; background: #4f46e5; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                        <i class="fas fa-filter"></i>
+                    </span>
+                    <div>
+                        <div style="font-weight: 700; color: #1e1b4b; font-size: 0.95rem;">
+                            Search Results for: <span style="color: #4f46e5;">"@ViewBag.SearchQuery"</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #64748b;">
+                            Found @(Model?.Count() ?? 0) matching product@(Model?.Count() == 1 ? "" : "s")
+                        </div>
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "Customer")" style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; color: #4338ca; border: 1.5px solid #c7d2fe; padding: 7px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: all 0.2s;">
+                    <i class="fas fa-times"></i> Clear Filter
+                </a>
+            </div>
+        }
+
+        <!-- Dynamic Client-Side Instant Live Search Banner -->
+        <div id="liveSearchBanner" style="display: none; margin-bottom: 24px;"></div>
+
+        <div class="store-grid-layout" id="storeGridLayout">
+            <!-- Dynamic Client-Side No Results State -->
+            <div id="noLiveSearchResults" style="display: none; grid-column: 1 / -1;"></div>
             @if (Model != null && Model.Any())
             {
                 foreach (var item in Model)
                 {
+                    decimal price = 0;
+                    decimal.TryParse(item.product_price, out price);
+                    decimal cutPrice = price > 0 ? price * 1.15m : 0;
+
                     <div class="store-card">
                         <!-- Product Visual Media -->
                         <div class="store-card-media">
@@ -314,9 +706,14 @@
                                 <i class="fas fa-check-circle"></i> In Stock
                             </span>
 
+                            @if (item.Category != null)
+                            {
+                                <span class="brand-tag-badge">@item.Category.category_name</span>
+                            }
+
                             @if (!string.IsNullOrEmpty(item.product_image))
                             {
-                                <img src="~/product_images/@item.product_image" alt="@item.product_name" />
+                                <img src="@Url.Content("~/product_images/" + item.product_image)" alt="@item.product_name" />
                             }
                             else
                             {
@@ -333,7 +730,7 @@
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star-half-stroke"></i>
-                                    <span>(4.8)</span>
+                                    <span>(4.9) &bull; Verified</span>
                                 </div>
 
                                 <h3 class="store-card-title" title="@item.product_name">
@@ -341,25 +738,23 @@
                                 </h3>
 
                                 <div class="store-pricing">
-                                    <span class="store-actual-price">₹@item.product_price</span>
+                                    <span class="store-actual-price">₹@price.ToString("N0")</span>
                                     <span class="store-cut-price">
-                                        ₹@((decimal.TryParse(item.product_price, out var p) ? p * 1.25m : 0).ToString("0.00"))
+                                        ₹@cutPrice.ToString("N0")
                                     </span>
                                 </div>
                             </div>
 
-                            <!-- Two Separate Action Buttons: Add to Cart & View Details -->
+                            <!-- Properly Designed Dual Action Buttons: Cart & Details -->
                             <div class="card-actions-cluster">
-                                <form method="post" asp-controller="Customer" asp-action="AddToCart" style="margin: 0;">
-                                    <input type="hidden" name="productId" value="@item.product_id" />
-                                    <input type="hidden" name="quantity" value="1" />
-                                    <button type="button" class="btn-card-action btn-add-cart-outline" onclick="addToCartAjax(@item.product_id)">
-                                        <i class="fas fa-cart-plus"></i> Cart
-                                    </button>
-                                </form>
+                                <button type="button" class="btn-card-cart-proper" onclick="addToCartAjax(@item.product_id)" title="Add item to shopping cart">
+                                    <i class="fas fa-cart-shopping"></i>
+                                    <span>Cart</span>
+                                </button>
 
-                                <a href="@Url.Action("productDetails", "Customer", new { id = item.product_id })" class="btn-card-action btn-view-details">
-                                    Details <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
+                                <a href="@Url.Action("productDetails", "Customer", new { id = item.product_id })" class="btn-card-details-proper" title="View product specifications and buy now">
+                                    <span>Details</span>
+                                    <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -370,20 +765,9 @@
             {
                 <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #64748b;">
                     <i class="fas fa-box-open fa-3x" style="color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
-                    No products found in the database.
+                    No products found in the catalog.
                 </div>
             }
         </div>
-    </section>
-
-    <!-- Promo Banner Section -->
-    <section class="promo container" id="about">
-        <div class="promo-copy">
-            <p>MOLLA CLUB</p>
-            <h2>Gear up. Game on.</h2>
-            <p>Join our community for weekly drops, exclusive deals and early access to hardware drops.</p>
-            <button class="btn-dark" id="signupBtn">JOIN NOW</button>
-        </div>
-        <img src="/website/images/promo-gamer.svg" alt="Gamer" />
     </section>
 </div>

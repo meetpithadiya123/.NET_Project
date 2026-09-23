@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Molla — Gaming & Electronics</title>
+    <title>UrbanCart — Premium Electronics &amp; Tech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/website/style.css" />
     <style>
@@ -240,6 +240,202 @@
             background-color: #fef2f2;
             color: #dc2626;
         }
+
+        /* Search Bar & Autocomplete Enhancements */
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 520px;
+        }
+
+        .search-icon-btn {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 0.95rem;
+            cursor: pointer;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .search-icon-btn:hover {
+            color: #4f46e5;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .search-wrap input#searchInput {
+            width: 100%;
+            padding: 10px 38px 10px 42px;
+            border-radius: 50px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .search-wrap input#searchInput:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e2e8f0;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            z-index: 3;
+        }
+
+        .search-clear:hover {
+            background: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .search-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.16), 0 0 1px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow: hidden;
+            display: none;
+            animation: searchFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @@keyframes searchFadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-dropdown-header {
+            padding: 9px 16px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            background: #f8fafc;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: background 0.15s ease;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .search-item-row:hover, .search-item-row.is-active {
+            background: #f1f5f9;
+        }
+
+        .search-item-thumb {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            object-fit: contain;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .search-item-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .search-item-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .search-item-title mark {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        .search-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.74rem;
+            color: #64748b;
+        }
+
+        .search-item-price {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: #4f46e5;
+            flex-shrink: 0;
+        }
+
+        .search-dropdown-footer {
+            display: block;
+            padding: 11px 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #4f46e5;
+            background: #faf5ff;
+            text-align: center;
+            text-decoration: none;
+            border-top: 1px solid #f3e8ff;
+            transition: background 0.15s;
+        }
+
+        .search-dropdown-footer:hover {
+            background: #f3e8ff;
+            color: #3730a3;
+        }
+
+        .search-no-results {
+            padding: 20px 16px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.88rem;
+        }
     </style>
 </head>
 <body>
@@ -271,15 +467,20 @@
     <header class="site-header">
         <div class="header-inner">
             <a class="brand" href="@Url.Action("Index", "customer")">
-                <span class="brand-mark"><i class="fas fa-cubes"></i></span>
-                <span>Molla</span>
+                <span class="brand-mark"><i class="fas fa-cart-shopping"></i></span>
+                <span>UrbanCart</span>
             </a>
 
-            <div class="search-wrap">
-                <span class="search-icon"><i class="fas fa-search"></i></span>
-                <input id="searchInput" type="search" placeholder="Search gaming gear, consoles..." autocomplete="off" />
-                <button class="search-clear" id="clearSearch" aria-label="Clear search">&times;</button>
-            </div>
+            <form id="globalSearchForm" method="get" action="@Url.Action("allProduct", "Customer")" class="search-wrap">
+                <button type="submit" class="search-icon-btn" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <input id="searchInput" name="search" type="search" value="@ViewBag.SearchQuery" placeholder="Search smartphones, gaming gear, laptops..." autocomplete="off" />
+                <button type="button" class="search-clear" id="clearSearch" aria-label="Clear search" style="@(string.IsNullOrEmpty(ViewBag.SearchQuery as string) ? "display: none;" : "")">&times;</button>
+
+                <!-- Interactive Autocomplete Dropdown -->
+                <div id="searchSuggestionsDropdown" class="search-dropdown-menu"></div>
+            </form>
 
             <div class="header-actions">
                 @if (isUserLoggedIn)
@@ -340,8 +541,8 @@
             <button class="mobile-menu" id="mobileMenu"><i class="fas fa-bars"></i></button>
             <a href="@Url.Action("Index", "customer")#top">HOME</a>
             <a href="@Url.Action("allProduct", "Customer")">PRODUCTS</a>
-            <a href="@Url.Action("Index", "customer")#categories">CATEGORIES</a>
-            <a href="@Url.Action("Index", "customer")#support">ABOUT US</a>
+            <a href="@Url.Action("allProduct", "Customer")">CATEGORIES</a>
+            <a href="@Url.Action("About", "Customer")">ABOUT US</a>
             <a href="@Url.Action("feedback", "customer")">CONTACT US</a>
         </nav>
     </header>
@@ -355,30 +556,33 @@
     <footer class="site-footer">
         <div class="container footer-grid">
             <div>
-                <a class="brand" href="#top"><span class="brand-mark"><i class="fas fa-cubes"></i></span> Molla</a>
-                <p style="color:#64748b; font-size:0.85rem; margin-top:8px;">Modern gaming gear for players who want more.</p>
+                <a class="brand" href="#top"><span class="brand-mark"><i class="fas fa-cart-shopping"></i></span> UrbanCart</a>
+                <p style="color:#64748b; font-size:0.85rem; margin-top:8px;">Next-gen electronics, smartphones, gaming gear, and tech essentials delivered to your door.</p>
             </div>
             <div>
-                <h4>Shop</h4>
-                <a href="#products">Playstation</a>
-                <a href="#products">XBOX</a>
-                <a href="#products">Nintendo</a>
+                <h4>Shop Categories</h4>
+                <a href="@Url.Action("allProduct", "Customer")">Smartphones &amp; Tablets</a>
+                <a href="@Url.Action("allProduct", "Customer")">Laptops &amp; PCs</a>
+                <a href="@Url.Action("allProduct", "Customer")">Gaming &amp; Consoles</a>
+                <a href="@Url.Action("allProduct", "Customer")">Audio &amp; Headphones</a>
             </div>
             <div>
-                <h4>Help</h4>
-                <a href="#support">Shipping</a>
-                <a href="#support">Returns</a>
-                <a href="#support">Support</a>
+                <h4>Help &amp; Info</h4>
+                <a href="@Url.Action("About", "Customer")">About Us</a>
+                <a href="@Url.Action("feedback", "Customer")">Customer Support</a>
+                <a href="@Url.Action("fetchCart", "Customer")">View Shopping Cart</a>
+                <a href="@Url.Action("customerProfile", "Customer")">My Account</a>
             </div>
             <div>
                 <h4>Newsletter</h4>
+                <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 8px;">Subscribe for exclusive hardware drops &amp; flash discounts.</p>
                 <div class="newsletter">
                     <input id="emailInput" placeholder="Your email address" />
                     <button id="emailBtn">&rarr;</button>
                 </div>
             </div>
         </div>
-        <div class="copyright">&copy; 2026 Molla Inc. All rights reserved.</div>
+        <div class="copyright">&copy; 2026 UrbanCart Inc. All rights reserved. &bull; 100% Genuine Technology</div>
     </footer>
 
     <!-- Dynamic Cart & Toast Elements -->
@@ -437,6 +641,289 @@
                 })
                 .catch(err => console.error('Error adding to cart:', err));
             }
+
+            /* ====================================================
+               GLOBAL SEARCHBAR LOGIC (LIVE FILTER + AUTOCOMPLETE)
+               ==================================================== */
+            document.addEventListener('DOMContentLoaded', function () {
+                const searchInput = document.getElementById('searchInput');
+                const clearSearchBtn = document.getElementById('clearSearch');
+                const searchForm = document.getElementById('globalSearchForm');
+                const suggestionsBox = document.getElementById('searchSuggestionsDropdown');
+
+                if (!searchInput) return;
+
+                let debounceTimer = null;
+                const isHomePage = window.location.pathname === '/' ||
+                                   window.location.pathname.toLowerCase().endsWith('/customer') ||
+                                   window.location.pathname.toLowerCase().endsWith('/customer/index');
+                const isCatalogPage = window.location.pathname.toLowerCase().includes('/customer/allproduct');
+
+                // Adjust form action based on page
+                if (searchForm) {
+                    searchForm.addEventListener('submit', function (e) {
+                        const q = searchInput.value.trim();
+                        if (!q) {
+                            e.preventDefault();
+                            return;
+                        }
+                        if (isHomePage) {
+                            searchForm.action = '@Url.Action("Index", "Customer")';
+                        } else {
+                            searchForm.action = '@Url.Action("allProduct", "Customer")';
+                        }
+                    });
+                }
+
+                // Live Input Handler
+                searchInput.addEventListener('input', function () {
+                    const query = this.value.trim();
+
+                    // Toggle clear button
+                    if (clearSearchBtn) {
+                        clearSearchBtn.style.display = query ? 'flex' : 'none';
+                    }
+
+                    // 1. Instant on-page card filtering if on Home or Catalog page
+                    if (isHomePage) {
+                        filterHomePageProducts(query);
+                    } else if (isCatalogPage) {
+                        filterCatalogPageProducts(query);
+                    }
+
+                    // 2. Fetch live dropdown autocomplete suggestions
+                    clearTimeout(debounceTimer);
+                    if (query.length >= 2) {
+                        debounceTimer = setTimeout(() => {
+                            fetchSuggestions(query);
+                        }, 200);
+                    } else {
+                        hideSuggestions();
+                    }
+                });
+
+                // Clear button clicked
+                if (clearSearchBtn) {
+                    clearSearchBtn.addEventListener('click', function () {
+                        searchInput.value = '';
+                        clearSearchBtn.style.display = 'none';
+                        hideSuggestions();
+
+                        if (isHomePage) {
+                            filterHomePageProducts('');
+                            // If page was loaded with a server search query, redirect to clean home page
+                            if (window.location.search.includes('search=')) {
+                                window.location.href = '@Url.Action("Index", "Customer")';
+                            }
+                        } else if (isCatalogPage) {
+                            filterCatalogPageProducts('');
+                            if (window.location.search.includes('search=')) {
+                                window.location.href = '@Url.Action("allProduct", "Customer")';
+                            }
+                        }
+                        searchInput.focus();
+                    });
+                }
+
+                // Close suggestions on outside click
+                document.addEventListener('click', function (e) {
+                    if (searchForm && !searchForm.contains(e.target)) {
+                        hideSuggestions();
+                    }
+                });
+
+                // Keyboard escape to close suggestions
+                searchInput.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        hideSuggestions();
+                    }
+                });
+
+                // Fetch Suggestions AJAX
+                function fetchSuggestions(query) {
+                    fetch('/Customer/SearchSuggestions?query=' + encodeURIComponent(query))
+                        .then(res => res.json())
+                        .then(items => {
+                            renderSuggestions(items, query);
+                        })
+                        .catch(() => hideSuggestions());
+                }
+
+                // Render Suggestions HTML
+                function renderSuggestions(items, query) {
+                    if (!suggestionsBox) return;
+
+                    if (!items || items.length === 0) {
+                        suggestionsBox.innerHTML = `
+                            <div class="search-dropdown-header">
+                                <span>Suggested Products</span>
+                            </div>
+                            <div class="search-no-results">
+                                <i class="fas fa-search" style="color:#94a3b8; margin-right:6px;"></i>
+                                No matching products for "<strong>${escapeHtml(query)}</strong>"
+                            </div>
+                            <a href="${isHomePage ? '@Url.Action("Index", "Customer")' : '@Url.Action("allProduct", "Customer")'}?search=${encodeURIComponent(query)}" class="search-dropdown-footer">
+                                Search entire catalog for "${escapeHtml(query)}" &rarr;
+                            </a>
+                        `;
+                        suggestionsBox.style.display = 'block';
+                        return;
+                    }
+
+                    const targetAction = isHomePage ? '@Url.Action("Index", "Customer")' : '@Url.Action("allProduct", "Customer")';
+                    let html = `
+                        <div class="search-dropdown-header">
+                            <span>Top Matches (${items.length})</span>
+                            <span style="font-size:0.7rem; color:#94a3b8;">Press Enter to view all</span>
+                        </div>
+                    `;
+
+                    items.forEach(p => {
+                        const priceNum = parseFloat(p.price) || 0;
+                        const formattedPrice = '₹' + priceNum.toLocaleString('en-IN');
+                        const imgSrc = p.image ? ('/product_images/' + p.image) : `https://picsum.photos/seed/${p.id}/100/100`;
+
+                        // Highlight match in title
+                        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+                        const highlightedTitle = escapeHtml(p.name).replace(regex, '<mark>$1</mark>');
+
+                        html += `
+                            <a href="/Customer/productDetails/${p.id}" class="search-item-row">
+                                <img src="${imgSrc}" alt="${escapeHtml(p.name)}" class="search-item-thumb" />
+                                <div class="search-item-details">
+                                    <div class="search-item-title">${highlightedTitle}</div>
+                                    <div class="search-item-meta">
+                                        ${p.category ? `<span class="badge" style="background:#f1f5f9; color:#475569; font-size:0.7rem; padding:2px 6px; border-radius:4px;">${escapeHtml(p.category)}</span>` : ''}
+                                        <span>Verified Brand</span>
+                                    </div>
+                                </div>
+                                <div class="search-item-price">${formattedPrice}</div>
+                            </a>
+                        `;
+                    });
+
+                    html += `
+                        <a href="${targetAction}?search=${encodeURIComponent(query)}" class="search-dropdown-footer">
+                            View all results for "${escapeHtml(query)}" &rarr;
+                        </a>
+                    `;
+
+                    suggestionsBox.innerHTML = html;
+                    suggestionsBox.style.display = 'block';
+                }
+
+                function hideSuggestions() {
+                    if (suggestionsBox) {
+                        suggestionsBox.style.display = 'none';
+                    }
+                }
+
+                // Instant In-Page Filter for Home Page
+                function filterHomePageProducts(term) {
+                    const cards = document.querySelectorAll('.store-card');
+                    const liveBanner = document.getElementById('liveSearchBanner');
+                    const noResults = document.getElementById('noLiveSearchResults');
+                    const serverBanner = document.querySelector('.search-active-banner');
+
+                    if (!cards.length) return;
+
+                    const cleanTerm = term.toLowerCase().trim();
+                    let matchCount = 0;
+
+                    cards.forEach(card => {
+                        const titleEl = card.querySelector('.store-card-title');
+                        const categoryEl = card.querySelector('.brand-tag-badge');
+
+                        const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
+                        const catText = categoryEl ? categoryEl.textContent.toLowerCase() : '';
+
+                        if (!cleanTerm || titleText.includes(cleanTerm) || catText.includes(cleanTerm)) {
+                            card.style.display = '';
+                            matchCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    // Manage live status banner
+                    if (liveBanner) {
+                        if (cleanTerm) {
+                            if (serverBanner) serverBanner.style.display = 'none';
+                            liveBanner.innerHTML = `
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; background:#eef2ff; border:1px solid #c7d2fe; border-radius:12px; padding:10px 18px;">
+                                    <div style="font-weight:600; font-size:0.9rem; color:#1e1b4b; display:flex; align-items:center; gap:8px;">
+                                        <i class="fas fa-magnifying-glass" style="color:#4f46e5;"></i>
+                                        Found ${matchCount} product${matchCount === 1 ? '' : 's'} matching "<strong>${escapeHtml(cleanTerm)}</strong>"
+                                    </div>
+                                    <button type="button" onclick="document.getElementById('clearSearch').click();" style="background:#ffffff; border:1px solid #c7d2fe; color:#4338ca; border-radius:6px; padding:4px 12px; font-size:0.8rem; font-weight:700; cursor:pointer;">
+                                        Reset Filter
+                                    </button>
+                                </div>
+                            `;
+                            liveBanner.style.display = 'block';
+                        } else {
+                            liveBanner.style.display = 'none';
+                            if (serverBanner) serverBanner.style.display = 'flex';
+                        }
+                    }
+
+                    if (noResults) {
+                        if (cleanTerm && matchCount === 0) {
+                            noResults.innerHTML = `
+                                <div style="text-align:center; padding:50px 20px; color:#64748b;">
+                                    <i class="fas fa-box-open fa-3x" style="color:#cbd5e1; margin-bottom:14px; display:block;"></i>
+                                    <h4 style="color:#0f172a; margin-bottom:6px; font-weight:700;">No products match "${escapeHtml(cleanTerm)}"</h4>
+                                    <p style="font-size:0.9rem; margin-bottom:16px;">Try checking your spelling or search for popular terms like iPhone, Sony, or PS5.</p>
+                                    <button type="button" onclick="document.getElementById('clearSearch').click();" class="btn-card-cart-proper" style="margin: 0 auto; display:inline-flex;">
+                                        Clear Search
+                                    </button>
+                                </div>
+                            `;
+                            noResults.style.display = 'block';
+                        } else {
+                            noResults.style.display = 'none';
+                        }
+                    }
+                }
+
+                // Instant In-Page Filter for Catalog Page
+                function filterCatalogPageProducts(term) {
+                    const cards = document.querySelectorAll('.catalog-card');
+                    const cleanTerm = term.toLowerCase().trim();
+                    let matchCount = 0;
+
+                    cards.forEach(card => {
+                        const titleEl = card.querySelector('.catalog-title');
+                        const catEl = card.querySelector('.catalog-category-tag');
+
+                        const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
+                        const catText = catEl ? catEl.textContent.toLowerCase() : '';
+
+                        if (!cleanTerm || titleText.includes(cleanTerm) || catText.includes(cleanTerm)) {
+                            card.style.display = '';
+                            matchCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    const countBadge = document.querySelector('.catalog-count-badge');
+                    if (countBadge && cleanTerm) {
+                        countBadge.innerText = `Showing ${matchCount} of ${cards.length} Products`;
+                    }
+                }
+
+                function escapeHtml(text) {
+                    if (!text) return '';
+                    return text.replace(/[&<>"']/g, function (m) {
+                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+                    });
+                }
+
+                function escapeRegex(text) {
+                    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+                }
+            });
     </script>
 </body>
 </html>

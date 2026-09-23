@@ -30,16 +30,23 @@ namespace E_Commerce_Website.Controllers
             }
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? search)
         {
             List<Category> category = _context.tbl_category.ToList();
             ViewData["category"] = category;
             ViewBag.checkSession = HttpContext.Session.GetString("customerSession");
+            ViewBag.SearchQuery = search;
 
-            // 1. Fetch products from the database
-            List<Product> products = _context.tbl_product.ToList();
+            var query = _context.tbl_product.Include(p => p.Category).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim();
+                query = query.Where(p => p.product_name.Contains(term) ||
+                                        (p.product_description != null && p.product_description.Contains(term)) ||
+                                        (p.Category != null && p.Category.category_name.Contains(term)));
+            }
 
-            // 2. Pass the list into View()
+            List<Product> products = query.ToList();
             return View(products);
         }
 
@@ -138,6 +145,14 @@ namespace E_Commerce_Website.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult About()
+        {
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+            return View();
+        }
+
         public IActionResult deletePermissionFeedback(int id)
         {
             var feedback = _context.tbl_feedback.Find(id);
@@ -150,24 +165,57 @@ namespace E_Commerce_Website.Controllers
         }
 
 
-        // 1. Action to show all products from the database
-        public IActionResult AllProducts()
+        // 1. Action to show all products from the database with search support
+        public IActionResult AllProducts(string? search)
         {
-            List<Category> category = _context.tbl_category.ToList();
-            ViewData["category"] = category;
-
-            var products = _context.tbl_product.ToList();
-            return View(products);
+            return allProduct(search);
         }
 
-        // 1. Action to show all products from the database
-        public IActionResult allProduct()
+        public IActionResult allProduct(string? search)
         {
             List<Category> category = _context.tbl_category.ToList();
             ViewData["category"] = category;
+            ViewBag.SearchQuery = search;
 
-            var products = _context.tbl_product.ToList();
+            var query = _context.tbl_product.Include(p => p.Category).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim();
+                query = query.Where(p => p.product_name.Contains(term) ||
+                                        (p.product_description != null && p.product_description.Contains(term)) ||
+                                        (p.Category != null && p.Category.category_name.Contains(term)));
+            }
+
+            var products = query.ToList();
             return View("allProduct", products);
+        }
+
+        // Live autocomplete search suggestions API
+        [HttpGet]
+        public IActionResult SearchSuggestions(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Json(new List<object>());
+            }
+
+            string term = query.Trim();
+            var results = _context.tbl_product
+                .Include(p => p.Category)
+                .Where(p => p.product_name.Contains(term) ||
+                            (p.Category != null && p.Category.category_name.Contains(term)))
+                .Take(6)
+                .Select(p => new
+                {
+                    id = p.product_id,
+                    name = p.product_name,
+                    price = p.product_price,
+                    image = p.product_image,
+                    category = p.Category != null ? p.Category.category_name : ""
+                })
+                .ToList();
+
+            return Json(results);
         }
 
         // 2. Action to show a single product detail
