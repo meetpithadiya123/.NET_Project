@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Website.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Website.Controllers
 {
@@ -208,7 +209,53 @@ namespace E_Commerce_Website.Controllers
 
         public IActionResult fetchCart()
         {
-            return View();
+            // 1. Fetch categories for navbar / menu layout
+            List<Category> category = _context.tbl_category.ToList();
+            ViewData["category"] = category;
+
+            // 2. Retrieve customer ID from session
+            string customerID = HttpContext.Session.GetString("customerSession");
+
+            // 3. Check if user is logged in before parsing customerID
+            if (string.IsNullOrEmpty(customerID))
+            {
+                // Redirect to your login action if session does not exist
+                return RedirectToAction("customerLogin", "Customer");
+            }
+
+            // 4. Safely query the cart items since customerID is verified
+            var cart = _context.tbl_cart
+                .Include(c => c.products)
+                .Where(c => c.cust_id == int.Parse(customerID))
+                .ToList();
+
+            return View(cart);
+        }
+
+        [HttpGet]
+        public IActionResult deletecart(int id)
+        {
+            // 1. Verify user is logged in
+            string customerID = HttpContext.Session.GetString("customerSession");
+            if (string.IsNullOrEmpty(customerID))
+            {
+                return RedirectToAction("customerLogin", "Customer");
+            }
+
+            int custId = int.Parse(customerID);
+
+            // 2. Locate the specific cart item belonging to this logged-in customer
+            var cartItem = _context.tbl_cart.FirstOrDefault(c => c.cart_id == id && c.cust_id == custId);
+
+            // 3. Remove the item if found
+            if (cartItem != null)
+            {
+                _context.tbl_cart.Remove(cartItem);
+                _context.SaveChanges();
+            }
+
+            // 4. Redirect back to the cart page to show updated items and totals
+            return RedirectToAction("fetchCart", "Customer");
         }
     }
 }
