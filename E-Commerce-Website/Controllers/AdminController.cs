@@ -495,14 +495,39 @@ namespace E_Commerce_Website.Controllers
             return RedirectToAction("fetchProduct");
         }
 
+
+        // 1. Fetch Cart View
         public IActionResult fetchCart()
         {
-            var cart = _context.tbl_cart.Include(c => c.products)
-                .Include(c => c.customers).ToList();
+            var cartList = _context.tbl_cart
+                                   .Include(c => c.products)
+                                   .Include(c => c.customers)
+                                   .ToList();
+            return View(cartList);
+        }
+
+        public IActionResult updateCart(int id)
+        {
+            var cart = _context.tbl_cart.Find(id);
             return View(cart);
         }
 
+        // 2. Update Cart Status (matches your screenshot logic)
+        [HttpPost]
+        public IActionResult updateCart(int cart_id, int cart_status)
+        {
+            var cart = _context.tbl_cart.Find(cart_id);
+            if (cart != null)
+            {
+                cart.cart_status = cart_status;
+                _context.tbl_cart.Update(cart);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "Cart status updated successfully!";
+            }
+            return RedirectToAction("fetchCart");
+        }
 
+        // 3. Delete Cart Item
         public IActionResult deletecart(int id)
         {
             var cartItem = _context.tbl_cart.Find(id);
@@ -514,6 +539,6 @@ namespace E_Commerce_Website.Controllers
             }
             return RedirectToAction("fetchCart");
         }
-    }
 
+    }
 }

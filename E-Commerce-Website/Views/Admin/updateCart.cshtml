@@ -1,5 +1,58 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model E_Commerce_Website.Models.Cart
+
 @{
+    ViewData["Title"] = "Update Cart";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
 }
+
+<div class="page-container">
+    <div class="form-panel">
+        <div class="form-panel-header">
+            <h3>Update Cart Status</h3>
+            <span class="id-badge">Cart ID: #@Model.cart_id</span>
+        </div>
+
+        <form method="post" asp-action="updateCart" asp-controller="Admin" class="form-panel-body">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="cart_id" value="@Model.cart_id" />
+
+            <div class="form-grid">
+                <div class="input-group-custom">
+                    <label>Product ID</label>
+                    <input type="text" value="@Model.prod_id" class="form-control" readonly />
+                </div>
+
+                <div class="input-group-custom">
+                    <label>Customer ID</label>
+                    <input type="text" value="@Model.cust_id" class="form-control" readonly />
+                </div>
+
+                <div class="input-group-custom">
+                    <label>Product Quantity</label>
+                    <input type="number" value="@Model.product_quantity" class="form-control" readonly />
+                </div>
+
+                <div class="input-group-custom">
+                    <label for="cart_status">Cart Status</label>
+                    <select name="cart_status" id="cart_status" class="form-control" required>
+                        @if (Model.cart_status == 0)
+                        {
+                            <option value="0" selected>0 - In Cart (Pending)</option>
+                            <option value="1">1 - Completed / Ordered</option>
+                        }
+                        else
+                        {
+                            <option value="0">0 - In Cart (Pending)</option>
+                            <option value="1" selected>1 - Completed / Ordered</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-panel-footer">
+                <a href="@Url.Action("fetchCart", "Admin")" class="btn btn-cancel">&larr; Back to Cart List</a>
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
