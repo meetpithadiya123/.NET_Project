@@ -781,7 +781,7 @@
                     items.forEach(p => {
                         const priceNum = parseFloat(p.price) || 0;
                         const formattedPrice = '₹' + priceNum.toLocaleString('en-IN');
-                        const imgSrc = p.image ? ('/product_images/' + p.image) : `https://picsum.photos/seed/${p.id}/100/100`;
+                        const imgSrc = p.image ? ('/product_images/' + p.image) : '/images/placeholder.svg';
 
                         // Highlight match in title
                         const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
@@ -789,7 +789,7 @@
 
                         html += `
                             <a href="/Customer/productDetails/${p.id}" class="search-item-row">
-                                <img src="${imgSrc}" alt="${escapeHtml(p.name)}" class="search-item-thumb" />
+                                <img src="${imgSrc}" alt="${escapeHtml(p.name)}" class="search-item-thumb" loading="lazy" decoding="async" />
                                 <div class="search-item-details">
                                     <div class="search-item-title">${highlightedTitle}</div>
                                     <div class="search-item-meta">

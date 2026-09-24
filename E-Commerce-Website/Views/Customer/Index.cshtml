@@ -713,11 +713,11 @@
 
                             @if (!string.IsNullOrEmpty(item.product_image))
                             {
-                                <img src="@Url.Content("~/product_images/" + item.product_image)" alt="@item.product_name" />
+                                <img src="@Url.Content("~/product_images/" + item.product_image)" alt="@item.product_name" loading="lazy" decoding="async" />
                             }
                             else
                             {
-                                <img src="https://picsum.photos/seed/@item.product_id/400/400" alt="@item.product_name" />
+                                <img src="@Url.Content("~/images/placeholder.svg")" alt="@item.product_name" loading="lazy" decoding="async" />
                             }
                         </div>
 

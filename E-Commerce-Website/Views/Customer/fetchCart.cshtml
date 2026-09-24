@@ -287,11 +287,11 @@
                                                 <div class="cart-img-box">
                                                     @if (!string.IsNullOrEmpty(item.products?.product_image))
                                                     {
-                                                        <img src="@Url.Content("~/product_images/" + item.products.product_image)" alt="@item.products?.product_name" />
+                                                        <img src="@Url.Content("~/product_images/" + item.products.product_image)" alt="@item.products?.product_name" loading="lazy" decoding="async" />
                                                     }
                                                     else
                                                     {
-                                                        <img src="https://picsum.photos/seed/@item.prod_id/120/120" alt="No image" />
+                                                        <img src="@Url.Content("~/images/placeholder.svg")" alt="No image" loading="lazy" decoding="async" />
                                                     }
                                                 </div>
                                                 <div>

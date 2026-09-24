@@ -1,4 +1,4 @@
-﻿@model List<Customer>
+@model List<Customer>
 
 @{
     ViewData["Title"] = "Customer Profile";
@@ -195,6 +195,7 @@
 
         <!-- Form fields -->
         <form method="post" asp-action="updatecustomerProfile" class="profile-form">
+            @Html.AntiForgeryToken()
             @if (Model != null && Model.Any())
             {
                 <input type="hidden" name="customer_id" value="@Model[0].customer_id" />

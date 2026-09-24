@@ -1055,11 +1055,11 @@
             <div class="pd-main-image-wrap" id="mainImageFrame">
                 @if (!string.IsNullOrEmpty(Model?.product_image))
                 {
-                    <img id="primaryProductImg" src="@Url.Content("~/product_images/" + Model.product_image)" alt="@Model.product_name" />
+                    <img id="primaryProductImg" src="@Url.Content("~/product_images/" + Model.product_image)" alt="@Model.product_name" decoding="async" />
                 }
                 else
                 {
-                    <img id="primaryProductImg" src="https://picsum.photos/seed/@(Model?.product_id ?? 1)/800/800" alt="@Model?.product_name" />
+                    <img id="primaryProductImg" src="@Url.Content("~/images/placeholder.svg")" alt="@Model?.product_name" decoding="async" />
                 }
             </div>
 
@@ -1412,7 +1412,14 @@
                             {
                                 <span class="brand-tag-badge">@rel.Category.category_name</span>
                             }
-                            <img src="@Url.Content("~/product_images/" + rel.product_image)" alt="@rel.product_name" />
+                            @if (!string.IsNullOrEmpty(rel.product_image))
+                            {
+                                <img src="@Url.Content("~/product_images/" + rel.product_image)" alt="@rel.product_name" loading="lazy" decoding="async" />
+                            }
+                            else
+                            {
+                                <img src="@Url.Content("~/images/placeholder.svg")" alt="@rel.product_name" loading="lazy" decoding="async" />
+                            }
                         </div>
                         <div class="store-card-body">
                             <div>

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Contact Us";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -121,6 +121,7 @@
         <div class="contact-form-box">
             
             <form method="post" asp-controller="Customer" asp-action="feedback">
+                @Html.AntiForgeryToken()
                 <input type="text"
                        class="form-input-field"
                        name="user_name"

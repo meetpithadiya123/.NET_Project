@@ -607,6 +607,7 @@
     </div>
 
     <form id="checkoutForm" method="post" asp-controller="Customer" asp-action="ProcessPayment">
+        @Html.AntiForgeryToken()
         <!-- Hidden input for selected payment method -->
         <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="Credit/Debit Card" />
 
@@ -822,11 +823,11 @@
                                 <div class="summary-item-img">
                                     @if (!string.IsNullOrEmpty(item.products?.product_image))
                                     {
-                                        <img src="@Url.Content("~/product_images/" + item.products.product_image)" alt="@item.products?.product_name" />
+                                        <img src="@Url.Content("~/product_images/" + item.products.product_image)" alt="@item.products?.product_name" loading="lazy" decoding="async" />
                                     }
                                     else
                                     {
-                                        <img src="https://picsum.photos/seed/@item.prod_id/100/100" alt="Product" />
+                                        <img src="@Url.Content("~/images/placeholder.svg")" alt="Product" loading="lazy" decoding="async" />
                                     }
                                 </div>
                                 <div class="summary-item-details">

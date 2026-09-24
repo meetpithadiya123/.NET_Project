@@ -21,7 +21,7 @@ namespace E_Commerce_Website.Controllers
             {
                 if (int.TryParse(customerSession, out int id))
                 {
-                    var cust = _context.tbl_customer.Find(id);
+                    var cust = _context.tbl_customer.AsNoTracking().FirstOrDefault(c => c.customer_id == id);
                     if (cust != null && !string.IsNullOrEmpty(cust.customer_name))
                     {
                         HttpContext.Session.SetString("customerName", cust.customer_name);
@@ -30,14 +30,14 @@ namespace E_Commerce_Website.Controllers
             }
         }
 
-        public IActionResult Index(string? search)
+        public async Task<IActionResult> Index(string? search)
         {
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
             ViewBag.checkSession = HttpContext.Session.GetString("customerSession");
             ViewBag.SearchQuery = search;
 
-            var query = _context.tbl_product.Include(p => p.Category).AsQueryable();
+            var query = _context.tbl_product.AsNoTracking().Include(p => p.Category).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 string term = search.Trim();
@@ -46,7 +46,7 @@ namespace E_Commerce_Website.Controllers
                                         (p.Category != null && p.Category.category_name.Contains(term)));
             }
 
-            List<Product> products = query.ToList();
+            List<Product> products = await query.ToListAsync();
             return View(products);
         }
 
@@ -56,10 +56,12 @@ namespace E_Commerce_Website.Controllers
         }
 
         [HttpPost]
-        public IActionResult customerLogin(string customer_email, string customer_password)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> customerLogin(string customer_email, string customer_password)
         {
-            var customer = _context.tbl_customer
-                .FirstOrDefault(c => c.customer_email == customer_email);
+            var customer = await _context.tbl_customer
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.customer_email == customer_email);
 
             if (customer != null && customer.customer_password == customer_password)
             {
@@ -73,16 +75,18 @@ namespace E_Commerce_Website.Controllers
                 return View();
             }
         }
+
         public IActionResult customerRegistration()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult customerRegistration(Customer customer)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> customerRegistration(Customer customer)
         {
-            _context.tbl_customer.Add(customer);
-            _context.SaveChanges();
+            await _context.tbl_customer.AddAsync(customer);
+            await _context.SaveChangesAsync();
             return RedirectToAction("customerLogin");
         }
 
@@ -93,7 +97,7 @@ namespace E_Commerce_Website.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult customerProfile()
+        public async Task<IActionResult> customerProfile()
         {
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerSession")))
             {
@@ -101,18 +105,23 @@ namespace E_Commerce_Website.Controllers
             }
             else
             {
-                List<Category> category = _context.tbl_category.ToList();
+                List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
                 ViewData["category"] = category;
                 var customerId = HttpContext.Session.GetString("customerSession");
-                var row = _context.tbl_customer.Where(c => c.customer_id == int.Parse(customerId)).ToList();
+                var row = await _context.tbl_customer
+                    .AsNoTracking()
+                    .Where(c => c.customer_id == int.Parse(customerId!))
+                    .ToListAsync();
                 return View(row);
             }
         }
+
         [HttpPost]
-        public IActionResult updatecustomerProfile(Customer customer)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> updatecustomerProfile(Customer customer)
         {
             _context.tbl_customer.Update(customer);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             if (!string.IsNullOrEmpty(customer.customer_name))
             {
                 HttpContext.Session.SetString("customerName", customer.customer_name);
@@ -121,21 +130,22 @@ namespace E_Commerce_Website.Controllers
         }
 
         [HttpGet]
-        public IActionResult feedback()
+        public async Task<IActionResult> feedback()
         {
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
             return View();
         }
 
         [HttpPost]
-        public IActionResult feedback(Feedback feedback)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> feedback(Feedback feedback)
         {
-            _context.tbl_feedback.Add(feedback);
-            _context.SaveChanges();
+            await _context.tbl_feedback.AddAsync(feedback);
+            await _context.SaveChangesAsync();
 
             // Reload categories for layout/navbar
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
 
             // Set the success message
@@ -146,38 +156,37 @@ namespace E_Commerce_Website.Controllers
         }
 
         [HttpGet]
-        public IActionResult About()
+        public async Task<IActionResult> About()
         {
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
             return View();
         }
 
-        public IActionResult deletePermissionFeedback(int id)
+        public async Task<IActionResult> deletePermissionFeedback(int id)
         {
-            var feedback = _context.tbl_feedback.Find(id);
+            var feedback = await _context.tbl_feedback.FindAsync(id);
             if (feedback != null)
             {
                 _context.tbl_feedback.Remove(feedback);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             return RedirectToAction("fetchfeedback");
         }
 
-
         // 1. Action to show all products from the database with search support
-        public IActionResult AllProducts(string? search)
+        public async Task<IActionResult> AllProducts(string? search)
         {
-            return allProduct(search);
+            return await allProduct(search);
         }
 
-        public IActionResult allProduct(string? search)
+        public async Task<IActionResult> allProduct(string? search)
         {
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
             ViewBag.SearchQuery = search;
 
-            var query = _context.tbl_product.Include(p => p.Category).AsQueryable();
+            var query = _context.tbl_product.AsNoTracking().Include(p => p.Category).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 string term = search.Trim();
@@ -186,13 +195,13 @@ namespace E_Commerce_Website.Controllers
                                         (p.Category != null && p.Category.category_name.Contains(term)));
             }
 
-            var products = query.ToList();
+            var products = await query.ToListAsync();
             return View("allProduct", products);
         }
 
         // Live autocomplete search suggestions API
         [HttpGet]
-        public IActionResult SearchSuggestions(string query)
+        public async Task<IActionResult> SearchSuggestions(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
@@ -200,7 +209,8 @@ namespace E_Commerce_Website.Controllers
             }
 
             string term = query.Trim();
-            var results = _context.tbl_product
+            var results = await _context.tbl_product
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .Where(p => p.product_name.Contains(term) ||
                             (p.Category != null && p.Category.category_name.Contains(term)))
@@ -213,37 +223,43 @@ namespace E_Commerce_Website.Controllers
                     image = p.product_image,
                     category = p.Category != null ? p.Category.category_name : ""
                 })
-                .ToList();
+                .ToListAsync();
 
             return Json(results);
         }
 
         // 2. Action to show a single product detail with category and related products
-        public IActionResult productDetails(int id)
+        public async Task<IActionResult> productDetails(int id)
         {
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
 
-            var product = _context.tbl_product.Include(p => p.Category).FirstOrDefault(p => p.product_id == id);
+            var product = await _context.tbl_product
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.product_id == id);
+
             if (product == null)
             {
                 return NotFound();
             }
 
             // Fetch related products (same category or flagship companions)
-            var related = _context.tbl_product
+            var related = await _context.tbl_product
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .Where(p => p.product_id != id && p.cat_id == product.cat_id)
                 .Take(4)
-                .ToList();
+                .ToListAsync();
 
             if (related.Count < 4)
             {
-                var extra = _context.tbl_product
+                var extra = await _context.tbl_product
+                    .AsNoTracking()
                     .Include(p => p.Category)
                     .Where(p => p.product_id != id && !related.Select(r => r.product_id).Contains(p.product_id))
                     .Take(4 - related.Count)
-                    .ToList();
+                    .ToListAsync();
                 related.AddRange(extra);
             }
 
@@ -252,7 +268,7 @@ namespace E_Commerce_Website.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddToCart(int prod_id, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int prod_id, int quantity = 1)
         {
             string? isLogin = HttpContext.Session.GetString("customerSession");
 
@@ -266,7 +282,7 @@ namespace E_Commerce_Website.Controllers
             int customerId = int.Parse(isLogin);
 
             // Check if the item already exists in customer's cart
-            var existingCartItem = _context.tbl_cart.FirstOrDefault(c =>
+            var existingCartItem = await _context.tbl_cart.FirstOrDefaultAsync(c =>
                 c.prod_id == prod_id &&
                 c.cust_id == customerId &&
                 c.cart_status == 0);
@@ -285,44 +301,44 @@ namespace E_Commerce_Website.Controllers
                     product_quantity = quantity,
                     cart_status = 0
                 };
-                _context.tbl_cart.Add(cart);
+                await _context.tbl_cart.AddAsync(cart);
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Product successfully added to cart!" });
         }
 
-        public IActionResult fetchCart()
+        public async Task<IActionResult> fetchCart()
         {
             // 1. Fetch categories for navbar / menu layout
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
 
             // 2. Retrieve customer ID from session
-            string customerID = HttpContext.Session.GetString("customerSession");
+            string? customerID = HttpContext.Session.GetString("customerSession");
 
             // 3. Check if user is logged in before parsing customerID
             if (string.IsNullOrEmpty(customerID))
             {
-                // Redirect to your login action if session does not exist
                 return RedirectToAction("customerLogin", "Customer");
             }
 
             // 4. Safely query the active cart items since customerID is verified
-            var cart = _context.tbl_cart
+            var cart = await _context.tbl_cart
+                .AsNoTracking()
                 .Include(c => c.products)
                 .Where(c => c.cust_id == int.Parse(customerID) && c.cart_status == 0)
-                .ToList();
+                .ToListAsync();
 
             return View(cart);
         }
 
         [HttpGet]
-        public IActionResult deletecart(int id)
+        public async Task<IActionResult> deletecart(int id)
         {
             // 1. Verify user is logged in
-            string customerID = HttpContext.Session.GetString("customerSession");
+            string? customerID = HttpContext.Session.GetString("customerSession");
             if (string.IsNullOrEmpty(customerID))
             {
                 return RedirectToAction("customerLogin", "Customer");
@@ -331,13 +347,13 @@ namespace E_Commerce_Website.Controllers
             int custId = int.Parse(customerID);
 
             // 2. Locate the specific cart item belonging to this logged-in customer
-            var cartItem = _context.tbl_cart.FirstOrDefault(c => c.cart_id == id && c.cust_id == custId);
+            var cartItem = await _context.tbl_cart.FirstOrDefaultAsync(c => c.cart_id == id && c.cust_id == custId);
 
             // 3. Remove the item if found
             if (cartItem != null)
             {
                 _context.tbl_cart.Remove(cartItem);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             // 4. Redirect back to the cart page to show updated items and totals
@@ -349,28 +365,29 @@ namespace E_Commerce_Website.Controllers
         // ==========================================
 
         [HttpGet]
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
 
-            string customerID = HttpContext.Session.GetString("customerSession");
+            string? customerID = HttpContext.Session.GetString("customerSession");
             if (string.IsNullOrEmpty(customerID))
             {
                 return RedirectToAction("customerLogin", "Customer");
             }
 
             int custId = int.Parse(customerID);
-            var customer = _context.tbl_customer.FirstOrDefault(c => c.customer_id == custId);
+            var customer = await _context.tbl_customer.AsNoTracking().FirstOrDefaultAsync(c => c.customer_id == custId);
             if (customer == null)
             {
                 return RedirectToAction("customerLogin", "Customer");
             }
 
-            var cartItems = _context.tbl_cart
+            var cartItems = await _context.tbl_cart
+                .AsNoTracking()
                 .Include(c => c.products)
                 .Where(c => c.cust_id == custId && c.cart_status == 0)
-                .ToList();
+                .ToListAsync();
 
             if (!cartItems.Any())
             {
@@ -398,22 +415,23 @@ namespace E_Commerce_Website.Controllers
         }
 
         [HttpPost]
-        public IActionResult ProcessPayment(string payment_method, string? shipping_address, string? shipping_city, string? shipping_phone)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessPayment(string payment_method, string? shipping_address, string? shipping_city, string? shipping_phone)
         {
-            string customerID = HttpContext.Session.GetString("customerSession");
+            string? customerID = HttpContext.Session.GetString("customerSession");
             if (string.IsNullOrEmpty(customerID))
             {
                 return RedirectToAction("customerLogin", "Customer");
             }
 
             int custId = int.Parse(customerID);
-            var customer = _context.tbl_customer.FirstOrDefault(c => c.customer_id == custId);
+            var customer = await _context.tbl_customer.FirstOrDefaultAsync(c => c.customer_id == custId);
             if (customer == null)
             {
                 return RedirectToAction("customerLogin", "Customer");
             }
 
-            // Optionally persist any updated customer contact info
+            // Persist any updated customer contact info
             if (!string.IsNullOrWhiteSpace(shipping_address))
                 customer.customer_address = shipping_address;
             if (!string.IsNullOrWhiteSpace(shipping_city))
@@ -421,10 +439,10 @@ namespace E_Commerce_Website.Controllers
             if (!string.IsNullOrWhiteSpace(shipping_phone))
                 customer.customer_phone = shipping_phone;
 
-            var cartItems = _context.tbl_cart
+            var cartItems = await _context.tbl_cart
                 .Include(c => c.products)
                 .Where(c => c.cust_id == custId && c.cart_status == 0)
-                .ToList();
+                .ToListAsync();
 
             if (!cartItems.Any())
             {
@@ -446,10 +464,10 @@ namespace E_Commerce_Website.Controllers
                 _context.tbl_cart.Update(item);
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             // Generate Mock Order & Transaction IDs
-            string orderId = "ORD-" + DateTime.Now.ToString("yyyyMMdd") + "-" + new Random().Next(1000, 9999);
+            string orderId = "ORD-" + DateTime.Now.ToString("yyyyMMdd") + "-" + Random.Shared.Next(1000, 9999);
             string transactionId = "TXN-" + Guid.NewGuid().ToString("N").Substring(0, 10).ToUpper();
 
             TempData["OrderId"] = orderId;
@@ -466,14 +484,14 @@ namespace E_Commerce_Website.Controllers
         }
 
         [HttpGet]
-        public IActionResult OrderSuccess()
+        public async Task<IActionResult> OrderSuccess()
         {
             if (TempData["OrderId"] == null)
             {
                 return RedirectToAction("Index", "Customer");
             }
 
-            List<Category> category = _context.tbl_category.ToList();
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
 
             TempData.Keep();

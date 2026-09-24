@@ -84,6 +84,7 @@ namespace E_Commerce_Website.Controllers
         // =========================
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Login(string email, string password)
         {
             var row = _context.tbl_admin
@@ -377,8 +378,17 @@ namespace E_Commerce_Website.Controllers
         {
             if (product_image != null && product_image.Length > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg" };
+                var ext = Path.GetExtension(product_image.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(ext) || product_image.Length > 10 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("", "Invalid image file format or file size exceeds 10MB limit.");
+                    ViewBag.Categories = _context.tbl_category.AsNoTracking().ToList();
+                    return View(prod);
+                }
+
                 // Generate a unique file name using GUID to avoid name collisions
-                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(product_image.FileName);
+                string uniqueFileName = Guid.NewGuid().ToString() + ext;
 
                 // Define the destination path in wwwroot/product_images
                 string folderPath = Path.Combine(_env.WebRootPath, "product_images");
@@ -461,6 +471,15 @@ namespace E_Commerce_Website.Controllers
             // Handle new image upload if provided
             if (product_image != null && product_image.Length > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg" };
+                var ext = Path.GetExtension(product_image.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(ext) || product_image.Length > 10 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("", "Invalid image file format or file size exceeds 10MB limit.");
+                    ViewBag.Categories = _context.tbl_category.AsNoTracking().ToList();
+                    return View(prod);
+                }
+
                 string uploadFolder = Path.Combine(_env.WebRootPath, "product_images");
 
                 if (!Directory.Exists(uploadFolder))
@@ -479,7 +498,7 @@ namespace E_Commerce_Website.Controllers
                 }
 
                 // Save new image
-                string newFileName = Guid.NewGuid().ToString() + Path.GetExtension(product_image.FileName);
+                string newFileName = Guid.NewGuid().ToString() + ext;
                 string newPath = Path.Combine(uploadFolder, newFileName);
 
                 using (var stream = new FileStream(newPath, FileMode.Create))
