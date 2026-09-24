@@ -436,6 +436,39 @@
             color: #64748b;
             font-size: 0.88rem;
         }
+
+        /* ===== Mobile Responsive – Inline Layout Styles ===== */
+        @@media (max-width: 640px) {
+            /* Shrink or hide the user pill text on very small screens */
+            .user-pill-text {
+                display: none;
+            }
+
+            .user-pill-button {
+                padding: 4px 6px;
+            }
+
+            .user-pill-caret {
+                display: none;
+            }
+
+            /* Search bar padding adjustment */
+            .search-wrap input#searchInput {
+                font-size: 0.82rem;
+                padding: 9px 34px 9px 38px;
+            }
+
+            /* Flyout dropdown – full-width anchored to viewport edge */
+            .user-flyout-menu {
+                width: 210px;
+                right: 0;
+            }
+
+            /* Topbar announcement bar text */
+            .topbar-user-badge {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -924,6 +957,41 @@
                     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
                 }
             });
+
+            /* ================================================
+               MOBILE NAV TOGGLE
+               ================================================ */
+            (function () {
+                var menuBtn = document.getElementById('mobileMenu');
+                var mainNav = document.querySelector('.main-nav');
+                if (!menuBtn || !mainNav) return;
+
+                menuBtn.addEventListener('click', function () {
+                    var isOpen = mainNav.classList.toggle('open');
+                    menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    menuBtn.innerHTML = isOpen
+                        ? '<i class="fas fa-times"></i>'
+                        : '<i class="fas fa-bars"></i>';
+                });
+
+                // Close nav when a link inside is clicked
+                mainNav.querySelectorAll('a').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        mainNav.classList.remove('open');
+                        menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        menuBtn.setAttribute('aria-expanded', 'false');
+                    });
+                });
+
+                // Close nav on outside click
+                document.addEventListener('click', function (e) {
+                    if (!mainNav.contains(e.target) && !menuBtn.contains(e.target)) {
+                        mainNav.classList.remove('open');
+                        menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        menuBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            })();
     </script>
 </body>
 </html>
