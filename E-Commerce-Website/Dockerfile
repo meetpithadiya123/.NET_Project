@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿# Stage 1: Build stage
-=======
 # Stage 1: Build stage
->>>>>>> 4079338d22438d91bf1f0ca4ac1a4b6712a19145
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
@@ -24,8 +20,4 @@ COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-<<<<<<< HEAD
 ENTRYPOINT ["dotnet", "E-Commerce-Website.dll"]
-=======
-ENTRYPOINT ["dotnet", "E-Commerce-Website.dll"]
->>>>>>> 4079338d22438d91bf1f0ca4ac1a4b6712a19145

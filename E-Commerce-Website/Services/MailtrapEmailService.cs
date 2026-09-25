@@ -1,6 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Text;
+using System.Text.Json;
 using E_Commerce_Website.Models;
 
 namespace E_Commerce_Website.Services
@@ -8,17 +10,21 @@ namespace E_Commerce_Website.Services
     public class MailtrapEmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<MailtrapEmailService> _logger;
 
-        public MailtrapEmailService(IConfiguration configuration, ILogger<MailtrapEmailService> logger)
+        public MailtrapEmailService(
+            IConfiguration configuration, 
+            IHttpClientFactory httpClientFactory, 
+            ILogger<MailtrapEmailService> logger)
         {
             _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true)
         {
-            // Read standard setup parameters from configuration
             string host = _configuration["Mailtrap:Host"] ?? "live.smtp.mailtrap.io";
             string portValue = _configuration["Mailtrap:Port"] ?? "587";
             int port = int.TryParse(portValue, out int p) ? p : 587;
@@ -26,7 +32,7 @@ namespace E_Commerce_Website.Services
             string senderEmail = _configuration["Mailtrap:SenderEmail"] ?? "hello@demomailtrap.co";
             string senderName = _configuration["Mailtrap:SenderName"] ?? "UrbanCart Store";
 
-            // Read sensitive API Token from Environment Variable, with fallback to configuration
+            // Read API token with multiple fallbacks for Render / Docker environments
             string? apiToken = Environment.GetEnvironmentVariable("MAILTRAP_API_TOKEN");
             if (string.IsNullOrWhiteSpace(apiToken))
             {
@@ -35,10 +41,57 @@ namespace E_Commerce_Website.Services
 
             if (string.IsNullOrWhiteSpace(apiToken))
             {
-                _logger.LogError("Mailtrap API token is not configured. Please set the MAILTRAP_API_TOKEN environment variable.");
-                throw new InvalidOperationException("Mailtrap API token is missing. Please set the MAILTRAP_API_TOKEN environment variable.");
+                _logger.LogError("Mailtrap API token is missing. Please set the MAILTRAP_API_TOKEN environment variable in Render or appsettings.json.");
+                throw new InvalidOperationException("Mailtrap API token is not configured. Please set the MAILTRAP_API_TOKEN environment variable.");
             }
 
+            // Method 1: Cloud-friendly HTTPS API (Port 443 - NEVER blocked by Render or other cloud hosts)
+            bool httpSuccess = false;
+            try
+            {
+                _logger.LogInformation("Dispatching email via Mailtrap HTTPS API to {Recipient}...", toEmail);
+
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(15);
+                httpClient.DefaultRequestHeaders.Clear();
+                httpClient.DefaultRequestHeaders.Add("Api-Token", apiToken);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+
+                var payload = new
+                {
+                    from = new { email = senderEmail, name = senderName },
+                    to = new[] { new { email = toEmail } },
+                    subject = subject,
+                    html = isHtml ? body : null,
+                    text = !isHtml ? body : null,
+                    category = "Order Confirmation"
+                };
+
+                string jsonPayload = JsonSerializer.Serialize(payload);
+                using var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync("https://send.api.mailtrap.io/api/send", content);
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Email successfully delivered via Mailtrap API to {Recipient}. Response: {Response}. View logs at https://mailtrap.io/sending/email_logs", toEmail, responseBody);
+                    httpSuccess = true;
+                    return;
+                }
+                else
+                {
+                    _logger.LogWarning("Mailtrap HTTPS API returned HTTP {StatusCode}: {Response}. Attempting SMTP fallback...", response.StatusCode, responseBody);
+                }
+            }
+            catch (Exception httpEx)
+            {
+                _logger.LogWarning(httpEx, "Mailtrap HTTPS API request failed. Falling back to SMTP client...");
+            }
+
+            if (httpSuccess) return;
+
+            // Method 2: Standard SMTP Fallback (Port 587 / 2525)
             try
             {
                 _logger.LogInformation("Connecting to Mailtrap SMTP at {Host}:{Port} with user '{Username}'...", host, port, username);
@@ -46,7 +99,8 @@ namespace E_Commerce_Website.Services
                 using var client = new SmtpClient(host, port)
                 {
                     Credentials = new NetworkCredential(username, apiToken),
-                    EnableSsl = true
+                    EnableSsl = true,
+                    Timeout = 10000 // 10s timeout to prevent hanging on cloud firewalls
                 };
 
                 using var mailMessage = new MailMessage
@@ -63,11 +117,11 @@ namespace E_Commerce_Website.Services
 
                 await client.SendMailAsync(mailMessage);
 
-                _logger.LogInformation("Order receipt email successfully dispatched to {Recipient}. View delivery logs at https://mailtrap.io/sending/email_logs", toEmail);
+                _logger.LogInformation("Order receipt email successfully dispatched via SMTP to {Recipient}. Check logs at https://mailtrap.io/sending/email_logs", toEmail);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email via Mailtrap SMTP to {Recipient}. Inspect logs at https://mailtrap.io/sending/email_logs", toEmail);
+                _logger.LogError(ex, "Failed to send email via Mailtrap to {Recipient}. Note: Render Free blocks SMTP ports 25, 465, and 587. Inspect logs at https://mailtrap.io/sending/email_logs", toEmail);
                 throw;
             }
         }
@@ -91,6 +145,7 @@ namespace E_Commerce_Website.Services
             var sb = new StringBuilder();
             string customerName = !string.IsNullOrWhiteSpace(order.Customer?.customer_name) ? order.Customer.customer_name : "Valued Customer";
             string formattedDate = order.OrderDate.ToString("f");
+            string customerEmail = !string.IsNullOrWhiteSpace(order.ShippingEmail) ? order.ShippingEmail : (order.Customer?.customer_email ?? "N/A");
 
             sb.Append(@"<!DOCTYPE html>
 <html>
@@ -108,10 +163,6 @@ namespace E_Commerce_Website.Services
     .content-body { padding: 28px; }
     .greeting { font-size: 16px; margin-bottom: 20px; line-height: 1.5; }
     .txn-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 24px; }
-    .txn-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #cbd5e1; }
-    .txn-row:last-child { border-bottom: none; }
-    .txn-label { color: #64748b; font-weight: 600; }
-    .txn-val { font-weight: 700; color: #0f172a; text-align: right; }
     .table-container { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
     .table-container th { text-align: left; padding: 10px 12px; background: #f1f5f9; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     .table-container td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
@@ -150,6 +201,12 @@ namespace E_Commerce_Website.Services
                     <td style='padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 600;'>Order ID</td>
                     <td style='padding: 6px 0; color: #0f172a; font-size: 13px; font-weight: 700; text-align: right;'>#");
             sb.Append(order.OrderId);
+            sb.Append(@"</td>
+                </tr>
+                <tr>
+                    <td style='padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 600;'>Customer Email</td>
+                    <td style='padding: 6px 0; color: #0f172a; font-size: 13px; font-weight: 700; text-align: right;'>");
+            sb.Append(WebUtility.HtmlEncode(customerEmail));
             sb.Append(@"</td>
                 </tr>
                 <tr>
@@ -248,7 +305,7 @@ namespace E_Commerce_Website.Services
 
     <div class='footer-bar'>
         <p style='margin: 0 0 6px 0;'>This is an automated transaction receipt from UrbanCart Store.</p>
-        <p style='margin: 0 0 6px 0;'>Mailtrap SMTP delivery logs can be tracked at <a href='https://mailtrap.io/sending/email_logs' target='_blank'>https://mailtrap.io/sending/email_logs</a>.</p>
+        <p style='margin: 0 0 6px 0;'>Mailtrap delivery logs can be tracked at <a href='https://mailtrap.io/sending/email_logs' target='_blank'>https://mailtrap.io/sending/email_logs</a>.</p>
         <p style='margin: 0;'>Thank you for shopping with us!</p>
     </div>
 </div>

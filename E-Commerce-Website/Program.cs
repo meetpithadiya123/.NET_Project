@@ -9,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
 
-// Register Mailtrap SMTP Email Service
+// Register Mailtrap SMTP & HTTP API Email Service
 builder.Services.AddScoped<IEmailService, MailtrapEmailService>();
 
 builder.Services.AddDbContext<Mycontext>(options => options.UseSqlServer(
