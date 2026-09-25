@@ -1,0 +1,307 @@
+@model E_Commerce_Website.Models.Order
+@{
+    ViewData["Title"] = $"Invoice #{Model.OrderId} - Admin Receipt";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+
+    var customerName = Model.Customer?.customer_name ?? "Valued Customer";
+    var itemCount = Model.OrderItems?.Sum(i => i.Quantity) ?? 0;
+}
+
+<style>
+    .invoice-wrapper {
+        max-width: 860px;
+        margin: 24px auto 60px;
+        padding: 0 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .invoice-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 24px;
+        margin-bottom: 28px;
+    }
+
+    .brand-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .brand-sub {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 4px;
+    }
+
+    .invoice-badge-box {
+        text-align: right;
+    }
+
+    .invoice-num {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #4f46e5;
+        font-family: monospace;
+    }
+
+    .invoice-date {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 4px;
+    }
+
+    /* Billing / Shipping Grid */
+    .address-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        margin-bottom: 30px;
+    }
+
+    .address-col h4 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .address-col p {
+        margin: 0;
+        font-size: 0.92rem;
+        color: #1e293b;
+        line-height: 1.5;
+    }
+
+    /* Items Table */
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+    }
+
+    .invoice-table th {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 14px;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #475569;
+        text-align: left;
+    }
+
+    .invoice-table th:last-child {
+        text-align: right;
+    }
+
+    .invoice-table td {
+        padding: 14px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.92rem;
+        color: #1e293b;
+    }
+
+    .invoice-table td:last-child {
+        text-align: right;
+        font-weight: 700;
+    }
+
+    .invoice-total-box {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+
+    .total-rows {
+        width: 300px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 0.92rem;
+        color: #64748b;
+    }
+
+    .total-row.grand-total {
+        border-top: 2px dashed #e2e8f0;
+        padding-top: 12px;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .grand-total strong {
+        color: #4f46e5;
+    }
+
+    /* Actions */
+    .invoice-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .btn-action-primary {
+        background: #4f46e5;
+        color: #ffffff;
+        border: none;
+    }
+
+    .btn-action-primary:hover {
+        background: #4338ca;
+    }
+
+    .btn-action-secondary {
+        background: #ffffff;
+        color: #475569;
+        border: 1.5px solid #cbd5e1;
+    }
+
+    .btn-action-secondary:hover {
+        background: #f8fafc;
+        color: #0f172a;
+    }
+
+    @@media print {
+        .sidebar, .topbar, .invoice-actions {
+            display: none !important;
+        }
+        .invoice-wrapper {
+            margin: 0;
+            max-width: 100%;
+            padding: 0;
+        }
+        .invoice-card {
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+    }
+</style>
+
+<div class="invoice-wrapper">
+    <div class="invoice-actions">
+        <a href="@Url.Action("Payments", "Admin")" class="btn-action btn-action-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Payments
+        </a>
+        <button onclick="window.print()" class="btn-action btn-action-primary">
+            <i class="fas fa-print"></i> Print Receipt / Invoice
+        </button>
+    </div>
+
+    <div class="invoice-card">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div>
+                <div class="brand-title">
+                    <i class="fas fa-cart-shopping" style="color: #4f46e5;"></i> UrbanCart
+                </div>
+                <div class="brand-sub">Premium Electronics &amp; Hardware E-Commerce</div>
+            </div>
+            <div class="invoice-badge-box">
+                <div class="invoice-num">#@Model.OrderId</div>
+                <div class="invoice-date">Date: @Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt") UTC</div>
+                <div style="font-family: monospace; font-size: 0.8rem; color: #475569; margin-top: 2px;">TXN: @Model.TransactionId</div>
+            </div>
+        </div>
+
+        <!-- Address Info -->
+        <div class="address-grid">
+            <div class="address-col">
+                <h4>Customer &amp; Billed To</h4>
+                <p>
+                    <strong>@customerName</strong><br />
+                    Email: @(!string.IsNullOrEmpty(Model.ShippingEmail) ? Model.ShippingEmail : (Model.Customer?.customer_email ?? "N/A"))<br />
+                    Phone: @Model.Phone
+                </p>
+            </div>
+            <div class="address-col">
+                <h4>Shipping Address &amp; Payment</h4>
+                <p>
+                    @Model.ShippingAddress<br />
+                    @Model.City - @Model.PostalCode<br />
+                    Payment: <strong>@Model.PaymentMode</strong> (@Model.PaymentStatus)<br />
+                    Status: <strong style="color: #4f46e5;">@Model.OrderStatus</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Item Description</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Unit Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.OrderItems != null && Model.OrderItems.Any())
+                {
+                    foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.ProductName</strong>
+                            </td>
+                            <td style="text-align: center;">@item.Quantity</td>
+                            <td style="text-align: right; color: #64748b;">₹@item.UnitPrice.ToString("N2")</td>
+                            <td>₹@item.SubTotal.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="invoice-total-box">
+            <div class="total-rows">
+                <div class="total-row">
+                    <span>Total Items:</span>
+                    <span>@itemCount</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping Fee:</span>
+                    <span style="color: #059669; font-weight: 600;">FREE</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total Paid:</span>
+                    <strong>₹@Model.TotalAmount.ToString("N2")</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

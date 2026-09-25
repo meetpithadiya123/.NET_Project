@@ -435,6 +435,9 @@
             <a href="@Url.Action("addProduct", "Admin")" class="btn-quick-action btn-action-glow">
                 <i class="fas fa-plus-circle"></i> Add Product
             </a>
+            <a href="@Url.Action("Payments", "Admin")" class="btn-quick-action btn-action-light">
+                <i class="fas fa-credit-card"></i> Customer Payments
+            </a>
             <a href="@Url.Action("addCategory", "Admin")" class="btn-quick-action btn-action-light">
                 <i class="fas fa-folder-plus"></i> Add Category
             </a>
@@ -447,7 +450,7 @@
     <!-- KPI Metric Cards Grid -->
     <div class="kpi-grid">
         <!-- Revenue Card -->
-        <a href="@Url.Action("fetchCart", "Admin")" class="kpi-card kpi-green">
+        <a href="@Url.Action("Payments", "Admin")" class="kpi-card kpi-green">
             <div>
                 <div class="kpi-title">Total Sales Revenue</div>
                 <div class="kpi-value">₹@Model.TotalRevenue.ToString("N0")</div>
@@ -729,6 +732,13 @@
             <div>
                 <div>Customers</div>
                 <small style="color: #64748b; font-weight: 400;">@Model.TotalCustomers users</small>
+            </div>
+        </a>
+        <a href="@Url.Action("Payments", "Admin")" class="shortcut-card">
+            <div class="shortcut-icon" style="background: #eef2ff; color: #4f46e5;"><i class="fas fa-credit-card"></i></div>
+            <div>
+                <div>Customer Payments</div>
+                <small style="color: #64748b; font-weight: 400;">View paid money &amp; items</small>
             </div>
         </a>
         <a href="@Url.Action("fetchCart", "Admin")" class="shortcut-card">

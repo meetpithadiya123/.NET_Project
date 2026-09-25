@@ -1,4 +1,5 @@
 using E_Commerce_Website.Models;
+using E_Commerce_Website.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using System.IO.Compression;
@@ -8,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Register Mailtrap SMTP Email Service
+builder.Services.AddScoped<IEmailService, MailtrapEmailService>();
 
 builder.Services.AddDbContext<Mycontext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("myconnection")));

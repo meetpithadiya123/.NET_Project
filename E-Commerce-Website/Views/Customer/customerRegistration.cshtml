@@ -106,6 +106,14 @@
 
     <div class="card">
         <h2>Register</h2>
+
+        @if (ViewBag.message != null)
+        {
+            <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; font-weight: 500;">
+                @ViewBag.message
+            </div>
+        }
+
         <form method="POST">
             @Html.AntiForgeryToken()
 

@@ -543,6 +543,9 @@
                                 <a href="@Url.Action("customerProfile", "customer")" class="user-menu-link">
                                     <i class="fas fa-user"></i> My Profile
                                 </a>
+                                <a href="@Url.Action("OrderHistory", "Customer")" class="user-menu-link">
+                                    <i class="fas fa-boxes-stacked"></i> My Orders
+                                </a>
                                 <a href="@Url.Action("fetchCart", "customer")" class="user-menu-link">
                                     <i class="fas fa-shopping-bag"></i> My Cart
                                 </a>
@@ -553,6 +556,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Orders Button for Logged-In Customer -->
+                    <a href="@Url.Action("OrderHistory", "Customer")" class="header-action" aria-label="Orders" title="Order History" style="text-decoration: none;">
+                        <i class="fas fa-box-open"></i>
+                        <span>Orders</span>
+                    </a>
                 }
                 else
                 {
@@ -604,6 +613,7 @@
                 <a href="@Url.Action("About", "Customer")">About Us</a>
                 <a href="@Url.Action("feedback", "Customer")">Customer Support</a>
                 <a href="@Url.Action("fetchCart", "Customer")">View Shopping Cart</a>
+                <a href="@Url.Action("OrderHistory", "Customer")">My Orders & Tracking</a>
                 <a href="@Url.Action("customerProfile", "Customer")">My Account</a>
             </div>
             <div>

@@ -633,8 +633,26 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" class="form-control-custom" value="@Model.Customer.customer_email" readonly style="background-color: #f8fafc;" />
+                        <label for="shippingEmailInput" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span>Email Address <strong style="color: #ef4444;">*</strong></span>
+                            <span style="font-size: 0.78rem; font-weight: normal; color: #64748b;">(Receipt &amp; transaction details will be sent here)</span>
+                        </label>
+                        <div style="position: relative;">
+                            <input type="email" 
+                                   id="shippingEmailInput" 
+                                   name="shipping_email" 
+                                   class="form-control-custom" 
+                                   value="@Model.Customer.customer_email" 
+                                   placeholder="e.g. name@example.com" 
+                                   required 
+                                   autocomplete="email"
+                                   oninput="validateCheckoutEmail(this)" 
+                                   onblur="validateCheckoutEmail(this)" />
+                            <span id="emailValidBadge" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none; font-size: 1.05rem;">
+                                <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                            </span>
+                        </div>
+                        <div id="emailFeedbackMsg" style="display: none; font-size: 0.82rem; margin-top: 6px; font-weight: 500; transition: all 0.2s ease;"></div>
                     </div>
 
                     <div class="form-group">
@@ -648,9 +666,14 @@
                             <input type="text" name="shipping_city" class="form-control-custom" value="@(string.IsNullOrEmpty(Model.Customer.customer_city) ? "Mumbai" : Model.Customer.customer_city)" required />
                         </div>
                         <div class="form-group">
-                            <label>Country</label>
-                            <input type="text" class="form-control-custom" value="@(string.IsNullOrEmpty(Model.Customer.customer_country) ? "India" : Model.Customer.customer_country)" readonly style="background-color: #f8fafc;" />
+                            <label>Postal / PIN Code *</label>
+                            <input type="text" name="shipping_postal_code" class="form-control-custom" placeholder="e.g. 400001" value="400001" required />
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" class="form-control-custom" value="@(string.IsNullOrEmpty(Model.Customer.customer_country) ? "India" : Model.Customer.customer_country)" readonly style="background-color: #f8fafc;" />
                     </div>
                 </div>
 
@@ -959,8 +982,75 @@
         document.getElementById('cardExpiryDisplay').innerText = input.value || 'MM/YY';
     }
 
+    // Real-time Email Validation
+    function validateCheckoutEmail(input) {
+        if (!input) input = document.getElementById('shippingEmailInput');
+        if (!input) return true;
+
+        const val = (input.value || '').trim();
+        const feedback = document.getElementById('emailFeedbackMsg');
+        const badge = document.getElementById('emailValidBadge');
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!val) {
+            input.style.borderColor = '#ef4444';
+            input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
+            if (badge) badge.style.display = 'none';
+            if (feedback) {
+                feedback.style.display = 'flex';
+                feedback.style.alignItems = 'center';
+                feedback.style.gap = '6px';
+                feedback.style.color = '#ef4444';
+                feedback.innerHTML = '<i class="fas fa-circle-exclamation"></i> <span>Please enter your email address so we can send your transaction receipt.</span>';
+            }
+            return false;
+        }
+
+        if (!emailRegex.test(val)) {
+            input.style.borderColor = '#ef4444';
+            input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
+            if (badge) badge.style.display = 'none';
+            if (feedback) {
+                feedback.style.display = 'flex';
+                feedback.style.alignItems = 'center';
+                feedback.style.gap = '6px';
+                feedback.style.color = '#ef4444';
+                feedback.innerHTML = '<i class="fas fa-triangle-exclamation"></i> <span>Please enter a correct email address (e.g. name@example.com).</span>';
+            }
+            return false;
+        }
+
+        // Email format is valid
+        input.style.borderColor = '#10b981';
+        input.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.15)';
+        if (badge) badge.style.display = 'block';
+        if (feedback) {
+            feedback.style.display = 'flex';
+            feedback.style.alignItems = 'center';
+            feedback.style.gap = '6px';
+            feedback.style.color = '#059669';
+            feedback.innerHTML = '<i class="fas fa-circle-check"></i> <span>Correct email format! Transaction details will be dispatched here.</span>';
+        }
+        return true;
+    }
+
+    // Run initial email validation on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const emailInput = document.getElementById('shippingEmailInput');
+        if (emailInput && emailInput.value) {
+            validateCheckoutEmail(emailInput);
+        }
+    });
+
     // Payment Submission with realistic spinner transition
     function handlePaymentSubmission() {
+        const emailInput = document.getElementById('shippingEmailInput');
+        if (emailInput && !validateCheckoutEmail(emailInput)) {
+            emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            emailInput.focus();
+            return;
+        }
+
         const form = document.getElementById('checkoutForm');
         if (!form.checkValidity()) {
             form.reportValidity();

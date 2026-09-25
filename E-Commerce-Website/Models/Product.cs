@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E_Commerce_Website.Models
@@ -20,5 +20,7 @@ namespace E_Commerce_Website.Models
 
         [ForeignKey("cat_id")]
         public Category? Category { get; set; }
+
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

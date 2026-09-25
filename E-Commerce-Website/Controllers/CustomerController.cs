@@ -1,4 +1,5 @@
 using E_Commerce_Website.Models;
+using E_Commerce_Website.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,10 +8,14 @@ namespace E_Commerce_Website.Controllers
     public class CustomerController : Controller
     {
         private readonly Mycontext _context;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<CustomerController> _logger;
 
-        public CustomerController(Mycontext context)
+        public CustomerController(Mycontext context, IEmailService emailService, ILogger<CustomerController> logger)
         {
             _context = context;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
@@ -59,11 +64,20 @@ namespace E_Commerce_Website.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> customerLogin(string customer_email, string customer_password)
         {
+            if (string.IsNullOrWhiteSpace(customer_email) || string.IsNullOrEmpty(customer_password))
+            {
+                ViewBag.message = "Incorrect Email or Password";
+                return View();
+            }
+
+            string email = customer_email.Trim();
+
             var customer = await _context.tbl_customer
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.customer_email == customer_email);
+                .OrderByDescending(c => c.customer_id)
+                .FirstOrDefaultAsync(c => c.customer_email == email && c.customer_password == customer_password);
 
-            if (customer != null && customer.customer_password == customer_password)
+            if (customer != null)
             {
                 HttpContext.Session.SetString("customerSession", customer.customer_id.ToString());
                 HttpContext.Session.SetString("customerName", customer.customer_name ?? "Customer");
@@ -71,7 +85,7 @@ namespace E_Commerce_Website.Controllers
             }
             else
             {
-                ViewBag.message = "Incorrect Username or Password";
+                ViewBag.message = "Incorrect Email or Password";
                 return View();
             }
         }
@@ -85,6 +99,13 @@ namespace E_Commerce_Website.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> customerRegistration(Customer customer)
         {
+            // Prevent duplicate emails
+            if (await _context.tbl_customer.AnyAsync(c => c.customer_email == customer.customer_email))
+            {
+                ViewBag.message = "An account with this email already exists.";
+                return View(customer);
+            }
+
             await _context.tbl_customer.AddAsync(customer);
             await _context.SaveChangesAsync();
             return RedirectToAction("customerLogin");
@@ -416,15 +437,14 @@ namespace E_Commerce_Website.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessPayment(string payment_method, string? shipping_address, string? shipping_city, string? shipping_phone)
+        public async Task<IActionResult> ProcessPayment(string payment_method, string? shipping_address, string? shipping_city, string? shipping_postal_code, string? shipping_phone, string? shipping_email)
         {
             string? customerID = HttpContext.Session.GetString("customerSession");
-            if (string.IsNullOrEmpty(customerID))
+            if (string.IsNullOrEmpty(customerID) || !int.TryParse(customerID, out int custId))
             {
                 return RedirectToAction("customerLogin", "Customer");
             }
 
-            int custId = int.Parse(customerID);
             var customer = await _context.tbl_customer.FirstOrDefaultAsync(c => c.customer_id == custId);
             if (customer == null)
             {
@@ -450,53 +470,167 @@ namespace E_Commerce_Website.Controllers
             }
 
             decimal totalAmount = 0;
-            int totalItemsCount = 0;
             foreach (var item in cartItems)
             {
-                if (item.products != null && decimal.TryParse(item.products.product_price, out decimal price))
+                decimal price = 0;
+                if (item.products != null && decimal.TryParse(item.products.product_price, out decimal p))
                 {
-                    totalAmount += price * item.product_quantity;
+                    price = p;
                 }
-                totalItemsCount += item.product_quantity;
-
-                // Move status from 0 (In-Cart) to 1 (Paid / Ordered)
-                item.cart_status = 1;
-                _context.tbl_cart.Update(item);
+                totalAmount += price * item.product_quantity;
             }
 
-            await _context.SaveChangesAsync();
+            // Generate unique transaction reference code
+            string transactionId = "TXN-" + DateTime.UtcNow.ToString("yyyyMMdd") + "-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
+            string finalPaymentMethod = string.IsNullOrWhiteSpace(payment_method) ? "Dummy Card" : payment_method;
+            string enteredEmail = !string.IsNullOrWhiteSpace(shipping_email) 
+                ? shipping_email.Trim() 
+                : (customer.customer_email ?? string.Empty).Trim();
 
-            // Generate Mock Order & Transaction IDs
-            string orderId = "ORD-" + DateTime.Now.ToString("yyyyMMdd") + "-" + Random.Shared.Next(1000, 9999);
-            string transactionId = "TXN-" + Guid.NewGuid().ToString("N").Substring(0, 10).ToUpper();
+            // Begin EF Core database transaction to guarantee consistency
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var order = new Order
+                {
+                    CustomerId = custId,
+                    OrderDate = DateTime.UtcNow,
+                    TotalAmount = totalAmount,
+                    OrderStatus = "Placed",
+                    ShippingAddress = !string.IsNullOrWhiteSpace(shipping_address) ? shipping_address : (customer.customer_address ?? "Standard Delivery"),
+                    City = !string.IsNullOrWhiteSpace(shipping_city) ? shipping_city : (customer.customer_city ?? "Default City"),
+                    PostalCode = !string.IsNullOrWhiteSpace(shipping_postal_code) ? shipping_postal_code : "400001",
+                    Phone = !string.IsNullOrWhiteSpace(shipping_phone) ? shipping_phone : (customer.customer_phone ?? "N/A"),
+                    ShippingEmail = enteredEmail,
+                    TransactionId = transactionId,
+                    PaymentMode = finalPaymentMethod,
+                    PaymentStatus = "Success"
+                };
 
-            TempData["OrderId"] = orderId;
-            TempData["TransactionId"] = transactionId;
-            TempData["TotalAmount"] = totalAmount.ToString("N0");
-            TempData["ItemsCount"] = totalItemsCount.ToString();
-            TempData["PaymentMethod"] = string.IsNullOrEmpty(payment_method) ? "Credit/Debit Card" : payment_method;
-            TempData["CustomerName"] = customer.customer_name;
-            TempData["CustomerEmail"] = customer.customer_email;
-            TempData["CustomerPhone"] = customer.customer_phone ?? "";
-            TempData["DeliveryAddress"] = (customer.customer_address ?? "") + (string.IsNullOrEmpty(customer.customer_city) ? "" : ", " + customer.customer_city);
+                _context.tbl_order.Add(order);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction("OrderSuccess");
+                var orderItemsList = new List<OrderItem>();
+                foreach (var item in cartItems)
+                {
+                    decimal unitPrice = 0;
+                    if (item.products != null && decimal.TryParse(item.products.product_price, out decimal p))
+                    {
+                        unitPrice = p;
+                    }
+
+                    var orderItem = new OrderItem
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = item.prod_id,
+                        ProductName = item.products?.product_name ?? ("Product #" + item.prod_id),
+                        UnitPrice = unitPrice,
+                        Quantity = item.product_quantity,
+                        SubTotal = unitPrice * item.product_quantity
+                    };
+
+                    _context.tbl_order_item.Add(orderItem);
+                    orderItemsList.Add(orderItem);
+
+                    // Mark as purchased in cart
+                    item.cart_status = 1;
+                    _context.tbl_cart.Update(item);
+                }
+
+                order.OrderItems = orderItemsList;
+                order.Customer = customer;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // Send transaction receipt email to user via Mailtrap SMTP
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(enteredEmail))
+                    {
+                        await _emailService.SendOrderConfirmationEmailAsync(order, enteredEmail);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error so that a network or SMTP failure does not cancel a successfully placed order
+                    _logger.LogError(ex, "Failed to send Mailtrap confirmation email for Order ID {OrderId}. Check delivery logs at https://mailtrap.io/sending/email_logs", order.OrderId);
+                }
+
+                // Pass the purchase-time entered email to OrderSuccess view
+                TempData["EmailRecipient"] = enteredEmail;
+                TempData["EmailSubject"] = $"Order #{order.OrderId} Confirmed - UrbanCart";
+
+                return RedirectToAction("OrderSuccess", "Customer", new { id = order.OrderId });
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                TempData["ErrorMessage"] = "An error occurred while processing your order. Please try again.";
+                return RedirectToAction("Checkout", "Customer");
+            }
         }
 
         [HttpGet]
-        public async Task<IActionResult> OrderSuccess()
+        public async Task<IActionResult> OrderSuccess(int? id)
         {
-            if (TempData["OrderId"] == null)
+            string? customerID = HttpContext.Session.GetString("customerSession");
+            if (string.IsNullOrEmpty(customerID) || !int.TryParse(customerID, out int custId))
             {
-                return RedirectToAction("Index", "Customer");
+                return RedirectToAction("customerLogin", "Customer");
+            }
+
+            if (!id.HasValue)
+            {
+                return RedirectToAction("OrderHistory", "Customer");
+            }
+
+            var order = await _context.tbl_order
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == id.Value && o.CustomerId == custId);
+
+            if (order == null)
+            {
+                return RedirectToAction("OrderHistory", "Customer");
+            }
+
+            if (TempData["EmailRecipient"] == null && !string.IsNullOrWhiteSpace(order.ShippingEmail))
+            {
+                TempData["EmailRecipient"] = order.ShippingEmail;
+            }
+            TempData.Keep("EmailRecipient");
+            TempData.Keep("EmailSubject");
+
+            List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
+            ViewData["category"] = category;
+
+            return View(order);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderHistory()
+        {
+            string? customerID = HttpContext.Session.GetString("customerSession");
+            if (string.IsNullOrEmpty(customerID) || !int.TryParse(customerID, out int custId))
+            {
+                return RedirectToAction("customerLogin", "Customer");
             }
 
             List<Category> category = await _context.tbl_category.AsNoTracking().ToListAsync();
             ViewData["category"] = category;
 
-            TempData.Keep();
+            var orders = await _context.tbl_order
+                .AsNoTracking()
+                .Where(o => o.CustomerId == custId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
 
-            return View();
+            return View(orders);
         }
+
     }
 }

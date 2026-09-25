@@ -14,5 +14,6 @@ namespace E_Commerce_Website.Models
         public List<Cart> RecentOrders { get; set; } = new List<Cart>();
         public List<Customer> RecentCustomers { get; set; } = new List<Customer>();
         public List<Product> RecentProducts { get; set; } = new List<Product>();
+        public List<Order> RecentPurchases { get; set; } = new List<Order>();
     }
 }

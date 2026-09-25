@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace E_Commerce_Website.Models
 {
@@ -15,7 +15,6 @@ namespace E_Commerce_Website.Models
         public String? customer_city { get; set; }
         public String? customer_address { get; set; }
 
-
-
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

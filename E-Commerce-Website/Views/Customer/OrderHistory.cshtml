@@ -1,0 +1,702 @@
+@model List<E_Commerce_Website.Models.Order>
+@{
+    ViewData["Title"] = "My Orders & Purchases - UrbanCart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var totalOrders = Model.Count;
+    var totalSpent = Model.Sum(o => o.TotalAmount);
+    var recentOrderDate = Model.FirstOrDefault()?.OrderDate.ToString("dd MMM yyyy") ?? "No orders yet";
+}
+
+<style>
+    :root {
+        --order-primary: #4f46e5;
+        --order-primary-hover: #4338ca;
+        --order-dark: #0f172a;
+        --order-muted: #64748b;
+        --order-border: #e2e8f0;
+        --order-bg: #f8fafc;
+        --order-card-bg: #ffffff;
+    }
+
+    .order-page-wrapper {
+        background-color: var(--order-bg);
+        min-height: calc(100vh - 180px);
+        padding: 36px 20px 80px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .order-container {
+        max-width: 1040px;
+        margin: 0 auto;
+    }
+
+    /* Breadcrumbs */
+    .order-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        color: var(--order-muted);
+        margin-bottom: 24px;
+    }
+
+    .order-breadcrumb a {
+        color: var(--order-muted);
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+    .order-breadcrumb a:hover {
+        color: var(--order-dark);
+    }
+
+    /* Header & Summary Stats */
+    .order-header-card {
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
+        border-radius: 18px;
+        padding: 32px 36px;
+        color: #ffffff;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.25);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .order-header-info h1 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        margin: 0 0 6px 0;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .order-header-info p {
+        margin: 0;
+        color: #c7d2fe;
+        font-size: 0.95rem;
+    }
+
+    .order-stats-strip {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .stat-pill {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 12px 20px;
+        text-align: left;
+        min-width: 130px;
+    }
+
+    .stat-pill-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #c7d2fe;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .stat-pill-value {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    /* Orders List */
+    .order-card {
+        background: var(--order-card-bg);
+        border: 1px solid var(--order-border);
+        border-radius: 16px;
+        margin-bottom: 22px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Order Top Header */
+    .order-card-header {
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+        border-bottom: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .order-meta-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .order-id-badge {
+        font-family: monospace;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--order-primary);
+        background: #eef2ff;
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid #e0e7ff;
+    }
+
+    .order-date-text {
+        font-size: 0.88rem;
+        color: var(--order-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .badge-placed {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+    }
+
+    .badge-completed {
+        background: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .badge-processing {
+        background: #e0f2fe;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+    }
+
+    .badge-payment {
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .order-right-group {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .order-total-block {
+        text-align: right;
+    }
+
+    .order-total-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--order-muted);
+        font-weight: 600;
+    }
+
+    .order-total-amount {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--order-dark);
+    }
+
+    .btn-toggle-details {
+        background: #f8fafc;
+        border: 1.5px solid var(--order-border);
+        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-toggle-details:hover {
+        background: #eef2ff;
+        border-color: #c7d2fe;
+        color: var(--order-primary);
+    }
+
+    .btn-toggle-details i.fa-chevron-down {
+        transition: transform 0.25s ease;
+    }
+
+    .btn-toggle-details.is-open i.fa-chevron-down {
+        transform: rotate(180deg);
+    }
+
+    /* Accordion Details Body */
+    .order-card-body {
+        display: none;
+        padding: 24px;
+        background: #fbfcfe;
+        border-top: 1px solid #f1f5f9;
+        animation: slideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .order-card-body.show {
+        display: block;
+    }
+
+    @@keyframes slideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .order-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+    }
+
+    @@media (max-width: 900px) {
+        .order-details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Items Section */
+    .items-list-card {
+        background: #ffffff;
+        border: 1px solid var(--order-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .details-subheading {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--order-dark);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .order-item-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .order-item-row:last-child {
+        border-bottom: none;
+    }
+
+    .item-img-box {
+        width: 58px;
+        height: 58px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .item-img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-details {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .item-name {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--order-dark);
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        text-decoration: none;
+    }
+
+    .item-name:hover {
+        color: var(--order-primary);
+    }
+
+    .item-meta {
+        font-size: 0.8rem;
+        color: var(--order-muted);
+    }
+
+    .item-subtotal {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--order-dark);
+        white-space: nowrap;
+    }
+
+    /* Delivery & Metadata Info Box */
+    .delivery-info-card {
+        background: #ffffff;
+        border: 1px solid var(--order-border);
+        border-radius: 12px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .info-group {
+        margin-bottom: 14px;
+    }
+
+    .info-label {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--order-muted);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .info-text {
+        font-size: 0.88rem;
+        color: var(--order-dark);
+        line-height: 1.4;
+    }
+
+    .txn-code {
+        font-family: monospace;
+        font-size: 0.84rem;
+        background: #f1f5f9;
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: #334155;
+        display: inline-block;
+        word-break: break-all;
+    }
+
+    .order-action-links {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-receipt-link {
+        flex: 1;
+        background: #eef2ff;
+        color: var(--order-primary);
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 9px 14px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+    }
+
+    .btn-receipt-link:hover {
+        background: var(--order-primary);
+        color: #ffffff;
+    }
+
+    /* Empty State */
+    .empty-orders-card {
+        background: #ffffff;
+        border: 1px solid var(--order-border);
+        border-radius: 20px;
+        padding: 60px 24px;
+        text-align: center;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    }
+
+    .empty-orders-icon {
+        width: 90px;
+        height: 90px;
+        background: #eef2ff;
+        color: var(--order-primary);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.6rem;
+        margin-bottom: 20px;
+    }
+
+    .empty-orders-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--order-dark);
+        margin-bottom: 8px;
+    }
+
+    .empty-orders-desc {
+        color: var(--order-muted);
+        font-size: 0.95rem;
+        max-width: 440px;
+        margin: 0 auto 24px;
+    }
+
+    .btn-start-shopping {
+        background-color: var(--order-primary);
+        color: #ffffff;
+        font-weight: 700;
+        padding: 13px 28px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-start-shopping:hover {
+        background-color: var(--order-primary-hover);
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="order-page-wrapper">
+    <div class="order-container">
+        <!-- Breadcrumbs -->
+        <div class="order-breadcrumb">
+            <a href="@Url.Action("Index", "Customer")"><i class="fas fa-house"></i> Home</a>
+            <span>&rsaquo;</span>
+            <a href="@Url.Action("customerProfile", "Customer")">Account</a>
+            <span>&rsaquo;</span>
+            <span style="color: var(--order-dark); font-weight: 600;">My Order History</span>
+        </div>
+
+        <!-- Banner Header -->
+        <div class="order-header-card">
+            <div class="order-header-info">
+                <h1><i class="fas fa-boxes-stacked"></i> Order History &amp; Purchases</h1>
+                <p>Track your past orders, delivery details, and official transaction receipts.</p>
+            </div>
+            <div class="order-stats-strip">
+                <div class="stat-pill">
+                    <div class="stat-pill-label">Total Orders</div>
+                    <div class="stat-pill-value">@totalOrders</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="stat-pill-label">Total Spent</div>
+                    <div class="stat-pill-value">₹@totalSpent.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <!-- Empty State -->
+            <div class="empty-orders-card">
+                <div class="empty-orders-icon">
+                    <i class="fas fa-bag-shopping"></i>
+                </div>
+                <h2 class="empty-orders-title">No Orders Placed Yet</h2>
+                <p class="empty-orders-desc">Looks like you haven't placed any orders yet. Discover our premium electronics and start shopping today!</p>
+                <a href="@Url.Action("allProduct", "Customer")" class="btn-start-shopping">
+                    <i class="fas fa-cart-shopping"></i> Explore Products
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Orders List -->
+            @foreach (var order in Model)
+            {
+                var itemCount = order.OrderItems?.Sum(i => i.Quantity) ?? 0;
+                var detailsId = $"orderDetails_{order.OrderId}";
+
+                <div class="order-card" id="orderCard_@order.OrderId">
+                    <!-- Order Card Summary Header -->
+                    <div class="order-card-header">
+                        <div class="order-meta-group">
+                            <span class="order-id-badge" title="Order ID">#@order.OrderId</span>
+                            <span class="order-date-text">
+                                <i class="far fa-calendar-alt"></i>
+                                @order.OrderDate.ToString("dd MMM yyyy, hh:mm tt")
+                            </span>
+
+                            @if (order.OrderStatus == "Completed")
+                            {
+                                <span class="badge-status badge-completed">
+                                    <i class="fas fa-circle-check"></i> Delivered
+                                </span>
+                            }
+                            else if (order.OrderStatus == "Processing")
+                            {
+                                <span class="badge-status badge-processing">
+                                    <i class="fas fa-arrows-rotate"></i> Processing
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-status badge-placed">
+                                    <i class="fas fa-clock"></i> Placed
+                                </span>
+                            }
+
+                            <span class="badge-payment">
+                                <i class="fas fa-credit-card me-1"></i> @order.PaymentMode
+                            </span>
+                        </div>
+
+                        <div class="order-right-group">
+                            <div class="order-total-block">
+                                <div class="order-total-label">Total Amount</div>
+                                <div class="order-total-amount">₹@order.TotalAmount.ToString("N2")</div>
+                            </div>
+                            <button type="button" class="btn-toggle-details" onclick="toggleOrderDetails('@detailsId', this)">
+                                <span>Details (@itemCount items)</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Details Body -->
+                    <div class="order-card-body" id="@detailsId">
+                        <div class="order-details-grid">
+                            <!-- Left: Item Breakdown -->
+                            <div class="items-list-card">
+                                <div class="details-subheading">
+                                    <span><i class="fas fa-bag-shopping me-1 text-primary"></i> Items in this Order (@itemCount)</span>
+                                </div>
+
+                                <div class="items-list">
+                                    @if (order.OrderItems != null && order.OrderItems.Any())
+                                    {
+                                        @foreach (var item in order.OrderItems)
+                                        {
+                                            <div class="order-item-row">
+                                                <div class="item-img-box">
+                                                    @if (!string.IsNullOrEmpty(item.Product?.product_image))
+                                                    {
+                                                        <img src="~/product_images/@item.Product.product_image" alt="@item.ProductName" onerror="this.src='/website/images/placeholder.png';" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-box text-muted" style="font-size: 1.4rem;"></i>
+                                                    }
+                                                </div>
+                                                <div class="item-details">
+                                                    <a href="@Url.Action("productDetails", "Customer", new { id = item.ProductId })" class="item-name" title="@item.ProductName">
+                                                        @item.ProductName
+                                                    </a>
+                                                    <div class="item-meta">
+                                                        <span>₹@item.UnitPrice.ToString("N2")</span> &times; <strong>@item.Quantity</strong>
+                                                    </div>
+                                                </div>
+                                                <div class="item-subtotal">
+                                                    ₹@item.SubTotal.ToString("N2")
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Right: Delivery & Transaction Metadata -->
+                            <div class="delivery-info-card">
+                                <div>
+                                    <div class="details-subheading">
+                                        <span><i class="fas fa-truck-ramp-box me-1 text-primary"></i> Shipping &amp; Payment</span>
+                                    </div>
+
+                                    <div class="info-group">
+                                        <div class="info-label"><i class="fas fa-location-dot"></i> Delivery Address</div>
+                                        <div class="info-text">
+                                            <strong>@order.ShippingAddress</strong><br />
+                                            @order.City - @order.PostalCode<br />
+                                            <span class="text-muted"><i class="fas fa-phone-alt me-1"></i> @order.Phone</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-group">
+                                        <div class="info-label"><i class="fas fa-receipt"></i> Transaction Reference</div>
+                                        <span class="txn-code" title="Unique Payment Transaction Reference">@order.TransactionId</span>
+                                    </div>
+
+                                    <div class="info-group">
+                                        <div class="info-label"><i class="fas fa-shield-check"></i> Payment Status</div>
+                                        <div class="info-text" style="color: #059669; font-weight: 700;">
+                                            <i class="fas fa-check-circle"></i> @order.PaymentStatus via @order.PaymentMode
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="order-action-links">
+                                    <a href="@Url.Action("OrderSuccess", "Customer", new { id = order.OrderId })" class="btn-receipt-link">
+                                        <i class="fas fa-file-invoice"></i> View Official Receipt
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    function toggleOrderDetails(bodyId, button) {
+        var body = document.getElementById(bodyId);
+        if (!body) return;
+
+        var isShown = body.classList.contains('show');
+        if (isShown) {
+            body.classList.remove('show');
+            button.classList.remove('is-open');
+        } else {
+            body.classList.add('show');
+            button.classList.add('is-open');
+        }
+    }
+</script>

@@ -1,33 +1,33 @@
+@model E_Commerce_Website.Models.Order
 @{
-    ViewData["Title"] = "Order Confirmed - UrbanCart";
+    ViewData["Title"] = $"Order #{Model.OrderId} Confirmed - UrbanCart";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var orderId = TempData["OrderId"]?.ToString() ?? "ORD-2026-0001";
-    var transactionId = TempData["TransactionId"]?.ToString() ?? "TXN-MOCK-999999";
-    var totalAmount = TempData["TotalAmount"]?.ToString() ?? "0";
-    var itemsCount = TempData["ItemsCount"]?.ToString() ?? "1";
-    var paymentMethod = TempData["PaymentMethod"]?.ToString() ?? "Online Payment";
-    var customerName = TempData["CustomerName"]?.ToString() ?? "Valued Customer";
-    var customerEmail = TempData["CustomerEmail"]?.ToString() ?? "";
-    var customerPhone = TempData["CustomerPhone"]?.ToString() ?? "";
-    var deliveryAddress = TempData["DeliveryAddress"]?.ToString() ?? "Standard Shipping Address";
+    var customerName   = Model.Customer?.customer_name ?? "Valued Customer";
+    var customerEmail  = TempData["EmailRecipient"]?.ToString() 
+                         ?? (!string.IsNullOrWhiteSpace(Model.ShippingEmail) ? Model.ShippingEmail : null) 
+                         ?? Model.Customer?.customer_email 
+                         ?? "your email address";
+    var emailSubject   = TempData["EmailSubject"]?.ToString()   ?? $"Order #{Model.OrderId} Confirmed - UrbanCart";
+    var emailDemoPath  = TempData["EmailDemoPath"]?.ToString();   // path like /email-previews/email_xxx.html
+    var itemCount      = Model.OrderItems?.Sum(i => i.Quantity) ?? 0;
 }
 
 <style>
     .success-page-container {
-        max-width: 760px;
-        margin: 50px auto 90px;
+        max-width: 840px;
+        margin: 40px auto 80px;
         padding: 0 20px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        text-align: center;
     }
 
     .success-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 20px;
-        padding: 44px 36px;
+        padding: 40px 36px;
         box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+        text-align: center;
     }
 
     /* Animated Checkmark Circle */
@@ -42,12 +42,11 @@
         align-items: center;
         justify-content: center;
         font-size: 2.4rem;
-        margin-bottom: 22px;
-        box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.3);
-        animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        margin-bottom: 20px;
+        animation: scaleIn 0.5s ease-out;
     }
 
-    @@keyframes popIn {
+    @@keyframes scaleIn {
         0% { transform: scale(0.6); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
     }
@@ -63,55 +62,132 @@
     .success-subtext {
         font-size: 1.05rem;
         color: #64748b;
-        margin-bottom: 32px;
+        margin-bottom: 30px;
     }
 
-    /* Receipt Details Grid */
-    .receipt-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 24px;
+    /* Real-Time Email Confirmation Alert Box */
+    .email-alert-card {
+        background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+        border: 1.5px solid #c4b5fd;
+        border-radius: 16px;
+        padding: 22px 24px;
         text-align: left;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(124, 58, 237, 0.08);
     }
 
-    .receipt-row {
+    .email-alert-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: #7c3aed;
+    }
+
+    .email-header-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #edf2f7;
-        font-size: 0.95rem;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 12px;
     }
 
-    .receipt-row:last-child {
-        border-bottom: none;
-    }
-
-    .receipt-label {
-        color: #64748b;
-        font-weight: 500;
-        display: flex;
+    .email-title-badge {
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        font-weight: 800;
+        color: #1e1b4b;
+        font-size: 1rem;
     }
 
-    .receipt-value {
-        color: #0f172a;
+    .email-live-pulse {
+        width: 10px;
+        height: 10px;
+        background: #10b981;
+        border-radius: 50%;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: pulseGreen 1.6s infinite;
+        display: inline-block;
+    }
+
+    @@keyframes pulseGreen {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .email-provider-pill {
+        font-size: 0.78rem;
+        background: #ffffff;
+        color: #6d28d9;
+        border: 1px solid #ddd6fe;
+        padding: 4px 12px;
+        border-radius: 20px;
         font-weight: 700;
-    }
-
-    .receipt-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 10px;
-        background: #eef2ff;
+    }
+
+    .email-recipient-tag {
+        font-family: monospace;
+        font-size: 0.95rem;
+        font-weight: 800;
         color: #4f46e5;
+        background: #ffffff;
+        padding: 3px 10px;
         border-radius: 6px;
+        border: 1px solid #e0e7ff;
+    }
+
+    .email-body-summary {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: #334155;
+        margin-bottom: 12px;
+    }
+
+    .email-action-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .btn-email-preview {
+        background: #7c3aed;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
         font-size: 0.85rem;
         font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-email-preview:hover {
+        background: #6d28d9;
+        transform: translateY(-1px);
+    }
+
+    .email-status-text {
+        font-size: 0.82rem;
+        color: #64748b;
+        font-style: italic;
     }
 
     /* Delivery Estimate Box */
@@ -124,7 +200,7 @@
         border-radius: 12px;
         padding: 16px 20px;
         text-align: left;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
     }
 
     .delivery-icon {
@@ -152,19 +228,170 @@
         font-size: 0.85rem;
     }
 
+    /* Receipt Details Grid */
+    .receipt-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 22px 24px;
+        text-align: left;
+        margin-bottom: 28px;
+    }
+
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #edf2f7;
+        font-size: 0.95rem;
+    }
+
+    .receipt-row:last-child {
+        border-bottom: none;
+    }
+
+    .receipt-label {
+        color: #64748b;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .receipt-value {
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .receipt-badge {
+        background-color: #e0e7ff;
+        color: #4338ca;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-family: monospace;
+        font-size: 0.9rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .status-placed {
+        background-color: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .status-success {
+        background-color: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    /* Items Section */
+    .receipt-items-section {
+        margin-top: 24px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 20px;
+        text-align: left;
+    }
+
+    .receipt-section-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .items-table th {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        padding: 8px 12px;
+        background: #f1f5f9;
+        text-align: left;
+        font-weight: 700;
+    }
+
+    .items-table th:last-child {
+        text-align: right;
+    }
+
+    .items-table td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        font-size: 0.92rem;
+    }
+
+    .items-table td:last-child {
+        text-align: right;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .item-prod-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .item-prod-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        object-fit: cover;
+        background: #ffffff;
+        flex-shrink: 0;
+    }
+
+    .item-prod-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .item-prod-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .item-prod-price {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
     /* Action Buttons */
     .success-actions {
         display: flex;
         gap: 14px;
         justify-content: center;
         flex-wrap: wrap;
+        margin-top: 30px;
     }
 
     .btn-action-primary {
         background-color: #4f46e5;
         color: #ffffff;
         font-weight: 700;
-        padding: 14px 28px;
+        padding: 13px 26px;
         border-radius: 10px;
         text-decoration: none;
         display: inline-flex;
@@ -185,7 +412,7 @@
         background-color: #ffffff;
         color: #334155;
         font-weight: 600;
-        padding: 14px 24px;
+        padding: 13px 22px;
         border-radius: 10px;
         border: 1.5px solid #cbd5e1;
         text-decoration: none;
@@ -193,12 +420,94 @@
         align-items: center;
         gap: 8px;
         transition: all 0.2s ease;
+        cursor: pointer;
     }
 
     .btn-action-secondary:hover {
         background-color: #f8fafc;
         border-color: #94a3b8;
         color: #0f172a;
+    }
+
+    /* Email Modal */
+    .email-modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .email-modal-dialog {
+        background: #ffffff;
+        width: 100%;
+        max-width: 680px;
+        max-height: 90vh;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .email-modal-header {
+        background: #1e1b4b;
+        color: #ffffff;
+        padding: 16px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .email-modal-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .email-modal-close {
+        background: transparent;
+        border: none;
+        color: #ffffff;
+        font-size: 1.3rem;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    .email-modal-close:hover {
+        opacity: 1;
+    }
+
+    .email-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        background: #f8fafc;
+        flex-grow: 1;
+    }
+
+    @@media print {
+        .site-header, .site-footer, .announcement, .success-actions, .delivery-box, .email-alert-card, .email-modal-backdrop {
+            display: none !important;
+        }
+        .success-page-container {
+            margin: 0;
+            max-width: 100%;
+            padding: 0;
+        }
+        .success-card {
+            box-shadow: none;
+            border: none;
+            padding: 0;
+        }
     }
 </style>
 
@@ -209,8 +518,36 @@
             <i class="fas fa-check"></i>
         </div>
 
-        <h1 class="success-title">Payment Successful!</h1>
-        <p class="success-subtext">Thank you, <strong>@customerName</strong>. Your order has been placed and is being prepared.</p>
+        <h1 class="success-title">Order Confirmed!</h1>
+        <p class="success-subtext">Thank you, <strong>@customerName</strong>. Your payment was processed and your order has been placed.</p>
+
+        <!-- Real-Time Email Confirmation Notification Box -->
+        <div class="email-alert-card">
+            <div class="email-header-row">
+                <div class="email-title-badge">
+                    <span class="email-live-pulse"></span>
+                    <i class="fas fa-envelope-circle-check" style="color: #7c3aed; font-size: 1.2rem;"></i>
+                    <span>Order Confirmation Emailed to <span class="email-recipient-tag">@customerEmail</span></span>
+                </div>
+                <span class="email-provider-pill"><i class="fas fa-paper-plane"></i> Live Email Dispatch</span>
+            </div>
+
+            <div class="email-body-summary">
+                <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+                    <i class="fas fa-envelope-open-text text-primary me-1"></i> @emailSubject
+                </div>
+                <div style="color: #475569; font-size: 0.9rem;">
+                    A fully designed invoice with all purchased items, payment info, and shipping details is ready for <strong>@customerEmail</strong>.
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                <div style="font-size: 0.88rem; color: #059669; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-circle-check"></i>
+                    <span>Order & payment confirmation details successfully dispatched to @customerEmail</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Delivery Box -->
         <div class="delivery-box">
@@ -218,8 +555,8 @@
                 <i class="fas fa-truck-fast"></i>
             </div>
             <div>
-                <div class="delivery-title">Estimated Delivery: @DateTime.Now.AddDays(3).ToString("ddd, dd MMM") - @DateTime.Now.AddDays(5).ToString("ddd, dd MMM")</div>
-                <div class="delivery-desc">We will dispatch your order with live tracking updates.</div>
+                <div class="delivery-title">Estimated Delivery: @Model.OrderDate.AddDays(3).ToString("ddd, dd MMM") - @Model.OrderDate.AddDays(5).ToString("ddd, dd MMM")</div>
+                <div class="delivery-desc">We will dispatch your order shortly. Track live updates anytime from your Order History.</div>
             </div>
         </div>
 
@@ -227,42 +564,110 @@
         <div class="receipt-box">
             <div class="receipt-row">
                 <span class="receipt-label"><i class="fas fa-hashtag"></i> Order ID</span>
-                <span class="receipt-badge">@orderId</span>
+                <span class="receipt-badge">#@Model.OrderId</span>
             </div>
             <div class="receipt-row">
                 <span class="receipt-label"><i class="fas fa-receipt"></i> Transaction Reference</span>
-                <span class="receipt-value" style="font-family: monospace; font-size: 0.9rem;">@transactionId</span>
+                <span class="receipt-value" style="font-family: monospace; font-size: 0.9rem;">@Model.TransactionId</span>
             </div>
             <div class="receipt-row">
-                <span class="receipt-label"><i class="fas fa-calendar-check"></i> Date & Time</span>
-                <span class="receipt-value">@DateTime.Now.ToString("dd MMM yyyy, hh:mm tt")</span>
+                <span class="receipt-label"><i class="fas fa-calendar-check"></i> Date & Time (UTC)</span>
+                <span class="receipt-value">@Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="fas fa-chart-line"></i> Order Status</span>
+                <span class="status-badge status-placed">
+                    <i class="fas fa-circle-dot" style="font-size: 0.6rem;"></i> @Model.OrderStatus
+                </span>
             </div>
             <div class="receipt-row">
                 <span class="receipt-label"><i class="fas fa-wallet"></i> Payment Method</span>
-                <span class="receipt-value">@paymentMethod</span>
+                <span class="receipt-value">
+                    @Model.PaymentMode
+                    <span class="status-badge status-success" style="margin-left: 6px;">@Model.PaymentStatus</span>
+                </span>
             </div>
             <div class="receipt-row">
-                <span class="receipt-label"><i class="fas fa-boxes-stacked"></i> Items Ordered</span>
-                <span class="receipt-value">@itemsCount items</span>
+                <span class="receipt-label"><i class="fas fa-envelope"></i> Confirmation Email</span>
+                <span class="receipt-value" style="color: #4f46e5; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-circle-check" style="color: #10b981;"></i> Forwarded to @customerEmail
+                </span>
             </div>
             <div class="receipt-row">
-                <span class="receipt-label"><i class="fas fa-location-dot"></i> Shipping To</span>
-                <span class="receipt-value" style="text-align: right; max-width: 320px;">@deliveryAddress</span>
+                <span class="receipt-label"><i class="fas fa-location-dot"></i> Shipping Destination</span>
+                <span class="receipt-value" style="text-align: right; max-width: 380px;">
+                    <div>@Model.ShippingAddress</div>
+                    <div style="color: #64748b; font-weight: 500; font-size: 0.85rem;">@Model.City - @Model.PostalCode | Ph: @Model.Phone</div>
+                </span>
             </div>
-            <div class="receipt-row" style="padding-top: 14px; margin-top: 4px; border-top: 2px dashed #cbd5e1;">
-                <span class="receipt-label" style="font-size: 1.1rem; color: #0f172a; font-weight: 700;">Amount Paid</span>
-                <span class="receipt-value" style="font-size: 1.35rem; color: #4f46e5;">₹@totalAmount</span>
+
+            <!-- Items Ordered Breakdown -->
+            <div class="receipt-items-section">
+                <div class="receipt-section-heading">
+                    <span><i class="fas fa-boxes-stacked me-1"></i> Purchased Items (@itemCount)</span>
+                </div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th style="text-align: center;">Qty</th>
+                            <th style="text-align: right;">Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.OrderItems != null)
+                        {
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="item-prod-cell">
+                                            @if (!string.IsNullOrEmpty(item.Product?.product_image))
+                                            {
+                                                <img src="~/product_images/@item.Product.product_image" alt="@item.ProductName" class="item-prod-img" onerror="this.src='/website/images/placeholder.png';" />
+                                            }
+                                            else
+                                            {
+                                                <div class="item-prod-img" style="display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
+                                                    <i class="fas fa-box"></i>
+                                                </div>
+                                            }
+                                            <div class="item-prod-info">
+                                                <span class="item-prod-name">@item.ProductName</span>
+                                                <span class="item-prod-price">₹@item.UnitPrice.ToString("N2") each</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center; font-weight: 600;">@item.Quantity</td>
+                                    <td style="text-align: right; color: #64748b;">₹@item.UnitPrice.ToString("N2")</td>
+                                    <td>₹@item.SubTotal.ToString("N2")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="receipt-row" style="padding-top: 16px; margin-top: 14px; border-top: 2px dashed #cbd5e1;">
+                <span class="receipt-label" style="font-size: 1.1rem; color: #0f172a; font-weight: 700;">Total Amount Paid</span>
+                <span class="receipt-value" style="font-size: 1.4rem; color: #4f46e5;">₹@Model.TotalAmount.ToString("N2")</span>
             </div>
         </div>
 
         <!-- Actions -->
         <div class="success-actions">
-            <a href="@Url.Action("allProduct", "Customer")" class="btn-action-primary">
+            <a href="@Url.Action("OrderHistory", "Customer")" class="btn-action-primary">
+                <i class="fas fa-box-open"></i> View My Orders
+            </a>
+            <a href="@Url.Action("allProduct", "Customer")" class="btn-action-secondary">
                 <i class="fas fa-bag-shopping"></i> Continue Shopping
             </a>
-            <a href="@Url.Action("customerProfile", "Customer")" class="btn-action-secondary">
-                <i class="fas fa-user"></i> View Profile & Orders
-            </a>
+            <button onclick="window.print()" class="btn-action-secondary">
+                <i class="fas fa-print"></i> Print Receipt
+            </button>
         </div>
     </div>
 </div>
+
+

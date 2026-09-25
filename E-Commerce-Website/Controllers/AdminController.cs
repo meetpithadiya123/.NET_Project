@@ -39,14 +39,11 @@ namespace E_Commerce_Website.Controllers
             var carts = _context.tbl_cart.Include(c => c.products).Include(c => c.customers).ToList();
             var feedbacks = _context.tbl_feedback.ToList();
 
-            decimal totalRevenue = 0;
-            foreach (var item in carts.Where(c => c.cart_status == 1))
-            {
-                if (item.products != null && decimal.TryParse(item.products.product_price, out decimal price))
-                {
-                    totalRevenue += price * item.product_quantity;
-                }
-            }
+            var orders = _context.tbl_order.Include(o => o.Customer).Include(o => o.OrderItems).ToList();
+
+            decimal totalRevenue = orders.Any() 
+                ? orders.Sum(o => o.TotalAmount)
+                : carts.Where(c => c.cart_status == 1).Sum(item => (item.products != null && decimal.TryParse(item.products.product_price, out decimal price)) ? price * item.product_quantity : 0);
 
             var viewModel = new AdminDashboardViewModel
             {
@@ -54,14 +51,15 @@ namespace E_Commerce_Website.Controllers
                 TotalProducts = products.Count,
                 TotalCategories = categories.Count,
                 TotalCustomers = customers.Count,
-                TotalOrders = carts.Count,
-                CompletedOrders = carts.Count(c => c.cart_status == 1),
+                TotalOrders = orders.Count > 0 ? orders.Count : carts.Count,
+                CompletedOrders = orders.Count > 0 ? orders.Count(o => o.OrderStatus == "Completed" || o.PaymentStatus == "Success") : carts.Count(c => c.cart_status == 1),
                 PendingCarts = carts.Count(c => c.cart_status == 0),
                 TotalRevenue = totalRevenue,
                 TotalFeedbacks = feedbacks.Count,
                 RecentOrders = carts.OrderByDescending(c => c.cart_id).Take(5).ToList(),
                 RecentCustomers = customers.OrderByDescending(c => c.customer_id).Take(5).ToList(),
-                RecentProducts = products.OrderByDescending(p => p.product_id).Take(5).ToList()
+                RecentProducts = products.OrderByDescending(p => p.product_id).Take(5).ToList(),
+                RecentPurchases = orders.OrderByDescending(o => o.OrderDate).Take(5).ToList()
             };
 
             return View(viewModel);
@@ -626,6 +624,110 @@ namespace E_Commerce_Website.Controllers
                 TempData["SuccessMessage"] = "Feedback deleted successfully!";
             }
             return RedirectToAction("fetchfeedback");
+        }
+
+        // =========================
+        // PAYMENTS & ORDER PURCHASES MANAGEMENT
+        // =========================
+
+        [HttpGet]
+        public async Task<IActionResult> Payments(string? search, string? paymentMode, string? status)
+        {
+            string? adminSession = HttpContext.Session.GetString("admin_session");
+            if (string.IsNullOrEmpty(adminSession))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var query = _context.tbl_order
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .AsQueryable();
+
+            // Search by order ID, transaction ID, customer name, email, phone, or city
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string s = search.Trim();
+                query = query.Where(o =>
+                    o.TransactionId.Contains(s) ||
+                    o.OrderId.ToString().Contains(s) ||
+                    (o.Customer != null && (o.Customer.customer_name.Contains(s) || o.Customer.customer_email.Contains(s))) ||
+                    o.City.Contains(s) ||
+                    o.Phone.Contains(s));
+            }
+
+            // Filter by Payment Mode
+            if (!string.IsNullOrWhiteSpace(paymentMode) && paymentMode != "All")
+            {
+                query = query.Where(o => o.PaymentMode == paymentMode);
+            }
+
+            // Filter by Order Status
+            if (!string.IsNullOrWhiteSpace(status) && status != "All")
+            {
+                query = query.Where(o => o.OrderStatus == status);
+            }
+
+            var orders = await query.OrderByDescending(o => o.OrderDate).ToListAsync();
+
+            ViewBag.Search = search;
+            ViewBag.PaymentMode = paymentMode;
+            ViewBag.Status = status;
+
+            // KPI summaries for all paid orders
+            var allOrders = await _context.tbl_order.AsNoTracking().ToListAsync();
+            ViewBag.TotalRevenue = allOrders.Sum(o => o.TotalAmount);
+            ViewBag.TotalTransactions = allOrders.Count;
+            ViewBag.SuccessfulPayments = allOrders.Count(o => o.PaymentStatus == "Success");
+            ViewBag.AverageOrderValue = allOrders.Any() ? allOrders.Average(o => o.TotalAmount) : 0;
+
+            return View(orders);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, string orderStatus)
+        {
+            string? adminSession = HttpContext.Session.GetString("admin_session");
+            if (string.IsNullOrEmpty(adminSession))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var order = await _context.tbl_order.FindAsync(orderId);
+            if (order != null)
+            {
+                order.OrderStatus = orderStatus;
+                _context.tbl_order.Update(order);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Order #{orderId} status successfully updated to '{orderStatus}'!";
+            }
+
+            return RedirectToAction("Payments");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaymentReceipt(int id)
+        {
+            string? adminSession = HttpContext.Session.GetString("admin_session");
+            if (string.IsNullOrEmpty(adminSession))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var order = await _context.tbl_order
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+            if (order == null)
+            {
+                return RedirectToAction("Payments");
+            }
+
+            return View(order);
         }
 
     }
