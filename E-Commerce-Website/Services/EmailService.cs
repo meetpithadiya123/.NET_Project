@@ -18,13 +18,30 @@ namespace E_Commerce_Website.Services
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true)
         {
+            string apiKey = _configuration["EmailSettings:ApiKey"] 
+                ?? _configuration["EmailSettings:BrevoApiKey"] 
+                ?? string.Empty;
+
+            string senderEmail = _configuration["EmailSettings:SenderEmail"] ?? "urbancart797@gmail.com";
+            if (string.IsNullOrWhiteSpace(senderEmail)) senderEmail = "urbancart797@gmail.com";
+            
+            string senderName = _configuration["EmailSettings:SenderName"] ?? "UrbanCart Store";
+            if (string.IsNullOrWhiteSpace(senderName)) senderName = "UrbanCart Store";
+
+            // If an API key is configured (e.g. on Render), send via Brevo HTTPS API (Port 443, never blocked by Render)
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                await SendViaBrevoApiAsync(apiKey, senderEmail, senderName, toEmail, subject, body);
+                return;
+            }
+
+            // Fallback: Direct SMTP (works locally where port 587 is not blocked)
             string host = _configuration["EmailSettings:Host"] ?? "smtp.gmail.com";
             string portValue = _configuration["EmailSettings:Port"] ?? "587";
             int port = int.TryParse(portValue, out int p) ? p : 587;
             string username = _configuration["EmailSettings:Username"] ?? "urbancart797@gmail.com";
+            if (string.IsNullOrWhiteSpace(username)) username = "urbancart797@gmail.com";
             string password = _configuration["EmailSettings:Password"] ?? string.Empty;
-            string senderEmail = _configuration["EmailSettings:SenderEmail"] ?? "urbancart797@gmail.com";
-            string senderName = _configuration["EmailSettings:SenderName"] ?? "UrbanCart Store";
 
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -34,7 +51,7 @@ namespace E_Commerce_Website.Services
 
             string cleanPassword = password.Replace(" ", "").Trim();
 
-            _logger.LogInformation("Dispatching email directly via {Host}:{Port} from {Sender} to {Recipient}...", 
+            _logger.LogInformation("Dispatching email via SMTP {Host}:{Port} from {Sender} to {Recipient}...", 
                 host, port, senderEmail, toEmail);
 
             using var client = new SmtpClient(host, port)
@@ -60,6 +77,38 @@ namespace E_Commerce_Website.Services
 
             await client.SendMailAsync(mailMessage);
             _logger.LogInformation("Confirmation email successfully delivered directly to {Recipient} via {Sender}.", toEmail, senderEmail);
+        }
+
+        private async Task SendViaBrevoApiAsync(string apiKey, string senderEmail, string senderName, string toEmail, string subject, string htmlContent)
+        {
+            _logger.LogInformation("Dispatching email via Brevo HTTPS API to {Recipient} from {Sender}...", toEmail, senderEmail);
+
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("api-key", apiKey.Trim());
+            httpClient.DefaultRequestHeaders.Add("accept", "application/json");
+
+            var payload = new
+            {
+                sender = new { name = senderName, email = senderEmail },
+                to = new[] { new { email = toEmail } },
+                subject = subject,
+                htmlContent = htmlContent
+            };
+
+            string jsonContent = System.Text.Json.JsonSerializer.Serialize(payload);
+            using var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync("https://api.brevo.com/v3/smtp/email", stringContent);
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Brevo API email dispatch failed. Status: {StatusCode}, Details: {ResponseBody}", 
+                    response.StatusCode, responseBody);
+                throw new InvalidOperationException($"Brevo email dispatch failed: {response.StatusCode} - {responseBody}");
+            }
+
+            _logger.LogInformation("Email successfully dispatched via Brevo HTTPS API to {Recipient}. Response: {ResponseBody}", toEmail, responseBody);
         }
 
         public async Task SendOrderConfirmationEmailAsync(Order order, string recipientEmail)
