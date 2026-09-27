@@ -543,18 +543,24 @@ namespace E_Commerce_Website.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // Send transaction receipt email to user via Mailtrap SMTP
-                try
+                // Dispatch transaction receipt email in background so the user is redirected to the receipt page immediately
+                if (!string.IsNullOrWhiteSpace(enteredEmail))
                 {
-                    if (!string.IsNullOrWhiteSpace(enteredEmail))
+                    var scopeFactory = HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
+                    _ = Task.Run(async () =>
                     {
-                        await _emailService.SendOrderConfirmationEmailAsync(order, enteredEmail);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log error so that a network or SMTP failure does not cancel a successfully placed order
-                    _logger.LogError(ex, "Failed to send Mailtrap confirmation email for Order ID {OrderId}. Check delivery logs at https://mailtrap.io/sending/email_logs", order.OrderId);
+                        try
+                        {
+                            using var scope = scopeFactory.CreateScope();
+                            var bgEmailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                            var bgLogger = scope.ServiceProvider.GetRequiredService<ILogger<CustomerController>>();
+                            await bgEmailService.SendOrderConfirmationEmailAsync(order, enteredEmail);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Background email dispatch failed for Order ID {OrderId} to recipient {Recipient}.", order.OrderId, enteredEmail);
+                        }
+                    });
                 }
 
                 // Pass the purchase-time entered email to OrderSuccess view

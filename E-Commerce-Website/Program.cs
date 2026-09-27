@@ -11,8 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
-// Register Mailtrap SMTP & HTTP API Email Service
-builder.Services.AddScoped<IEmailService, MailtrapEmailService>();
+// Register Gmail SMTP Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddDbContext<Mycontext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("myconnection")));
